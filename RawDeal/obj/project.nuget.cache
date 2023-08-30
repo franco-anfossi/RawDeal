@@ -1,8 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "5gOPgfDgOUns+9XowsvVVFrsdzQFPwS/gWQdDvIr/OF8+5wLd6H/OQ5RxRFdjBbjEJQiw2Kr4SUUglOXjS5Ngg==",
+  "dgSpecHash": "XarhEdO2m29VapJt+7C0z3TSUvo3vomMZxpDCh6WmRUSPBokesEU7+QIolgeRasL5UqY1vGxgg6p9FJt2dejwQ==",
   "success": true,
-  "projectFilePath": "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDeal/RawDeal.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDeal\\RawDeal.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\franc\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.21\\microsoft.netcore.app.ref.6.0.21.nupkg.sha512",
+    "C:\\Users\\franc\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.21\\microsoft.windowsdesktop.app.ref.6.0.21.nupkg.sha512",
+    "C:\\Users\\franc\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.21\\microsoft.aspnetcore.app.ref.6.0.21.nupkg.sha512",
+    "C:\\Users\\franc\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.21\\microsoft.netcore.app.host.win-x64.6.0.21.nupkg.sha512"
+  ],
   "logs": []
 }

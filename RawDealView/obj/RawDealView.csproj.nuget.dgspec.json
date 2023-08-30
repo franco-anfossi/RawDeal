@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDealView/RawDealView.csproj": {}
+    "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDealView\\RawDealView.csproj": {}
   },
   "projects": {
-    "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDealView/RawDealView.csproj": {
+    "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDealView\\RawDealView.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDealView/RawDealView.csproj",
+        "projectUniqueName": "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDealView\\RawDealView.csproj",
         "projectName": "RawDealView",
-        "projectPath": "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDealView/RawDealView.csproj",
-        "packagesPath": "/home/rodrigo/.nuget/packages/",
-        "outputPath": "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDealView/obj/",
+        "projectPath": "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDealView\\RawDealView.csproj",
+        "packagesPath": "C:\\Users\\franc\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDealView\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/rodrigo/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\franc\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
@@ -43,16 +43,31 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[6.0.21, 6.0.21]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[6.0.21, 6.0.21]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[6.0.21, 6.0.21]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/6.0.120/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }

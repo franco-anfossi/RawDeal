@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "WRiuS6l2DWOpJH6Raxdd1R8uXHOrKqnfRuULsMTjYx180vc9wHVthz7jJVPlJLjLKe/hBAI+Q1JmIEViFY9/Pw==",
+  "dgSpecHash": "fyw2jqbjwMyf5ugT1GzgXay6WVACiH1a1b+z3kiny/HQgYb+CKA7/AWHmI4ooyW3KChygoClEF+v6CpQrtH2ow==",
   "success": true,
-  "projectFilePath": "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDealView/RawDealView.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDealView\\RawDealView.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\franc\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.21\\microsoft.netcore.app.ref.6.0.21.nupkg.sha512",
+    "C:\\Users\\franc\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.21\\microsoft.windowsdesktop.app.ref.6.0.21.nupkg.sha512",
+    "C:\\Users\\franc\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.21\\microsoft.aspnetcore.app.ref.6.0.21.nupkg.sha512"
+  ],
   "logs": []
 }

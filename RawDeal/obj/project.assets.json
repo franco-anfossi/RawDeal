@@ -27,19 +27,19 @@
     ]
   },
   "packageFolders": {
-    "/home/rodrigo/.nuget/packages/": {}
+    "C:\\Users\\franc\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDeal/RawDeal.csproj",
+      "projectUniqueName": "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDeal\\RawDeal.csproj",
       "projectName": "RawDeal",
-      "projectPath": "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDeal/RawDeal.csproj",
-      "packagesPath": "/home/rodrigo/.nuget/packages/",
-      "outputPath": "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDeal/obj/",
+      "projectPath": "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDeal\\RawDeal.csproj",
+      "packagesPath": "C:\\Users\\franc\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDeal\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/rodrigo/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\franc\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
@@ -51,8 +51,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDealView/RawDealView.csproj": {
-              "projectPath": "/home/rodrigo/Desktop/IIC2113/2023-2/Proyecto/Entrega 1/Enunciado/RawDeal/RawDealView/RawDealView.csproj"
+            "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDealView\\RawDealView.csproj": {
+              "projectPath": "C:\\Users\\franc\\OneDrive - Universidad Católica de Chile\\UC\\6° Semestre\\Diseño Detallado de Software\\proyecto\\RawDeal\\RawDealView\\RawDealView.csproj"
             }
           }
         }
@@ -72,16 +72,35 @@
           "net47",
           "net471",
           "net472",
-          "net48"
+          "net48",
+          "net481"
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[6.0.21, 6.0.21]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.win-x64",
+            "version": "[6.0.21, 6.0.21]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[6.0.21, 6.0.21]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Ref",
+            "version": "[6.0.21, 6.0.21]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/6.0.120/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
       }
     }
   }
