@@ -1,0 +1,21 @@
+## Archivos de build de C#
+[Bb]in/
+[Oo]bj/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Archivos y directorios generados por Rider
+.idea/
+*.sln.iml
+
+## Otros archivos y carpetas
+.DS_Store
+*.bak
+*.swp
+*.log
+
+## Archivos de configuración local de ambiente (opcional)
+.env
+.local
