@@ -49,11 +49,13 @@ public class Game
             JugadorInicial(jugadores);
             _view.SayThatATurnBegins(_jugadores[0].MiSuperstar.Name);
             
-            // Hacer compatible con player info...
+            foreach (var jugador in _jugadores)
+                jugador.SacarCartasInicio();
+            
+            _jugadores[0].SacarCarta();
         
             _view.ShowGameInfo(_jugadores[0].DatosJugador, _jugadores[1].DatosJugador);
             _view.AskUserWhatToDoWhenItIsNotPossibleToUseItsAbility();
-            // Mostrar nombre del segundo jugador...
             _view.CongratulateWinner(_jugadores[1].MiSuperstar.Name);
             continuar = false;
         }
@@ -66,10 +68,18 @@ public class Game
             _jugadores.Add(jugadores[0]);
             _jugadores.Add(jugadores[1]);
         }
-        else
+        else if (jugadores[0].MiSuperstar.SuperstarValue < jugadores[1].MiSuperstar.SuperstarValue)
         {
             _jugadores.Add(jugadores[1]);
             _jugadores.Add(jugadores[0]);
-        } 
+        }
+        /*else
+        {
+            Random rnd = new Random();
+            int indice = rnd.Next(2);
+            _jugadores.Add(jugadores[indice]);
+            jugadores.RemoveAt(indice);
+            _jugadores.Add(jugadores[0]);
+        }*/
     }
 }

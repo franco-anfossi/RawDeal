@@ -12,6 +12,11 @@ public class Carta
 
     public override string ToString()
     {
-        return $"{Title}";
+        string text = $"{Title} - ";
+        foreach (var lol in Subtypes)
+        {
+            text += lol + ", ";
+        }
+        return text;
     }
 }

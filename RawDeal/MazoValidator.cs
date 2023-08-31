@@ -21,12 +21,12 @@ public static class MazoValidator
     {
         // En general no puedes tener mas de 3 cartas repetidas.
         // Si una es setup puedes tener infinitas de estas.
-        // Si una carta es unique puedes tener 2 de estas cartas máximo.
+        // Si una carta es unique puedes tener 1 de estas cartas máximo.
         var gruposCartas = mazo.Cartas.GroupBy(carta => carta.Title);
         foreach (var grupo in gruposCartas)
         {
             var cartasIguales = grupo.ToList();
-            int maxPermitido = cartasIguales.Any(c => c.Subtypes.Contains("Unique")) ? 2 : 3;
+            int maxPermitido = cartasIguales.Any(c => c.Subtypes.Contains("Unique")) ? 1 : 3;
             if (cartasIguales.Any(c => c.Subtypes.Contains("SetUp"))) 
             {
                 maxPermitido = 70;
