@@ -2,6 +2,6 @@
 using RawDealView;
 
 View view = View.BuildConsoleView();
-string deckFolder = Path.Combine("data", "01-ValidDecks");
+string deckFolder = Path.Combine("data", "02-InvalidDecks");
 Game game = new Game(view, deckFolder);
 game.Play();
