@@ -30,9 +30,7 @@ public class Jugador
     public void SacarCartasInicio()
     {
         for (int i = 0; i < HandSize; i++)
-        {
             SacarCarta();
-        }
         ActualizarDatos();
     }
 

@@ -8,6 +8,7 @@ public class Game
     private string _deckFolder;
     private ConjuntoCartas _conjuntoCartas;
     private List<Jugador> _jugadores = new();
+    private bool _continuarLoop = true;
     
     public Game(View view, string deckFolder)
     {
@@ -24,29 +25,25 @@ public class Game
 
     public void Play()
     {
-        List<Jugador> jugadores = new List<Jugador>();
-        bool continuar = true;
-        for (int i = 0; i < 2; i++)
+        InicioEleccionMazo();
+        LoopInicialJuego();
+    }
+    // 1 Abstraccion
+    private void InicioEleccionMazo()
+    {
+        for (int jugador = 0; jugador < 2; jugador++)
         {
-            var mazoPath = _view.AskUserToSelectDeck(_deckFolder);
-            var listaMazo = Utils.AbrirMazo(mazoPath);
+            var listaMazo = AperturaDeMazoSegunArchivo();
             Mazo mazo = new Mazo(listaMazo, _conjuntoCartas);
-            if (!MazoValidator.Validate(mazo, _conjuntoCartas))
-            {
-                _view.SayThatDeckIsInvalid();
-                i = 2;
-                continuar = false;
-            }
-            else
-            {
-                mazo.AgregarSuperstar();
-                jugadores.Add(new Jugador(mazo));
-            }
+            jugador = ValidarMazoParaContinuarJuego(mazo, jugador);
         }
-
-        while (continuar)
+    }
+    
+    private void LoopInicialJuego()
+    {
+        while (_continuarLoop)
         {
-            JugadorInicial(jugadores);
+            ElegirJugadorInicial();
             _view.SayThatATurnBegins(_jugadores[0].MiSuperstar.Name);
             
             foreach (var jugador in _jugadores)
@@ -57,29 +54,46 @@ public class Game
             _view.ShowGameInfo(_jugadores[0].DatosJugador, _jugadores[1].DatosJugador);
             _view.AskUserWhatToDoWhenItIsNotPossibleToUseItsAbility();
             _view.CongratulateWinner(_jugadores[1].MiSuperstar.Name);
-            continuar = false;
+            _continuarLoop = false;
         }
     }
-
-    private void JugadorInicial(List<Jugador> jugadores)
+    
+    // 2 Abstraccion
+    private string[] AperturaDeMazoSegunArchivo()
     {
-        if (jugadores[0].MiSuperstar.SuperstarValue >= jugadores[1].MiSuperstar.SuperstarValue)
+        var mazoPath = _view.AskUserToSelectDeck(_deckFolder);
+        var listaMazo = Utils.AbrirMazo(mazoPath);
+        return listaMazo;
+    }
+    private int ValidarMazoParaContinuarJuego(Mazo mazo, int jugador)
+    {
+        if (!MazoValidator.ValidadorDeReglasDeMazo(mazo, _conjuntoCartas))
+            jugador = MazoNoEsValido();
+        else
+            jugador = MazoEsValido(mazo, jugador);
+        return jugador;
+    }
+    private void ElegirJugadorInicial()
+    {
+        if (!(_jugadores[0].MiSuperstar.SuperstarValue >= _jugadores[1].MiSuperstar.SuperstarValue))
         {
-            _jugadores.Add(jugadores[0]);
-            _jugadores.Add(jugadores[1]);
+            Utils.CambiarPosicionesDeLaLista(_jugadores);
         }
-        else if (jugadores[0].MiSuperstar.SuperstarValue < jugadores[1].MiSuperstar.SuperstarValue)
-        {
-            _jugadores.Add(jugadores[1]);
-            _jugadores.Add(jugadores[0]);
-        }
-        /*else
-        {
-            Random rnd = new Random();
-            int indice = rnd.Next(2);
-            _jugadores.Add(jugadores[indice]);
-            jugadores.RemoveAt(indice);
-            _jugadores.Add(jugadores[0]);
-        }*/
+    }
+    
+    // 3 Abstraccion
+    private int MazoEsValido(Mazo mazo, int jugador)
+    {
+        mazo.AgregarSuperstarComoAtributo();
+        _jugadores.Add(new Jugador(mazo));
+        return jugador;
+    }
+
+    private int MazoNoEsValido()
+    {
+        _view.SayThatDeckIsInvalid();
+        _continuarLoop = false;
+        int jugador = 2;
+        return jugador;
     }
 }

@@ -13,27 +13,30 @@ public class Mazo
         Cartas = new List<Carta>();
         _conjunto = conjunto;
 
-        RevisarSuperstar(listaMazo);
-        RevisarCartas(listaMazo);
+        RevisarSiCartaEsSuperstar(listaMazo);
+        AgregarCartaEquivalenteAlMazo(listaMazo);
     }
 
-    public void RevisarSuperstar(string[] listaMazo)
+    public void RevisarSiCartaEsSuperstar(string[] listaMazo)
     {
         foreach (string fila in listaMazo)
         {
             if (fila.Contains(" (Superstar Card)"))
-            {
-                string nombreSuperstar = fila.Replace("(Superstar Card)", "").Trim();
-                foreach (var superstar in _conjunto.Superstars)
-                {
-                    if (superstar.Name == nombreSuperstar)
-                        SuperstarsInicial.Add(superstar);
-                }
-            }
+                AgregarCartaSuperstarEquivalenteAlMazo(fila);
         }
     }
 
-    public void RevisarCartas(string[] listaMazo)
+    private void AgregarCartaSuperstarEquivalenteAlMazo(string fila)
+    {
+        string nombreSuperstar = fila.Replace("(Superstar Card)", "").Trim();
+        foreach (var superstar in _conjunto.Superstars)
+        {
+            if (superstar.Name == nombreSuperstar)
+                SuperstarsInicial.Add(superstar);
+        }
+    }
+
+    public void AgregarCartaEquivalenteAlMazo(string[] listaMazo)
     {
         foreach (var fila in listaMazo)
         foreach (var carta in _conjunto.Cartas)
@@ -43,7 +46,7 @@ public class Mazo
         }
     }
 
-    public void AgregarSuperstar()
+    public void AgregarSuperstarComoAtributo()
     {
         Superstar = SuperstarsInicial[0];
     }

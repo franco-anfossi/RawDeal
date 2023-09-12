@@ -16,7 +16,6 @@ public static class Utils
         return lines;
     }
     
-    // -------------- Codigo obtenido de la clase 7 --------------
     public static void Shuffle<T>(this IList<T>list) 
     {
         var rnd = new Random ();
@@ -28,6 +27,10 @@ public static class Utils
     {
         (list[i], list[j]) = (list[j], list[i]);
     }
-    // ------------------------------------------------------------
+    
+    public static void CambiarPosicionesDeLaLista<T>(List<T> lista)
+    {
+        (lista[0], lista[1]) = (lista[1], lista[0]);
+    }
 
 }
