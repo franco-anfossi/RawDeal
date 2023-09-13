@@ -81,7 +81,7 @@ public class Game
         }
     }
     
-    // 3 Abstraccion
+    // 3 Abstracción
     private int MazoEsValido(Mazo mazo, int jugador)
     {
         mazo.AgregarSuperstarComoAtributo();
