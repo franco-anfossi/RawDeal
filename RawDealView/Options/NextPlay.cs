@@ -1,4 +1,4 @@
-namespace RawDealView;
+namespace RawDealView.Options;
 
 public enum NextPlay
 {

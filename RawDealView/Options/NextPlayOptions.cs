@@ -1,4 +1,4 @@
-namespace RawDealView;
+namespace RawDealView.Options;
 
 static class NextPlayOptions
 {
@@ -12,7 +12,7 @@ static class NextPlayOptions
         => new[] {ShowCards, PlayCard, EndTurn, GiveUp};
 
     public static string[] GetAllPossibleOptions()
-        => new[] {UseAbility, ShowCards, PlayCard, EndTurn, GiveUp};
+        => new[] {ShowCards, PlayCard, UseAbility, EndTurn, GiveUp};
 
     public static NextPlay GetNextPlayFromText(string nextPlay)
     {

@@ -52,7 +52,7 @@ public class Game
             _jugadores[0].SacarCarta();
         
             _view.ShowGameInfo(_jugadores[0].DatosJugador, _jugadores[1].DatosJugador);
-            _view.AskUserWhatToDoWhenItIsNotPossibleToUseItsAbility();
+            _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
             _view.CongratulateWinner(_jugadores[1].MiSuperstar.Name);
             _continuarLoop = false;
         }

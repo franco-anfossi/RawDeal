@@ -6,16 +6,52 @@ using Xunit;
 
 namespace RawDeal.Tests;
 
-public class DeckValidationTests
+public class GameTests
 {
-    [Theory]
-    [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "01-ValidDecks")]
-    public void TestValidDecks(string deckFolder, string testFile)
-        => RunTest(deckFolder, testFile);
 
     [Theory]
     [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "02-InvalidDecks")]
     public void TestInvalidDecks(string deckFolder, string testFile)
+        => RunTest(deckFolder, testFile);
+
+    [Theory]
+    [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "04-NoEffects")]
+    public void TestNoEffectDecks(string deckFolder, string testFile)
+        => RunTest(deckFolder, testFile);
+    
+    [Theory]
+    [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "05-SuperstarAbilities")]
+    public void TestSuperstarAbilities(string deckFolder, string testFile)
+        => RunTest(deckFolder, testFile);
+    
+    [Theory]
+    [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "06-BasicHybridCards")]
+    public void TestBasicHybridCards(string deckFolder, string testFile)
+        => RunTest(deckFolder, testFile);
+    
+    [Theory]
+    [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "07-NoEffectReversals")]
+    public void TestNoEffectReversals(string deckFolder, string testFile)
+        => RunTest(deckFolder, testFile);
+    
+    [Theory]
+    [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "08-Reversals")]
+    public void TestReversals(string deckFolder, string testFile)
+        => RunTest(deckFolder, testFile);
+
+    [Theory]
+    [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "09-EffectsPart1")]
+    public void TestEffectsPart1(string deckFolder, string testFile)
+        => RunTest(deckFolder, testFile);
+
+    [Theory]
+    [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "10-EffectsPart2")]
+    public void TestEffectsPart2(string deckFolder, string testFile)
+        => RunTest(deckFolder, testFile);
+        
+    [Theory]
+    [MemberData(nameof(GetTestsAssociatedWithThisFolder), parameters: "11-ComplexEffects")]
+    public void TestComplexEffects(string deckFolder, string testFile)
         => RunTest(deckFolder, testFile);
 
     public static IEnumerable<object[]> GetTestsAssociatedWithThisFolder(string deckFolder)
@@ -55,7 +91,7 @@ public class DeckValidationTests
         {
             string expected = GetTheItemOrEmptyIfOutOfIndex(i, expectedScript);
             string actual = GetTheItemOrEmptyIfOutOfIndex(i, actualScript);
-            Assert.Equal($"L{i+1}" + expected, $"L{i+1}" + actual);
+            Assert.Equal($"[L{i+1}] " + expected, $"[L{i+1}] " + actual);
         }
     }
 

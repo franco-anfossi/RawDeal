@@ -1,4 +1,4 @@
-namespace RawDealView;
+namespace RawDealView.Views;
 
 class ConsoleView : AbstractView
 {
