@@ -7,7 +7,7 @@ public class Superstar
     public int HandSize { get; set; }
     public int SuperstarValue { get; set; }
     public string SuperstarAbility { get; set; }
-    
+
     public override string ToString()
     {
         return $"{Name}";

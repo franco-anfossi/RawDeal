@@ -8,13 +8,12 @@ public static class MazoValidator
     {
         bool condicionUno = ValidarCantidadDeCartasEnMazo(mazo) && ValidarRepeticionDeCartas(mazo);
         bool condicionDos = ValidarSoloHeelSoloFace(mazo) && ValidarLogoCartasEquivaleLogoSuperstar(mazo, todasCartas);
-        bool condicionTres = ValidarSoloUnSuperstar(mazo);
         return condicionUno && condicionDos;
     }
     
     private static bool ValidarCantidadDeCartasEnMazo(Mazo mazo)
     {
-        return mazo.SuperstarsInicial.Count == 1 && mazo.Cartas.Count == 60;
+        return mazo.Cartas.Count == 60;
     }
 
     private static bool ValidarRepeticionDeCartas(Mazo mazo)
@@ -42,7 +41,7 @@ public static class MazoValidator
 
     private static bool ValidarLogoCartasEquivaleLogoSuperstar(Mazo mazo, ConjuntoCartas todasCartas)
     {
-        var superstarLogo = mazo.SuperstarsInicial[0].Logo;
+        var superstarLogo = mazo.Superstar.Logo;
         foreach (var superstar in todasCartas.Superstars)
         {
             if (superstar.Logo != superstarLogo)
@@ -51,13 +50,6 @@ public static class MazoValidator
         
         return true;
     }
-
-    private static bool ValidarSoloUnSuperstar(Mazo mazo)
-    {
-        if (mazo.SuperstarsInicial.Count != 1)
-            return false;
-        return true;
-    } 
     private static int ValidarRepeticionUnique(List<Carta> cartasIguales, int maxPermitido)
     {
         if (cartasIguales.Any(c => c.Subtypes.Contains("Unique"))) 

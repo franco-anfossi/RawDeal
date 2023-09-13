@@ -2,14 +2,12 @@ namespace RawDeal;
 
 public class Mazo
 {
-    public List<Superstar> SuperstarsInicial { get; }
     public Superstar Superstar { get; private set; }
     public List<Carta> Cartas { get; }
     private ConjuntoCartas _conjunto;
 
     public Mazo(string[] listaMazo, ConjuntoCartas conjunto)
     {
-        SuperstarsInicial = new List<Superstar>();
         Cartas = new List<Carta>();
         _conjunto = conjunto;
 
@@ -32,7 +30,7 @@ public class Mazo
         foreach (var superstar in _conjunto.Superstars)
         {
             if (superstar.Name == nombreSuperstar)
-                SuperstarsInicial.Add(superstar);
+                Superstar = superstar;
         }
     }
 
@@ -44,10 +42,5 @@ public class Mazo
             if (fila.Trim() == carta.Title)
                 Cartas.Add(carta);
         }
-    }
-
-    public void AgregarSuperstarComoAtributo()
-    {
-        Superstar = SuperstarsInicial[0];
     }
 }
