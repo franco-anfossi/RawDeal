@@ -1,15 +1,19 @@
 namespace RawDeal;
 
-public class Superstar
+public abstract class Superstar
 {
-    public string Name { get; set; }
-    public string Logo { get; set; }
-    public int HandSize { get; set; }
-    public int SuperstarValue { get; set; }
-    public string SuperstarAbility { get; set; }
-
+    public string Name { get; private set; }
+    public string Logo { get; private set; }
+    public int HandSize { get; private set; }
+    public int SuperstarValue { get; private set; }
+    public string SuperstarAbility { get; private set; }
+    
     public override string ToString()
     {
         return $"{Name}";
+    }
+    public virtual void HabilidadEspecial()
+    {
+        Console.WriteLine("Habilidad Especial");
     }
 }
