@@ -13,12 +13,12 @@ public static class MazoValidator
     
     private static bool ValidarCantidadDeCartasEnMazo(Mazo mazo)
     {
-        return mazo.Cartas.Count == 60;
+        return mazo.CartasDelMazo.Count == 60;
     }
 
     private static bool ValidarRepeticionDeCartas(Mazo mazo)
     {
-        var gruposCartas = mazo.Cartas.GroupBy(carta => carta.Title);
+        var gruposCartas = mazo.CartasDelMazo.GroupBy(carta => carta.Title);
         foreach (var grupo in gruposCartas)
         {
             int maxPermitido = 3;
@@ -34,18 +34,18 @@ public static class MazoValidator
     
     private static bool ValidarSoloHeelSoloFace(Mazo mazo)
     {
-        bool existeHeel = mazo.Cartas.Any(c => c.Subtypes.Contains("Heel"));
-        bool existeFace = mazo.Cartas.Any(c => c.Subtypes.Contains("Face"));
+        bool existeHeel = mazo.CartasDelMazo.Any(c => c.Subtypes.Contains("Heel"));
+        bool existeFace = mazo.CartasDelMazo.Any(c => c.Subtypes.Contains("Face"));
         return !(existeHeel && existeFace);
     }
 
     private static bool ValidarLogoCartasEquivaleLogoSuperstar(Mazo mazo, ConjuntoCartas todasCartas)
     {
-        var superstarLogo = mazo.Superstar.Logo;
-        foreach (var superstar in todasCartas.Superstars)
+        var superstarLogo = mazo.SuperstarDelMazo.Logo;
+        foreach (var superstar in todasCartas.SuperstarsPosibles)
         {
             if (superstar.Logo != superstarLogo)
-                if (mazo.Cartas.Any(c => c.Subtypes.Contains(superstar.Logo))) { return false; }
+                if (mazo.CartasDelMazo.Any(c => c.Subtypes.Contains(superstar.Logo))) { return false; }
         }
         
         return true;

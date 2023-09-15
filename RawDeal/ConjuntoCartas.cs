@@ -2,13 +2,14 @@ namespace RawDeal;
 
 public class ConjuntoCartas
 {
-    public List<Carta> Cartas { get; }
-    public List<Superstar> Superstars { get; }
+    public List<Carta> CartasPosibles { get; private set; }
+
+    public List<Superstar> SuperstarsPosibles { get; private set; }
 
     public ConjuntoCartas(List<Carta> cartas, List<Superstar> superstars)
     {
-        Cartas = cartas;
-        Superstars = superstars;
+        CartasPosibles = cartas;
+        SuperstarsPosibles = superstars;
     }
 }
 

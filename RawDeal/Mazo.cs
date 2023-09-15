@@ -2,14 +2,19 @@ namespace RawDeal;
 
 public class Mazo
 {
-    public Superstar Superstar { get; private set; }
-    public List<Carta> Cartas { get; }
-    private ConjuntoCartas _conjunto;
+    private Superstar _superstarDelMazo;
+    private List<Carta> _cartasDelMazo;
+    private ConjuntoCartas _conjuntoCartas;
+    
+    public Superstar SuperstarDelMazo => _superstarDelMazo;
+    public List<Carta> CartasDelMazo => _cartasDelMazo;
+    
+    
 
     public Mazo(string[] listaMazo, ConjuntoCartas conjunto)
     {
-        Cartas = new List<Carta>();
-        _conjunto = conjunto;
+        _cartasDelMazo = new List<Carta>();
+        _conjuntoCartas = conjunto;
 
         RevisarSiCartaEsSuperstar(listaMazo);
         AgregarCartaEquivalenteAlMazo(listaMazo);
@@ -27,20 +32,20 @@ public class Mazo
     private void AgregarCartaSuperstarEquivalenteAlMazo(string fila)
     {
         string nombreSuperstar = fila.Replace("(Superstar Card)", "").Trim();
-        foreach (var superstar in _conjunto.Superstars)
+        foreach (var superstar in _conjuntoCartas.SuperstarsPosibles)
         {
             if (superstar.Name == nombreSuperstar)
-                Superstar = superstar;
+                _superstarDelMazo = superstar;
         }
     }
 
     public void AgregarCartaEquivalenteAlMazo(string[] listaMazo)
     {
         foreach (var fila in listaMazo)
-        foreach (var carta in _conjunto.Cartas)
+        foreach (var carta in _conjuntoCartas.CartasPosibles)
         {
             if (fila.Trim() == carta.Title)
-                Cartas.Add(carta);
+                _cartasDelMazo.Add(carta);
         }
     }
 }
