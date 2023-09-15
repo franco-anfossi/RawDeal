@@ -7,16 +7,19 @@ public class Game
     private View _view;
     private string _deckFolder;
     private ConjuntoCartas _conjuntoCartas;
-    private List<Jugador> _jugadores = new();
+    private List<Superstar> _jugadores = new();
     private bool _continuarLoop = true;
     
     public Game(View view, string deckFolder)
     {
         string archivoCartas = Path.Combine("data", "cards.json");
         string archivoSuperstars = Path.Combine("data", "superstar.json");
-
-        var superstarList = Utils.AbrirArchivo<Superstar>(archivoSuperstars);
-        var cardsList = Utils.AbrirArchivo<Carta>(archivoCartas);
+        
+        Utils.AbrirArchivo(archivoSuperstars);
+        var superstarList = Utils.DeserializacionSuperstar();
+        
+        Utils.AbrirArchivo(archivoCartas);
+        var cardsList = Utils.DeserializacionCartas();
 
         _conjuntoCartas = new ConjuntoCartas(cardsList, superstarList);
         _view = view;
@@ -26,6 +29,7 @@ public class Game
     public void Play()
     {
         InicioEleccionMazo();
+        ElegirJugadorInicial();
         LoopInicialJuego();
     }
     // 1 Abstraccion
@@ -43,17 +47,16 @@ public class Game
     {
         while (_continuarLoop)
         {
-            ElegirJugadorInicial();
-            _view.SayThatATurnBegins(_jugadores[0].MiSuperstar.Name);
+            _view.SayThatATurnBegins(_jugadores[0].Name);
             
             foreach (var jugador in _jugadores)
-                jugador.SacarCartasInicio();
+                jugador.SacarCartasAlInicio();
             
             _jugadores[0].SacarCarta();
         
             _view.ShowGameInfo(_jugadores[0].DatosJugador, _jugadores[1].DatosJugador);
             _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
-            _view.CongratulateWinner(_jugadores[1].MiSuperstar.Name);
+            _view.CongratulateWinner(_jugadores[1].Name);
             _continuarLoop = false;
         }
     }
@@ -75,7 +78,7 @@ public class Game
     }
     private void ElegirJugadorInicial()
     {
-        if (!(_jugadores[0].MiSuperstar.SuperstarValue >= _jugadores[1].MiSuperstar.SuperstarValue))
+        if (!(_jugadores[0].SuperstarValue >= _jugadores[1].SuperstarValue))
         {
             Utils.CambiarPosicionesDeLaLista(_jugadores);
         }
@@ -84,7 +87,7 @@ public class Game
     // 3 Abstracción
     private int MazoEsValido(Mazo mazo, int jugador)
     {
-        _jugadores.Add(new Jugador(mazo));
+        _jugadores.Add(mazo.SuperstarDelMazo);
         return jugador;
     }
 

@@ -1,45 +1,37 @@
+using RawDeal.Habilidades_Superstars;
+
 namespace RawDeal;
 
 public class Mazo
 {
-    private Superstar _superstarDelMazo;
+    private Superstar _superstarDuenoDelMazo;
     private List<Carta> _cartasDelMazo;
     private ConjuntoCartas _conjuntoCartas;
     
-    public Superstar SuperstarDelMazo => _superstarDelMazo;
+    public Superstar SuperstarDelMazo => _superstarDuenoDelMazo;
     public List<Carta> CartasDelMazo => _cartasDelMazo;
     
-    
-
     public Mazo(string[] listaMazo, ConjuntoCartas conjunto)
     {
         _cartasDelMazo = new List<Carta>();
         _conjuntoCartas = conjunto;
 
-        RevisarSiCartaEsSuperstar(listaMazo);
+        AgregarSuperstarEquivalenteAlMazo(listaMazo);
         AgregarCartaEquivalenteAlMazo(listaMazo);
+        SetMazoParaElSuperstarDueno();
     }
 
-    public void RevisarSiCartaEsSuperstar(string[] listaMazo)
+    private void AgregarSuperstarEquivalenteAlMazo(string[] listaMazo)
     {
-        foreach (string fila in listaMazo)
-        {
-            if (fila.Contains(" (Superstar Card)"))
-                AgregarCartaSuperstarEquivalenteAlMazo(fila);
-        }
-    }
-
-    private void AgregarCartaSuperstarEquivalenteAlMazo(string fila)
-    {
-        string nombreSuperstar = fila.Replace("(Superstar Card)", "").Trim();
+        string nombreSuperstar = listaMazo[0].Replace("(Superstar Card)", "").Trim();
         foreach (var superstar in _conjuntoCartas.SuperstarsPosibles)
         {
             if (superstar.Name == nombreSuperstar)
-                _superstarDelMazo = superstar;
+                _superstarDuenoDelMazo = superstar;
         }
     }
 
-    public void AgregarCartaEquivalenteAlMazo(string[] listaMazo)
+    private void AgregarCartaEquivalenteAlMazo(string[] listaMazo)
     {
         foreach (var fila in listaMazo)
         foreach (var carta in _conjuntoCartas.CartasPosibles)
@@ -48,4 +40,11 @@ public class Mazo
                 _cartasDelMazo.Add(carta);
         }
     }
+
+    private void SetMazoParaElSuperstarDueno()
+    {
+        _superstarDuenoDelMazo.IngresarMazo(_cartasDelMazo);
+    }
+    
+    
 }
