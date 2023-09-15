@@ -7,14 +7,14 @@ public class Jugador
     public Mazo MiMazo { get; }
     public Superstar MiSuperstar { get; }
     public PlayerInfo DatosJugador { get; private set; }
-
+    
+    private List<Carta> _hand = new();
+    private List<Carta> _ringside = new();
     private List<Carta> _arsenal;
     private int _fortitude = 0;
     private string _name;
     private int _handSize;
-    private List<Carta> _hand = new();
-    private List<Carta> _ringside = new();
-
+    
     public Jugador(Mazo mazo)
     {
         MiMazo = mazo;
