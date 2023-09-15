@@ -23,7 +23,7 @@ public class Jugador
         _name = MiSuperstar.Name;
         _handSize = MiSuperstar.HandSize;
         
-        _arsenal.Shuffle();
+        // _arsenal.Shuffle();
         ActualizarDatos();
     }
 
