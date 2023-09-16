@@ -1,6 +1,8 @@
+using RawDealView.Formatters;
+
 namespace RawDeal;
 
-public class Carta
+public class Carta : IViewableCardInfo
 {
     public string Title { get; set; }
     public List<string> Types { get; set; }

@@ -1,7 +1,5 @@
 namespace RawDeal;
 
-using System.Linq;
-
 public static class MazoValidator
 {
     public static bool ValidadorDeReglasDeMazo(Mazo mazo, ConjuntoCartas todasCartas)

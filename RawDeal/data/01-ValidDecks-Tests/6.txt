@@ -20,7 +20,6 @@ Elige un mazo
 7- data/01-ValidDecks/07.txt
 (Ingresa un número entre 1 y 7)
 INPUT: 6
-
 --------------------------------------------
 Comienza el turno de STONE COLD STEVE AUSTIN.
 --------------------------------------------

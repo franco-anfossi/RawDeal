@@ -1,5 +1,3 @@
-using RawDeal.Habilidades_Superstars;
-
 namespace RawDeal;
 
 public class Mazo
@@ -27,7 +25,7 @@ public class Mazo
         foreach (var superstar in _conjuntoCartas.SuperstarsPosibles)
         {
             if (superstar.Name == nombreSuperstar)
-                _superstarDuenoDelMazo = superstar;
+                _superstarDuenoDelMazo = (Superstar)superstar.Clonar();
         }
     }
 
@@ -43,7 +41,7 @@ public class Mazo
 
     private void SetMazoParaElSuperstarDueno()
     {
-        _superstarDuenoDelMazo.IngresarMazo(_cartasDelMazo);
+        _superstarDuenoDelMazo.InicializacionDeAtributos(_cartasDelMazo);
     }
     
     

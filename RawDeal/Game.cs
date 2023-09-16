@@ -1,4 +1,7 @@
 using RawDealView;
+using RawDealView.Formatters;
+using RawDealView.Options;
+
 
 namespace RawDeal;
 
@@ -29,7 +32,8 @@ public class Game
     public void Play()
     {
         InicioEleccionMazo();
-        ElegirJugadorInicial();
+        if (_continuarLoop)
+            ElegirJugadorInicial();
         LoopInicialJuego();
     }
     // 1 Abstraccion
@@ -50,12 +54,30 @@ public class Game
             _view.SayThatATurnBegins(_jugadores[0].Name);
             
             foreach (var jugador in _jugadores)
+            {
                 jugador.SacarCartasAlInicio();
+            }
             
             _jugadores[0].SacarCarta();
-        
+            
             _view.ShowGameInfo(_jugadores[0].DatosJugador, _jugadores[1].DatosJugador);
-            _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+            var eleccionUno = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+            if (eleccionUno == NextPlay.ShowCards)
+            {
+                var eleccionDos = _view.AskUserWhatSetOfCardsHeWantsToSee();
+                if (eleccionDos == CardSet.Hand)
+                {
+                    List<string> datosDeLasCartas = new List<string>();
+                    foreach (var carta in _jugadores[0].Hand)
+                    {
+                        string cartaFormateada = Formatter.CardToString(carta);
+                        datosDeLasCartas.Add(cartaFormateada);
+                    }
+                    
+                    _view.ShowCards(datosDeLasCartas);  
+                }
+            }
+            
             _view.CongratulateWinner(_jugadores[1].Name);
             _continuarLoop = false;
         }
