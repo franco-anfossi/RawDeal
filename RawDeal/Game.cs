@@ -76,8 +76,9 @@ public class Game
                 }
                 else if (eleccionUno == NextPlay.PlayCard)
                 {
+                    Superstar jugadorOponente = _jugadores[_numJugadorOponente];
                     Superstar jugadorEnJuego = _jugadores[_numJugadorEnJuego];
-                    EleccionesJugarCarta.CrearJugadas(jugadorEnJuego);
+                    EleccionesJugarCarta.CrearJugadas(jugadorEnJuego, jugadorOponente);
                     EleccionesJugarCarta.FormatearJugada();
                     EleccionesJugarCarta.ComenzarProcesoDeElecciones(_view);
                     /*

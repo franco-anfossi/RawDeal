@@ -9,7 +9,7 @@ public static class EleccionesVerCartas
     private static int _jugadorEnJuego;
     private static int _jugadorOponente;
     private static View _view;
-    private static Dictionary<int, List<List<Carta>>> _mazosBrutosJugadores = new();
+    private static Dictionary<int, List<List<IViewableCardInfo>>> _mazosBrutosJugadores = new();
     private static Dictionary<int, List<List<string>>> _mazosFormateadosJugadores = new();
     
     
@@ -18,11 +18,11 @@ public static class EleccionesVerCartas
     {
         for (int numJugador = 0; numJugador < jugadores.Count; numJugador++)
         {
-            List<Carta> manoJugador = jugadores[numJugador].Hand;
-            List<Carta> ringsideJugador = jugadores[numJugador].Ringside;
-            List<Carta> ringAreaJugador = jugadores[numJugador].RingArea;
+            List<IViewableCardInfo> manoJugador = jugadores[numJugador].Hand;
+            List<IViewableCardInfo> ringsideJugador = jugadores[numJugador].Ringside;
+            List<IViewableCardInfo> ringAreaJugador = jugadores[numJugador].RingArea;
 
-            List<List<Carta>> mazosUnJugador = new List<List<Carta>>();
+            List<List<IViewableCardInfo>> mazosUnJugador = new List<List<IViewableCardInfo>>();
             mazosUnJugador.Add(manoJugador);
             mazosUnJugador.Add(ringsideJugador);
             mazosUnJugador.Add(ringAreaJugador);

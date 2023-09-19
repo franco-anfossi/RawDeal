@@ -1,17 +1,19 @@
+using RawDealView.Formatters;
+
 namespace RawDeal;
 
 public class Mazo
 {
     private Superstar _superstarDuenoDelMazo;
-    private List<Carta> _cartasDelMazo;
+    private List<IViewableCardInfo> _cartasDelMazo;
     private ConjuntoCartas _conjuntoCartas;
     
     public Superstar SuperstarDelMazo => _superstarDuenoDelMazo;
-    public List<Carta> CartasDelMazo => _cartasDelMazo;
+    public List<IViewableCardInfo> CartasDelMazo => _cartasDelMazo;
     
     public Mazo(string[] listaMazo, ConjuntoCartas conjunto)
     {
-        _cartasDelMazo = new List<Carta>();
+        _cartasDelMazo = new List<IViewableCardInfo>();
         _conjuntoCartas = conjunto;
 
         AgregarSuperstarEquivalenteAlMazo(listaMazo);

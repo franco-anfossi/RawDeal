@@ -1,3 +1,5 @@
+using RawDealView.Formatters;
+
 namespace RawDeal;
 
 public static class MazoValidator
@@ -48,14 +50,14 @@ public static class MazoValidator
         
         return true;
     }
-    private static int ValidarRepeticionUnique(List<Carta> cartasIguales, int maxPermitido)
+    private static int ValidarRepeticionUnique(List<IViewableCardInfo> cartasIguales, int maxPermitido)
     {
         if (cartasIguales.Any(c => c.Subtypes.Contains("Unique"))) 
             maxPermitido = 1;
         return maxPermitido;
     }
 
-    private static int ValidarRepeticionSetUp(List<Carta> cartasIguales, int maxPermitido)
+    private static int ValidarRepeticionSetUp(List<IViewableCardInfo> cartasIguales, int maxPermitido)
     {
         if (cartasIguales.Any(c => c.Subtypes.Contains("SetUp"))) 
             maxPermitido = 70;

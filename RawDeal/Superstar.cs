@@ -1,4 +1,5 @@
 using RawDealView;
+using RawDealView.Formatters;
 
 namespace RawDeal;
 
@@ -10,18 +11,18 @@ public abstract class Superstar : IJugador
     public int SuperstarValue { get; set; }
     public string SuperstarAbility { get; set; }
 
-    public List<Carta> Arsenal { get; private set; }
+    public List<IViewableCardInfo> Arsenal { get; private set; }
     public PlayerInfo DatosJugador { get; private set; }
 
-    public List<Carta> Hand { get; private set; }
-    public List<Carta> Ringside { get; private set; }
-    public List<Carta> RingArea { get; private set; }
+    public List<IViewableCardInfo> Hand { get; private set; }
+    public List<IViewableCardInfo> Ringside { get; private set; }
+    public List<IViewableCardInfo> RingArea { get; private set; }
     private int _fortitude;
     public abstract void HabilidadEspecial();
 
-    public List<Carta> RevisarCartasJugables()
+    public List<IViewableCardInfo> RevisarCartasJugables()
     {
-        List<Carta> cartasJugables = new();
+        List<IViewableCardInfo> cartasJugables = new();
         foreach (var carta in Hand)
         {
             int intFortitude = Convert.ToInt32(carta.Fortitude);
@@ -39,12 +40,12 @@ public abstract class Superstar : IJugador
         return $"{Name}";
     }
 
-    public void InicializacionDeAtributos(List<Carta> mazo)
+    public void InicializacionDeAtributos(List<IViewableCardInfo> mazo)
     {
         Arsenal = mazo;
-        Hand = new List<Carta>();
-        Ringside = new List<Carta>();
-        RingArea = new List<Carta>();
+        Hand = new List<IViewableCardInfo>();
+        Ringside = new List<IViewableCardInfo>();
+        RingArea = new List<IViewableCardInfo>();
         _fortitude = 0;
     }
 
@@ -75,6 +76,29 @@ public abstract class Superstar : IJugador
     public void ActualizarDatos()
     {
         DatosJugador = new PlayerInfo(Name, _fortitude, Hand.Count, Arsenal.Count);
+    }
+
+    public void AgregarFortitudeSegunDano(int dano)
+    {
+        _fortitude += dano;
+        ActualizarDatos();
+    }
+
+    public IViewableCardInfo PasarCartasDeArsenalARingside()
+    {
+        int largoArsenal = Arsenal.Count;
+        IViewableCardInfo cartaExtraida = Arsenal[largoArsenal - 1];
+        Arsenal.RemoveAt(largoArsenal - 1);
+        Ringside.Add(cartaExtraida);
+        ActualizarDatos();
+        return cartaExtraida;
+    }
+
+    public void PasarCartaDeManoARingArea(IViewableCardInfo cartaSeleccionada)
+    {
+        Hand.Remove(cartaSeleccionada);
+        RingArea.Add(cartaSeleccionada);
+        ActualizarDatos();
     }
 }
     

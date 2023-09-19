@@ -1,8 +1,10 @@
+using RawDealView.Formatters;
+
 namespace RawDeal;
 
 public interface IJugador
 {
-    void InicializacionDeAtributos(List<Carta> mazo);
+    void InicializacionDeAtributos(List<IViewableCardInfo> mazo);
     void SacarCartasAlInicio();
     void SacarCarta();
     void ActualizarDatos();
