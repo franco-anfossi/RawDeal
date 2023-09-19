@@ -12,6 +12,11 @@ public class Carta : IViewableCardInfo
     public string StunValue { get; set; }
     public string CardEffect { get; set; }
 
+    public object Clonar()
+    {
+        return MemberwiseClone();
+    }
+    
     public override string ToString()
     {
         return $"{Title}";

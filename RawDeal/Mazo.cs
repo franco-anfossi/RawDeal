@@ -35,7 +35,10 @@ public class Mazo
         foreach (var carta in _conjuntoCartas.CartasPosibles)
         {
             if (fila.Trim() == carta.Title)
-                _cartasDelMazo.Add(carta);
+            {
+                Carta copiaCarta = (Carta)carta.Clonar();
+                _cartasDelMazo.Add(copiaCarta);
+            }
         }
     }
 

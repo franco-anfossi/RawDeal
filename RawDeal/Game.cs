@@ -1,5 +1,4 @@
 using RawDealView;
-using RawDealView.Formatters;
 using RawDealView.Options;
 
 
@@ -11,7 +10,10 @@ public class Game
     private string _deckFolder;
     private ConjuntoCartas _conjuntoCartas;
     private List<Superstar> _jugadores = new();
-    private bool _continuarLoop = true;
+    private bool _continuarLoopPrincipal = true;
+    private bool _continuarLoopElecciones = true;
+    private int _numJugadorEnJuego = 0;
+    private int _numJugadorOponente = 1;
     
     public Game(View view, string deckFolder)
     {
@@ -32,8 +34,11 @@ public class Game
     public void Play()
     {
         InicioEleccionMazo();
-        if (_continuarLoop)
+        if (_continuarLoopPrincipal)
+        {
             ElegirJugadorInicial();
+            ExtraerCartasInciales();
+        }
         LoopInicialJuego();
     }
     // 1 Abstraccion
@@ -46,44 +51,76 @@ public class Game
             jugador = ValidarMazoParaContinuarJuego(mazo, jugador);
         }
     }
-    
+
     private void LoopInicialJuego()
     {
-        while (_continuarLoop)
+        while (_continuarLoopPrincipal && _numJugadorEnJuego < 2)
         {
-            _view.SayThatATurnBegins(_jugadores[0].Name);
-            
-            foreach (var jugador in _jugadores)
+            _continuarLoopElecciones = true;
+            _view.SayThatATurnBegins(_jugadores[_numJugadorEnJuego].Name);
+
+            _jugadores[_numJugadorEnJuego].SacarCarta();
+
+            while (_continuarLoopElecciones)
             {
-                jugador.SacarCartasAlInicio();
-            }
-            
-            _jugadores[0].SacarCarta();
-            
-            _view.ShowGameInfo(_jugadores[0].DatosJugador, _jugadores[1].DatosJugador);
-            var eleccionUno = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
-            if (eleccionUno == NextPlay.ShowCards)
-            {
-                var eleccionDos = _view.AskUserWhatSetOfCardsHeWantsToSee();
-                if (eleccionDos == CardSet.Hand)
+                _view.ShowGameInfo(_jugadores[_numJugadorEnJuego].DatosJugador,
+                    _jugadores[_numJugadorOponente].DatosJugador);
+                EleccionesVerCartas.GetMazosUsuarios(_jugadores);
+                EleccionesVerCartas.GetAtributoView(_view);
+                EleccionesVerCartas.GetNumJugadorEnJuego(_numJugadorEnJuego);
+
+                var eleccionUno = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+                if (eleccionUno == NextPlay.ShowCards)
                 {
-                    List<string> datosDeLasCartas = new List<string>();
-                    foreach (var carta in _jugadores[0].Hand)
-                    {
-                        string cartaFormateada = Formatter.CardToString(carta);
-                        datosDeLasCartas.Add(cartaFormateada);
-                    }
-                    
-                    _view.ShowCards(datosDeLasCartas);  
+                    EleccionesVerCartas.EleccionQueCartasVer();
+                }
+                else if (eleccionUno == NextPlay.PlayCard)
+                {
+                    Superstar jugadorEnJuego = _jugadores[_numJugadorEnJuego];
+                    EleccionesJugarCarta.CrearJugadas(jugadorEnJuego);
+                    EleccionesJugarCarta.FormatearJugada();
+                    EleccionesJugarCarta.ComenzarProcesoDeElecciones(_view);
+                    /*
+                    _view.AskUserToSelectAPlay();
+                    _view.SayThatPlayerIsTryingToPlayThisCard();
+                    _view.SayThatPlayerSuccessfullyPlayedACard();
+                    _view.SayThatSuperstarWillTakeSomeDamage();
+                    _view.ShowCardOverturnByTakingDamage();
+                    */
+                }
+                else if (eleccionUno == NextPlay.EndTurn)
+                {
+                    CambiarJugadores();
+                    RevisarJugadores();
+                    _continuarLoopElecciones = false;
+                }
+                else if (eleccionUno == NextPlay.GiveUp)
+                {
+                    _view.CongratulateWinner(_jugadores[_numJugadorOponente].Name);
+                    _continuarLoopPrincipal = false;
+                    _continuarLoopElecciones = false;
                 }
             }
-            
-            _view.CongratulateWinner(_jugadores[1].Name);
-            _continuarLoop = false;
         }
+    }
+
+    private void ExtraerCartasInciales()
+    {
+        foreach (var jugador in _jugadores)
+            jugador.SacarCartasAlInicio();
     }
     
     // 2 Abstraccion
+    private void CambiarJugadores()
+    {
+        if (_numJugadorEnJuego == 0) { _numJugadorEnJuego = 1; }
+        else { _numJugadorEnJuego = 0; }
+    }
+    private void RevisarJugadores()
+    {
+        if (_numJugadorEnJuego == 0) { _numJugadorOponente = 1; }
+        else { _numJugadorOponente = 0; }
+    }
     private string[] AperturaDeMazoSegunArchivo()
     {
         var mazoPath = _view.AskUserToSelectDeck(_deckFolder);
@@ -116,7 +153,7 @@ public class Game
     private int MazoNoEsValido()
     {
         _view.SayThatDeckIsInvalid();
-        _continuarLoop = false;
+        _continuarLoopPrincipal = false;
         int jugador = 2;
         return jugador;
     }

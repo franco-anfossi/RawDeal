@@ -19,6 +19,21 @@ public abstract class Superstar : IJugador
     private int _fortitude;
     public abstract void HabilidadEspecial();
 
+    public List<Carta> RevisarCartasJugables()
+    {
+        List<Carta> cartasJugables = new();
+        foreach (var carta in Hand)
+        {
+            int intFortitude = Convert.ToInt32(carta.Fortitude);
+            if (intFortitude <= _fortitude)
+            {
+                cartasJugables.Add(carta);
+            }
+        }
+
+        return cartasJugables;
+    }
+
     public override string ToString()
     {
         return $"{Name}";
@@ -29,6 +44,7 @@ public abstract class Superstar : IJugador
         Arsenal = mazo;
         Hand = new List<Carta>();
         Ringside = new List<Carta>();
+        RingArea = new List<Carta>();
         _fortitude = 0;
     }
 
