@@ -63,15 +63,15 @@ public class Game
 
             while (_continuarLoopElecciones)
             {
-                _view.ShowGameInfo(_jugadores[_numJugadorEnJuego].DatosJugador,
-                    _jugadores[_numJugadorOponente].DatosJugador);
-                EleccionesVerCartas.GetMazosUsuarios(_jugadores);
-                EleccionesVerCartas.GetAtributoView(_view);
-                EleccionesVerCartas.GetNumJugadorEnJuego(_numJugadorEnJuego);
+                _view.ShowGameInfo(_jugadores[_numJugadorEnJuego].DatosJugador, _jugadores[_numJugadorOponente].DatosJugador);
+                
 
                 var eleccionUno = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
                 if (eleccionUno == NextPlay.ShowCards)
                 {
+                    EleccionesVerCartas.GetMazosUsuarios(_jugadores); 
+                    EleccionesVerCartas.GetAtributoView(_view);
+                    EleccionesVerCartas.GetNumJugadorEnJuego(_numJugadorEnJuego);
                     EleccionesVerCartas.EleccionQueCartasVer();
                 }
                 else if (eleccionUno == NextPlay.PlayCard)

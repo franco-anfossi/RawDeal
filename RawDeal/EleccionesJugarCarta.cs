@@ -42,7 +42,7 @@ public static class EleccionesJugarCarta
     {
         _view = view;
         int numeroJugadaSeleccionada = _view.AskUserToSelectAPlay(_jugadasPosiblesFormateadas);
-        if (_jugadasPosiblesFormateadas.Count != 0)
+        if (_jugadasPosiblesFormateadas.Count >= 0 && numeroJugadaSeleccionada != -1)
         {
             PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea(numeroJugadaSeleccionada);
             UsuarioIntentaJugarCarta();
