@@ -1,9 +1,13 @@
+using RawDealView;
+
 namespace RawDeal.Habilidades_Superstars;
 
 public class HHH : Superstar
 {
-    public override void HabilidadEspecial()
+    public new bool NoPuedeElegirUsarSuHabilidad = true;
+    
+    public override bool HabilidadEspecial(View view, Superstar oponente)
     {
-        throw new InvalidOperationException(SuperstarAbility);
+        return true;
     }
 }

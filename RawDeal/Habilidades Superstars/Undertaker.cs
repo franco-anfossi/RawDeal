@@ -1,9 +1,15 @@
+using RawDealView;
+using RawDealView.Formatters;
+
 namespace RawDeal.Habilidades_Superstars;
 
 public class Undertaker : Superstar
 {
-    public override void HabilidadEspecial()
+    public bool NoPuedeElegirUsarSuHabilidad = false;
+    public override bool HabilidadEspecial(View view, Superstar oponente)
     {
-        Console.WriteLine("Habilidad Especial");
+        _view.SayThatPlayerIsGoingToUseHisAbility(Name, SuperstarAbility);
+        // int indexCartaElegida = _view.AskPlayerToSelectACardToDiscard()
+        return false;
     }
 }

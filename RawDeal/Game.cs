@@ -59,14 +59,25 @@ public class Game
             _continuarLoopElecciones = true;
             _view.SayThatATurnBegins(_jugadores[_numJugadorEnJuego].Name);
 
-            _jugadores[_numJugadorEnJuego].SacarCarta();
-
+            bool seSacaCarta = true;
+            if (_jugadores[_numJugadorEnJuego].NoPuedeElegirUsarSuHabilidad)
+            {
+                seSacaCarta = _jugadores[_numJugadorEnJuego].HabilidadEspecial(_view, _jugadores[_numJugadorOponente]);
+            }
+            
+            if (seSacaCarta) { _jugadores[_numJugadorEnJuego].SacarCarta(); }
+            
             while (_continuarLoopElecciones)
             {
                 _view.ShowGameInfo(_jugadores[_numJugadorEnJuego].DatosJugador, _jugadores[_numJugadorOponente].DatosJugador);
                 
-
-                var eleccionUno = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+                NextPlay eleccionUno;
+                Console.WriteLine(_jugadores[_numJugadorEnJuego].NoPuedeElegirUsarSuHabilidad);
+                if (_jugadores[_numJugadorEnJuego].NoPuedeElegirUsarSuHabilidad)
+                    eleccionUno = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+                else
+                    eleccionUno = _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible();
+                
                 if (eleccionUno == NextPlay.ShowCards)
                 {
                     EleccionesVerCartas eleccionesParaVerCartas = new EleccionesVerCartas(_jugadores, _numJugadorEnJuego, _view);
@@ -86,7 +97,7 @@ public class Game
                 }
                 else if (eleccionUno == NextPlay.UseAbility)
                 {
-                    
+                    _jugadores[_numJugadorEnJuego].HabilidadEspecial(_view, _jugadores[_numJugadorOponente]);
                 }
                 else if (eleccionUno == NextPlay.EndTurn)
                 {

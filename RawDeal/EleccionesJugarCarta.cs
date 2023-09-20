@@ -90,7 +90,7 @@ public class EleccionesJugarCarta
         {
             if (_jugadorOponente.Arsenal.Count != 0)
             {
-                IViewableCardInfo cartaExtraida = _jugadorOponente.PasarCartasDeArsenalARingside();
+                IViewableCardInfo cartaExtraida = _jugadorOponente.PasarCartaDeArsenalARingside();
                 string cartaExtraidaFormateada = Formatter.CardToString(cartaExtraida);
 
                 _view.ShowCardOverturnByTakingDamage(cartaExtraidaFormateada, iteracionDelDano, danoDado);

@@ -17,8 +17,10 @@ public abstract class Superstar : IJugador
     public List<IViewableCardInfo> Hand { get; private set; }
     public List<IViewableCardInfo> Ringside { get; private set; }
     public List<IViewableCardInfo> RingArea { get; private set; }
+    public bool NoPuedeElegirUsarSuHabilidad = true;
     private int _fortitude;
-    public abstract void HabilidadEspecial();
+    protected View _view;
+    public abstract bool HabilidadEspecial(View view, Superstar oponente);
 
     public List<IViewableCardInfo> RevisarCartasJugables()
     {
@@ -84,7 +86,7 @@ public abstract class Superstar : IJugador
         ActualizarDatos();
     }
 
-    public IViewableCardInfo PasarCartasDeArsenalARingside()
+    public IViewableCardInfo PasarCartaDeArsenalARingside()
     {
         int largoArsenal = Arsenal.Count;
         IViewableCardInfo cartaExtraida = Arsenal[largoArsenal - 1];
@@ -98,6 +100,22 @@ public abstract class Superstar : IJugador
     {
         Hand.Remove(cartaSeleccionada);
         RingArea.Add(cartaSeleccionada);
+        ActualizarDatos();
+    }
+
+    public void PasarCartaDeRingsideAlArsenal(int indexCarta)
+    {
+        IViewableCardInfo cartaElegida = Ringside[indexCarta]; 
+        Ringside.RemoveAt(indexCarta);
+        Hand.Insert(0, cartaElegida);
+        ActualizarDatos();
+    }
+    
+    public void PasarCartaDeLaManoAlRingside(int indexCarta)
+    {
+        IViewableCardInfo cartaElegida = Hand[indexCarta]; 
+        Hand.RemoveAt(indexCarta);
+        Ringside.Add(cartaElegida);
         ActualizarDatos();
     }
 }
