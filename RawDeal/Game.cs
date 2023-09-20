@@ -80,14 +80,12 @@ public class Game
                     Superstar jugadorEnJuego = _jugadores[_numJugadorEnJuego];
                     EleccionesJugarCarta.CrearJugadas(jugadorEnJuego, jugadorOponente);
                     EleccionesJugarCarta.FormatearJugada();
-                    EleccionesJugarCarta.ComenzarProcesoDeElecciones(_view);
-                    /*
-                    _view.AskUserToSelectAPlay();
-                    _view.SayThatPlayerIsTryingToPlayThisCard();
-                    _view.SayThatPlayerSuccessfullyPlayedACard();
-                    _view.SayThatSuperstarWillTakeSomeDamage();
-                    _view.ShowCardOverturnByTakingDamage();
-                    */
+                    _continuarLoopElecciones = EleccionesJugarCarta.ComenzarProcesoDeElecciones(_view);
+                    if (!_continuarLoopElecciones)
+                    {
+                        _view.CongratulateWinner(_jugadores[_numJugadorOponente].Name);
+                        _continuarLoopPrincipal = _continuarLoopElecciones;
+                    }
                 }
                 else if (eleccionUno == NextPlay.EndTurn)
                 {

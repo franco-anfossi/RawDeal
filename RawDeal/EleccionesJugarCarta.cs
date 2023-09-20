@@ -12,6 +12,7 @@ public static class EleccionesJugarCarta
     private static View _view;
     private static Superstar _jugadorEnTurno;
     private static Superstar _jugadorOponente;
+    private static bool _continuarPartida = true;
     
     public static void CrearJugadas(Superstar jugadorEnTurno, Superstar jugadorOponente)
     {
@@ -37,20 +38,25 @@ public static class EleccionesJugarCarta
         }
     }
 
-    public static void ComenzarProcesoDeElecciones(View view)
+    public static bool ComenzarProcesoDeElecciones(View view)
     {
         _view = view;
-        PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea();
-        UsuarioIntentaJugarCarta();
-        SeJuegaLaCartaExitosamente();
-        SeHaceDanoAlOponente();
+        int numeroJugadaSeleccionada = _view.AskUserToSelectAPlay(_jugadasPosiblesFormateadas);
+        if (_jugadasPosiblesFormateadas.Count != 0)
+        {
+            PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea(numeroJugadaSeleccionada);
+            UsuarioIntentaJugarCarta();
+            SeJuegaLaCartaExitosamente();
+            SeHaceDanoAlOponente();
+        }
+
+        return _continuarPartida;
     }
     
-    private static void PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea()
-    { 
-        int numeroJugadaSeleccionada = _view.AskUserToSelectAPlay(_jugadasPosiblesFormateadas);
+    private static void PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea(int numeroJugadaSeleccionada)
+    {
         _jugadaElegidaFormateada = _jugadasPosiblesFormateadas[numeroJugadaSeleccionada];
-        _jugadaElegidaNoFormateada = _jugadasPosiblesNoFormateadas[numeroJugadaSeleccionada]; 
+        _jugadaElegidaNoFormateada = _jugadasPosiblesNoFormateadas[numeroJugadaSeleccionada];
         _jugadorEnTurno.PasarCartaDeManoARingArea(_jugadaElegidaNoFormateada.CardInfo);
     }
 
@@ -78,10 +84,15 @@ public static class EleccionesJugarCarta
     {
         for (int iteracionDelDano = 1; iteracionDelDano <= danoDado; iteracionDelDano++)
         {
-            IViewableCardInfo cartaExtraida = _jugadorOponente.PasarCartasDeArsenalARingside();
-            string cartaExtraidaFormateada = Formatter.CardToString(cartaExtraida);
-                
-            _view.ShowCardOverturnByTakingDamage(cartaExtraidaFormateada, iteracionDelDano, danoDado);
+            if (_jugadorOponente.Arsenal.Count != 0)
+            {
+                IViewableCardInfo cartaExtraida = _jugadorOponente.PasarCartasDeArsenalARingside();
+                string cartaExtraidaFormateada = Formatter.CardToString(cartaExtraida);
+
+                _view.ShowCardOverturnByTakingDamage(cartaExtraidaFormateada, iteracionDelDano, danoDado);
+            }
+            else
+                _continuarPartida = false;
         }
     }
 
