@@ -69,23 +69,24 @@ public class Game
                 var eleccionUno = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
                 if (eleccionUno == NextPlay.ShowCards)
                 {
-                    EleccionesVerCartas.GetMazosUsuarios(_jugadores); 
-                    EleccionesVerCartas.GetAtributoView(_view);
-                    EleccionesVerCartas.GetNumJugadorEnJuego(_numJugadorEnJuego);
-                    EleccionesVerCartas.EleccionQueCartasVer();
+                    EleccionesVerCartas eleccionesParaVerCartas = new EleccionesVerCartas(_jugadores, _numJugadorEnJuego, _view);
+                    eleccionesParaVerCartas.EleccionQueCartasVer();
                 }
                 else if (eleccionUno == NextPlay.PlayCard)
                 {
                     Superstar jugadorOponente = _jugadores[_numJugadorOponente];
                     Superstar jugadorEnJuego = _jugadores[_numJugadorEnJuego];
-                    EleccionesJugarCarta.CrearJugadas(jugadorEnJuego, jugadorOponente);
-                    EleccionesJugarCarta.FormatearJugada();
-                    _continuarLoopElecciones = EleccionesJugarCarta.ComenzarProcesoDeElecciones(_view);
+                    EleccionesJugarCarta eleccionDeCartasPorJugar = new EleccionesJugarCarta(jugadorEnJuego, jugadorOponente, _view);
+                    _continuarLoopElecciones = eleccionDeCartasPorJugar.ComenzarProcesoDeElecciones();
                     if (!_continuarLoopElecciones)
                     {
                         _view.CongratulateWinner(_jugadores[_numJugadorOponente].Name);
                         _continuarLoopPrincipal = _continuarLoopElecciones;
                     }
+                }
+                else if (eleccionUno == NextPlay.UseAbility)
+                {
+                    
                 }
                 else if (eleccionUno == NextPlay.EndTurn)
                 {

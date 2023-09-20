@@ -4,17 +4,24 @@ using RawDealView.Formatters;
 
 namespace RawDeal;
 
-public static class EleccionesVerCartas
+public class EleccionesVerCartas
 {
-    private static int _jugadorEnJuego;
-    private static int _jugadorOponente;
-    private static View _view;
-    private static Dictionary<int, List<List<IViewableCardInfo>>> _mazosBrutosJugadores = new();
-    private static Dictionary<int, List<List<string>>> _mazosFormateadosJugadores = new();
-    
+    private int _jugadorEnJuego;
+    private int _jugadorOponente;
+    private View _view;
+    private Dictionary<int, List<List<IViewableCardInfo>>> _mazosBrutosJugadores = new();
+    private Dictionary<int, List<List<string>>> _mazosFormateadosJugadores = new();
+
+    public EleccionesVerCartas(List<Superstar> jugadores, int numJugador, View view)
+    {
+        _jugadorEnJuego = numJugador;
+        _view = view;
+        GetMazosUsuarios(jugadores);
+        ArreglarNumJugadores();
+    }
     
 
-    public static void GetMazosUsuarios(List<Superstar> jugadores)
+    public void GetMazosUsuarios(List<Superstar> jugadores)
     {
         for (int numJugador = 0; numJugador < jugadores.Count; numJugador++)
         {
@@ -31,7 +38,7 @@ public static class EleccionesVerCartas
         FormatearCartas();
     }
     
-    public static void FormatearCartas()
+    public void FormatearCartas()
     {
         int numAuxliar = 0;
         foreach (var mazosCartasUnJugador in _mazosBrutosJugadores)
@@ -52,19 +59,13 @@ public static class EleccionesVerCartas
         }
     }
 
-    public static void GetNumJugadorEnJuego(int numJugador)
+    public void ArreglarNumJugadores()
     {
-        _jugadorEnJuego = numJugador;
         if (_jugadorEnJuego == 0) { _jugadorOponente = 1; }
         else { _jugadorOponente = 0; }
     }
 
-    public static void GetAtributoView(View view)
-    {
-        _view = view;
-    }
-
-    public static void EleccionQueCartasVer()
+    public void EleccionQueCartasVer()
     {
         var eleccionDos = _view.AskUserWhatSetOfCardsHeWantsToSee();
         if (eleccionDos == CardSet.Hand)
@@ -79,27 +80,27 @@ public static class EleccionesVerCartas
             VerRingAreaOponente();
     }
 
-    private static void VerMano()
+    private void VerMano()
     {
         _view.ShowCards(_mazosFormateadosJugadores[_jugadorEnJuego][0]); 
     }
 
-    private static void VerMiRingside()
+    private void VerMiRingside()
     {
         _view.ShowCards(_mazosFormateadosJugadores[_jugadorEnJuego][1]);
     }
 
-    private static void VerMiRingArea()
+    private void VerMiRingArea()
     {
         _view.ShowCards(_mazosFormateadosJugadores[_jugadorEnJuego][2]);
     }
 
-    private static void VerRingsideOponente()
+    private void VerRingsideOponente()
     {
         _view.ShowCards(_mazosFormateadosJugadores[_jugadorOponente][1]);
     }
 
-    private static void VerRingAreaOponente()
+    private void VerRingAreaOponente()
     {
         _view.ShowCards(_mazosFormateadosJugadores[_jugadorOponente][2]);
     }

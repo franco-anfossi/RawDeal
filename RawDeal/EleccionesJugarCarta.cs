@@ -3,24 +3,29 @@ using RawDealView;
 
 namespace RawDeal;
 
-public static class EleccionesJugarCarta
+public class EleccionesJugarCarta
 {
-    private static List<IViewablePlayInfo> _jugadasPosiblesNoFormateadas = new();
-    private static List<string> _jugadasPosiblesFormateadas = new();
-    private static string _jugadaElegidaFormateada;
-    private static IViewablePlayInfo _jugadaElegidaNoFormateada;
-    private static View _view;
-    private static Superstar _jugadorEnTurno;
-    private static Superstar _jugadorOponente;
-    private static bool _continuarPartida = true;
-    
-    public static void CrearJugadas(Superstar jugadorEnTurno, Superstar jugadorOponente)
+    private List<IViewablePlayInfo> _jugadasPosiblesNoFormateadas = new List<IViewablePlayInfo>();
+    private List<string> _jugadasPosiblesFormateadas = new List<string>();
+    private string _jugadaElegidaFormateada;
+    private IViewablePlayInfo _jugadaElegidaNoFormateada;
+    private View _view;
+    private Superstar _jugadorEnTurno;
+    private Superstar _jugadorOponente;
+    private bool _continuarPartida = true;
+
+    public EleccionesJugarCarta(Superstar jugadorEnTurno, Superstar jugadorOponente, View view)
     {
-        _jugadasPosiblesNoFormateadas = new List<IViewablePlayInfo>();
-        _jugadasPosiblesFormateadas = new List<string>();
-        _jugadorOponente = jugadorOponente;
+        _view = view;
         _jugadorEnTurno = jugadorEnTurno;
-        List<IViewableCardInfo> cartasJugables = jugadorEnTurno.RevisarCartasJugables();
+        _jugadorOponente = jugadorOponente;
+        CrearJugadas();
+        FormatearJugada();
+    }
+
+    public void CrearJugadas()
+    {
+        List<IViewableCardInfo> cartasJugables = _jugadorEnTurno.RevisarCartasJugables();
         foreach (var cartaJugable in cartasJugables)
         {
             string cardTypeMayusculas = cartaJugable.Types[0].ToUpper();
@@ -29,7 +34,7 @@ public static class EleccionesJugarCarta
         }
     }
 
-    public static void FormatearJugada()
+    public void FormatearJugada()
     {
         foreach (var jugadaPosible in _jugadasPosiblesNoFormateadas)
         {
@@ -38,9 +43,8 @@ public static class EleccionesJugarCarta
         }
     }
 
-    public static bool ComenzarProcesoDeElecciones(View view)
+    public bool ComenzarProcesoDeElecciones()
     {
-        _view = view;
         int numeroJugadaSeleccionada = _view.AskUserToSelectAPlay(_jugadasPosiblesFormateadas);
         if (_jugadasPosiblesFormateadas.Count >= 0 && numeroJugadaSeleccionada != -1)
         {
@@ -52,25 +56,25 @@ public static class EleccionesJugarCarta
 
         return _continuarPartida;
     }
-    
-    private static void PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea(int numeroJugadaSeleccionada)
+
+    private void PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea(int numeroJugadaSeleccionada)
     {
         _jugadaElegidaFormateada = _jugadasPosiblesFormateadas[numeroJugadaSeleccionada];
         _jugadaElegidaNoFormateada = _jugadasPosiblesNoFormateadas[numeroJugadaSeleccionada];
         _jugadorEnTurno.PasarCartaDeManoARingArea(_jugadaElegidaNoFormateada.CardInfo);
     }
 
-    private static void UsuarioIntentaJugarCarta()
+    private void UsuarioIntentaJugarCarta()
     {
         _view.SayThatPlayerIsTryingToPlayThisCard(_jugadorEnTurno.Name, _jugadaElegidaFormateada);
     }
 
-    private static void SeJuegaLaCartaExitosamente()
+    private void SeJuegaLaCartaExitosamente()
     {
         _view.SayThatPlayerSuccessfullyPlayedACard();
     }
 
-    private static void SeHaceDanoAlOponente()
+    private void SeHaceDanoAlOponente()
     {
         string nombreOponente = _jugadorOponente.Name;
         IViewableCardInfo cartaElegida = _jugadaElegidaNoFormateada.CardInfo;
@@ -80,7 +84,7 @@ public static class EleccionesJugarCarta
         MostrarDanoHechoAlOponente(danoDado);
     }
 
-    private static void MostrarDanoHechoAlOponente(int danoDado)
+    private void MostrarDanoHechoAlOponente(int danoDado)
     {
         for (int iteracionDelDano = 1; iteracionDelDano <= danoDado; iteracionDelDano++)
         {
@@ -95,5 +99,4 @@ public static class EleccionesJugarCarta
                 _continuarPartida = false;
         }
     }
-
 }
