@@ -1,6 +1,6 @@
 using RawDealView;
+using RawDealView.Formatters;
 using RawDealView.Options;
-
 
 namespace RawDeal;
 
@@ -89,9 +89,20 @@ public class Game
                 }
                 else if (eleccionUno == NextPlay.EndTurn)
                 {
-                    CambiarJugadores();
-                    RevisarJugadores();
-                    _continuarLoopElecciones = false;
+                    List<IViewableCardInfo> arsenalOponente = _jugadores[_numJugadorOponente].Arsenal;
+                    if (arsenalOponente.Count == 0)
+                    {
+                        _continuarLoopElecciones = false;
+                        _view.CongratulateWinner(_jugadores[_numJugadorEnJuego].Name);
+                        _continuarLoopPrincipal = _continuarLoopElecciones;
+                    }
+                    else
+                    {
+                        CambiarJugadores();
+                        RevisarJugadores();
+                        _continuarLoopElecciones = false;
+                    }
+                    
                 }
                 else if (eleccionUno == NextPlay.GiveUp)
                 {
