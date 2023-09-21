@@ -29,8 +29,11 @@ public class EleccionesJugarCarta
         foreach (var cartaJugable in cartasJugables)
         {
             string cardTypeMayusculas = cartaJugable.Types[0].ToUpper();
-            Jugada jugadaPosible = new Jugada(cartaJugable, cardTypeMayusculas);
-            _jugadasPosiblesNoFormateadas.Add(jugadaPosible);
+            if (cardTypeMayusculas != "REVERSAL")
+            {
+                Jugada jugadaPosible = new Jugada(cartaJugable, cardTypeMayusculas);
+                _jugadasPosiblesNoFormateadas.Add(jugadaPosible);
+            }
         }
     }
 
@@ -79,8 +82,13 @@ public class EleccionesJugarCarta
         string nombreOponente = _jugadorOponente.Name;
         IViewableCardInfo cartaElegida = _jugadaElegidaNoFormateada.CardInfo;
         int danoDado = Convert.ToInt32(cartaElegida.Damage);
+        int fortitudPorAgregar = danoDado;
+        
+        if (nombreOponente == "MANKIND")
+            danoDado--;
+        
         _view.SayThatSuperstarWillTakeSomeDamage(nombreOponente, danoDado);
-        _jugadorEnTurno.AgregarFortitudeSegunDano(danoDado);
+        _jugadorEnTurno.AgregarFortitudeSegunDano(fortitudPorAgregar);
         MostrarDanoHechoAlOponente(danoDado);
     }
 

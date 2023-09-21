@@ -57,23 +57,24 @@ public class Game
         while (_continuarLoopPrincipal && _numJugadorEnJuego < 2)
         {
             _continuarLoopElecciones = true;
+            
             _view.SayThatATurnBegins(_jugadores[_numJugadorEnJuego].Name);
-
+            
             bool seSacaCarta = true;
-            if (_jugadores[_numJugadorEnJuego].NoPuedeElegirUsarSuHabilidad)
+            if (_jugadores[_numJugadorEnJuego].NoSePuedeEligirSiUsarLaHabilidad())
             {
                 seSacaCarta = _jugadores[_numJugadorEnJuego].HabilidadEspecial(_view, _jugadores[_numJugadorOponente]);
             }
             
             if (seSacaCarta) { _jugadores[_numJugadorEnJuego].SacarCarta(); }
+            _jugadores[_numJugadorEnJuego].CambiarVisibilidadDeElegirLaHabilidad();
             
             while (_continuarLoopElecciones)
             {
                 _view.ShowGameInfo(_jugadores[_numJugadorEnJuego].DatosJugador, _jugadores[_numJugadorOponente].DatosJugador);
                 
                 NextPlay eleccionUno;
-                Console.WriteLine(_jugadores[_numJugadorEnJuego].NoPuedeElegirUsarSuHabilidad);
-                if (_jugadores[_numJugadorEnJuego].NoPuedeElegirUsarSuHabilidad)
+                if (_jugadores[_numJugadorEnJuego].NoSePuedeEligirSiUsarLaHabilidad())
                     eleccionUno = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
                 else
                     eleccionUno = _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible();
@@ -91,7 +92,7 @@ public class Game
                     _continuarLoopElecciones = eleccionDeCartasPorJugar.ComenzarProcesoDeElecciones();
                     if (!_continuarLoopElecciones)
                     {
-                        _view.CongratulateWinner(_jugadores[_numJugadorOponente].Name);
+                        _view.CongratulateWinner(_jugadores[_numJugadorEnJuego].Name);
                         _continuarLoopPrincipal = _continuarLoopElecciones;
                     }
                 }
@@ -102,10 +103,17 @@ public class Game
                 else if (eleccionUno == NextPlay.EndTurn)
                 {
                     List<IViewableCardInfo> arsenalOponente = _jugadores[_numJugadorOponente].Arsenal;
+                    List<IViewableCardInfo> arsenalEnJuego = _jugadores[_numJugadorEnJuego].Arsenal;
                     if (arsenalOponente.Count == 0)
                     {
                         _continuarLoopElecciones = false;
                         _view.CongratulateWinner(_jugadores[_numJugadorEnJuego].Name);
+                        _continuarLoopPrincipal = _continuarLoopElecciones;
+                    }
+                    else if (arsenalEnJuego.Count == 0)
+                    {
+                        _continuarLoopElecciones = false;
+                        _view.CongratulateWinner(_jugadores[_numJugadorOponente].Name);
                         _continuarLoopPrincipal = _continuarLoopElecciones;
                     }
                     else

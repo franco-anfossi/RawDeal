@@ -5,16 +5,15 @@ namespace RawDeal.Habilidades_Superstars;
 
 public class TheRock : Superstar
 {
-    public new bool NoPuedeElegirUsarSuHabilidad = true;
     public override bool HabilidadEspecial(View view, Superstar oponente)
     {
-        _view = view;
+        View = view;
         if (Ringside.Count != 0)
         {
-            bool respuesta = _view.DoesPlayerWantToUseHisAbility(Name);
+            bool respuesta = View.DoesPlayerWantToUseHisAbility(Name);
             if (respuesta)
             {
-                _view.SayThatPlayerIsGoingToUseHisAbility(Name, SuperstarAbility);
+                View.SayThatPlayerIsGoingToUseHisAbility(Name, SuperstarAbility);
 
                 List<string> datosDeLasCartas = new List<string>();
                 foreach (var carta in Ringside)
@@ -23,14 +22,10 @@ public class TheRock : Superstar
                     datosDeLasCartas.Add(cartaFormateada);
                 }
 
-                int indexCarta = _view.AskPlayerToSelectCardsToRecover(Name, 1, datosDeLasCartas);
+                int indexCarta = View.AskPlayerToSelectCardsToRecover(Name, 1, datosDeLasCartas);
                 PasarCartaDeRingsideAlArsenal(indexCarta);
-                return false;
             }
-
-            return true;
         }
-
         return true;
     }
 }

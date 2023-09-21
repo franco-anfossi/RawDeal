@@ -17,10 +17,23 @@ public abstract class Superstar : IJugador
     public List<IViewableCardInfo> Hand { get; private set; }
     public List<IViewableCardInfo> Ringside { get; private set; }
     public List<IViewableCardInfo> RingArea { get; private set; }
-    public bool NoPuedeElegirUsarSuHabilidad = true;
+    
+    protected View View;
     private int _fortitude;
-    protected View _view;
     public abstract bool HabilidadEspecial(View view, Superstar oponente);
+
+    /*public virtual bool RevisarCondicionesHabilidad()
+    {
+        return true;
+    }*/
+    public virtual bool NoSePuedeEligirSiUsarLaHabilidad()
+    {
+        return true;
+    }
+
+    public virtual void CambiarVisibilidadDeElegirLaHabilidad()
+    {
+    }
 
     public List<IViewableCardInfo> RevisarCartasJugables()
     {
@@ -51,7 +64,7 @@ public abstract class Superstar : IJugador
         _fortitude = 0;
     }
 
-    public void SacarCartasAlInicio()
+    public virtual void SacarCartasAlInicio()
     {
         for (int i = 0; i < HandSize; i++)
             SacarCarta();
@@ -63,7 +76,7 @@ public abstract class Superstar : IJugador
         return MemberwiseClone();
     }
 
-    public void SacarCarta()
+    public virtual void SacarCarta()
     {
         int ultimaCarta = Arsenal.Count - 1;
         if (ultimaCarta >= 0)
@@ -107,15 +120,31 @@ public abstract class Superstar : IJugador
     {
         IViewableCardInfo cartaElegida = Ringside[indexCarta]; 
         Ringside.RemoveAt(indexCarta);
-        Hand.Insert(0, cartaElegida);
+        Arsenal.Insert(0, cartaElegida);
         ActualizarDatos();
     }
     
     public void PasarCartaDeLaManoAlRingside(int indexCarta)
     {
         IViewableCardInfo cartaElegida = Hand[indexCarta]; 
-        Hand.RemoveAt(indexCarta);
         Ringside.Add(cartaElegida);
+        Hand.RemoveAt(indexCarta);
+        ActualizarDatos();
+    }
+    
+    public void PasarCartaDeLaManoAlArsenal(int indexCarta)
+    {
+        IViewableCardInfo cartaElegida = Hand[indexCarta]; 
+        Hand.RemoveAt(indexCarta);
+        Arsenal.Insert(0, cartaElegida);
+        ActualizarDatos();
+    }
+    
+    public void PasarCartaDelRingsideALaMano(int indexCarta)
+    {
+        IViewableCardInfo cartaElegida = Ringside[indexCarta]; 
+        Ringside.RemoveAt(indexCarta);
+        Hand.Add(cartaElegida);
         ActualizarDatos();
     }
 }
