@@ -10,22 +10,16 @@ public abstract class Superstar : IJugador
     public int HandSize { get; set; }
     public int SuperstarValue { get; set; }
     public string SuperstarAbility { get; set; }
-
     public List<IViewableCardInfo> Arsenal { get; private set; }
     public PlayerInfo DatosJugador { get; private set; }
-
     public List<IViewableCardInfo> Hand { get; private set; }
     public List<IViewableCardInfo> Ringside { get; private set; }
     public List<IViewableCardInfo> RingArea { get; private set; }
-    
     protected View View;
     private int _fortitude;
+    
     public abstract bool HabilidadEspecial(View view, Superstar oponente);
-
-    /*public virtual bool RevisarCondicionesHabilidad()
-    {
-        return true;
-    }*/
+    
     public virtual bool NoSePuedeEligirSiUsarLaHabilidad()
     {
         return true;
@@ -42,17 +36,10 @@ public abstract class Superstar : IJugador
         {
             int intFortitude = Convert.ToInt32(carta.Fortitude);
             if (intFortitude <= _fortitude)
-            {
                 cartasJugables.Add(carta);
-            }
         }
 
         return cartasJugables;
-    }
-
-    public override string ToString()
-    {
-        return $"{Name}";
     }
 
     public void InicializacionDeAtributos(List<IViewableCardInfo> mazo)

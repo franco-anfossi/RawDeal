@@ -5,8 +5,8 @@ namespace RawDeal;
 
 public class EleccionesJugarCarta
 {
-    private List<IViewablePlayInfo> _jugadasPosiblesNoFormateadas = new List<IViewablePlayInfo>();
-    private List<string> _jugadasPosiblesFormateadas = new List<string>();
+    private List<IViewablePlayInfo> _jugadasPosiblesNoFormateadas = new();
+    private List<string> _jugadasPosiblesFormateadas = new();
     private string _jugadaElegidaFormateada;
     private IViewablePlayInfo _jugadaElegidaNoFormateada;
     private View _view;

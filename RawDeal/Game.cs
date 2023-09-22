@@ -17,6 +17,14 @@ public class Game
     
     public Game(View view, string deckFolder)
     {
+        var (superstarList, cardsList) = DeserializacionDeCartasYSuperstarsDesdeLosJson();
+        _conjuntoCartas = new ConjuntoCartas(cardsList, superstarList);
+        _view = view;
+        _deckFolder = deckFolder;
+    }
+
+    private (List<Superstar>, List<Carta>) DeserializacionDeCartasYSuperstarsDesdeLosJson()
+    {
         string archivoCartas = Path.Combine("data", "cards.json");
         string archivoSuperstars = Path.Combine("data", "superstar.json");
         
@@ -26,9 +34,7 @@ public class Game
         Utils.AbrirArchivo(archivoCartas);
         var cardsList = Utils.DeserializacionCartas();
 
-        _conjuntoCartas = new ConjuntoCartas(cardsList, superstarList);
-        _view = view;
-        _deckFolder = deckFolder;
+        return (superstarList, cardsList);
     }
 
     public void Play()
@@ -39,7 +45,7 @@ public class Game
             ElegirJugadorInicial();
             ExtraerCartasInciales();
         }
-        LoopInicialJuego();
+        LoopPrincipalDelJuego();
     }
     // 1 Abstraccion
     private void InicioEleccionMazo()
@@ -52,86 +58,130 @@ public class Game
         }
     }
 
-    private void LoopInicialJuego()
+    private void LoopPrincipalDelJuego()
     {
-        while (_continuarLoopPrincipal && _numJugadorEnJuego < 2)
+        while (_continuarLoopPrincipal)
         {
             _continuarLoopElecciones = true;
-            
             _view.SayThatATurnBegins(_jugadores[_numJugadorEnJuego].Name);
-            
-            bool seSacaCarta = true;
-            if (_jugadores[_numJugadorEnJuego].NoSePuedeEligirSiUsarLaHabilidad())
-            {
-                seSacaCarta = _jugadores[_numJugadorEnJuego].HabilidadEspecial(_view, _jugadores[_numJugadorOponente]);
-            }
-            
-            if (seSacaCarta) { _jugadores[_numJugadorEnJuego].SacarCarta(); }
+            SeHaceLaHabilidadEspecialAntesDeSacarCarta();
             _jugadores[_numJugadorEnJuego].CambiarVisibilidadDeElegirLaHabilidad();
-            
-            while (_continuarLoopElecciones)
-            {
-                _view.ShowGameInfo(_jugadores[_numJugadorEnJuego].DatosJugador, _jugadores[_numJugadorOponente].DatosJugador);
-                
-                NextPlay eleccionUno;
-                if (_jugadores[_numJugadorEnJuego].NoSePuedeEligirSiUsarLaHabilidad())
-                    eleccionUno = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
-                else
-                    eleccionUno = _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible();
-                
-                if (eleccionUno == NextPlay.ShowCards)
-                {
-                    EleccionesVerCartas eleccionesParaVerCartas = new EleccionesVerCartas(_jugadores, _numJugadorEnJuego, _view);
-                    eleccionesParaVerCartas.EleccionQueCartasVer();
-                }
-                else if (eleccionUno == NextPlay.PlayCard)
-                {
-                    Superstar jugadorOponente = _jugadores[_numJugadorOponente];
-                    Superstar jugadorEnJuego = _jugadores[_numJugadorEnJuego];
-                    EleccionesJugarCarta eleccionDeCartasPorJugar = new EleccionesJugarCarta(jugadorEnJuego, jugadorOponente, _view);
-                    _continuarLoopElecciones = eleccionDeCartasPorJugar.ComenzarProcesoDeElecciones();
-                    if (!_continuarLoopElecciones)
-                    {
-                        _view.CongratulateWinner(_jugadores[_numJugadorEnJuego].Name);
-                        _continuarLoopPrincipal = _continuarLoopElecciones;
-                    }
-                }
-                else if (eleccionUno == NextPlay.UseAbility)
-                {
-                    _jugadores[_numJugadorEnJuego].HabilidadEspecial(_view, _jugadores[_numJugadorOponente]);
-                }
-                else if (eleccionUno == NextPlay.EndTurn)
-                {
-                    List<IViewableCardInfo> arsenalOponente = _jugadores[_numJugadorOponente].Arsenal;
-                    List<IViewableCardInfo> arsenalEnJuego = _jugadores[_numJugadorEnJuego].Arsenal;
-                    if (arsenalOponente.Count == 0)
-                    {
-                        _continuarLoopElecciones = false;
-                        _view.CongratulateWinner(_jugadores[_numJugadorEnJuego].Name);
-                        _continuarLoopPrincipal = _continuarLoopElecciones;
-                    }
-                    else if (arsenalEnJuego.Count == 0)
-                    {
-                        _continuarLoopElecciones = false;
-                        _view.CongratulateWinner(_jugadores[_numJugadorOponente].Name);
-                        _continuarLoopPrincipal = _continuarLoopElecciones;
-                    }
-                    else
-                    {
-                        CambiarJugadores();
-                        RevisarJugadores();
-                        _continuarLoopElecciones = false;
-                    }
-                    
-                }
-                else if (eleccionUno == NextPlay.GiveUp)
-                {
-                    _view.CongratulateWinner(_jugadores[_numJugadorOponente].Name);
-                    _continuarLoopPrincipal = false;
-                    _continuarLoopElecciones = false;
-                }
-            }
+            LoopEleccionesDelJuego();
         }
+    }
+
+    private void LoopEleccionesDelJuego()
+    {
+        while (_continuarLoopElecciones)
+        {
+            _view.ShowGameInfo(_jugadores[_numJugadorEnJuego].DatosJugador, _jugadores[_numJugadorOponente].DatosJugador);
+            NextPlay eleccionDeLaPrimeraOpcion = CondicionParaMostrarLaEleccionDeHabilidad();
+            EleccionesPosibles(eleccionDeLaPrimeraOpcion);
+        }
+    }
+
+    private void SeHaceLaHabilidadEspecialAntesDeSacarCarta()
+    {
+        bool seSacaCarta = true;
+        
+        if (_jugadores[_numJugadorEnJuego].NoSePuedeEligirSiUsarLaHabilidad())
+            seSacaCarta = _jugadores[_numJugadorEnJuego].HabilidadEspecial(_view, _jugadores[_numJugadorOponente]);
+            
+        if (seSacaCarta)
+            _jugadores[_numJugadorEnJuego].SacarCarta();
+    }
+
+    private void EleccionesPosibles(NextPlay eleccionDeLaPrimeraOpcion)
+    {
+        if (eleccionDeLaPrimeraOpcion == NextPlay.ShowCards)
+            SeleccionOpcionMostrarCartas();
+            
+        else if (eleccionDeLaPrimeraOpcion == NextPlay.PlayCard)
+            SeleccionOpcionJugarCartas();
+            
+        else if (eleccionDeLaPrimeraOpcion == NextPlay.UseAbility)
+            SeleccionOpcionJugarHabilidad();
+            
+        else if (eleccionDeLaPrimeraOpcion == NextPlay.EndTurn)
+            SeleccionOpcionFinalizarTurno();
+            
+        else if (eleccionDeLaPrimeraOpcion == NextPlay.GiveUp)
+            SeleccionOpcionRendirse();
+    }
+
+    private NextPlay CondicionParaMostrarLaEleccionDeHabilidad()
+    {
+        NextPlay primeraEleccionDelJuego;
+        if (_jugadores[_numJugadorEnJuego].NoSePuedeEligirSiUsarLaHabilidad())
+            primeraEleccionDelJuego = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+        else
+            primeraEleccionDelJuego = _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible();
+        return primeraEleccionDelJuego;
+    }
+
+    private void SeleccionOpcionMostrarCartas()
+    {
+        EleccionesVerCartas eleccionesParaVerCartas = new EleccionesVerCartas(_jugadores, _numJugadorEnJuego, _view);
+        eleccionesParaVerCartas.EleccionQueCartasVer();
+    }
+    private void SeleccionOpcionJugarCartas()
+    {
+        Superstar jugadorOponente = _jugadores[_numJugadorOponente];
+        Superstar jugadorEnJuego = _jugadores[_numJugadorEnJuego];
+        EleccionesJugarCarta eleccionDeCartasPorJugar = new EleccionesJugarCarta(jugadorEnJuego, jugadorOponente, _view);
+        _continuarLoopElecciones = eleccionDeCartasPorJugar.ComenzarProcesoDeElecciones();
+        if (!_continuarLoopElecciones)
+        {
+            _view.CongratulateWinner(_jugadores[_numJugadorEnJuego].Name);
+            _continuarLoopPrincipal = _continuarLoopElecciones;
+        }
+    }
+
+    private void SeleccionOpcionJugarHabilidad()
+    {
+        _jugadores[_numJugadorEnJuego].HabilidadEspecial(_view, _jugadores[_numJugadorOponente]);
+    }
+
+    private void SeleccionOpcionFinalizarTurno()
+    {
+        List<IViewableCardInfo> arsenalOponente = _jugadores[_numJugadorOponente].Arsenal;
+        List<IViewableCardInfo> arsenalEnJuego = _jugadores[_numJugadorEnJuego].Arsenal;
+        if (arsenalOponente.Count == 0)
+            ElJugadorEnJuegoGana();
+        
+        else if (arsenalEnJuego.Count == 0)
+            ElJugadorEnJuegoPierde();
+        
+        else
+            TodaviaNoSeTerminaLaPartida();
+    }
+
+    private void ElJugadorEnJuegoGana()
+    {
+        _continuarLoopElecciones = false;
+        _view.CongratulateWinner(_jugadores[_numJugadorEnJuego].Name);
+        _continuarLoopPrincipal = _continuarLoopElecciones;
+    }
+
+    private void ElJugadorEnJuegoPierde()
+    {
+        _continuarLoopElecciones = false;
+        _view.CongratulateWinner(_jugadores[_numJugadorOponente].Name);
+        _continuarLoopPrincipal = _continuarLoopElecciones;
+    }
+
+    private void TodaviaNoSeTerminaLaPartida()
+    {
+        CambiarJugadores();
+        RevisarJugadores();
+        _continuarLoopElecciones = false;
+    }
+
+    private void SeleccionOpcionRendirse()
+    {
+        _view.CongratulateWinner(_jugadores[_numJugadorOponente].Name);
+        _continuarLoopPrincipal = false;
+        _continuarLoopElecciones = false;
     }
 
     private void ExtraerCartasInciales()
