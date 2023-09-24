@@ -12,8 +12,8 @@ Los archivos son los siguientes:
 - `Game.cs`: Es la clase en donde se hace lo necesario para que se simule el juego.
 - `ConjuntoCartas.cs`: Una clase en donde se tienen todas las cartas y todos los superstars sin repetición.
 - `Mazo.cs`: Es la clase en donde se crea cada mazo de los archivos txt.
-- `MazoValidatos.cs`: Clase con la cual se valida cada una de las condiciones para el mazo.
-- `Utils`: Algunos metodos funcionales para revolver el mazo, abrir los archivos json y txt y formatear las cartas.
+- `MazoValidatos.cs`: Clase estatica con la cual se valida cada una de las condiciones para el mazo.
+- `Utils.cs`: Clase estatica en donde se encuentran algunos metodos funcionales para revolver el mazo, abrir los archivos json y txt y formatear las cartas.
 - `EleccionesJugarCarta.cs`: Es la clase en donde se manejan las deciones de jugar o no una carta.
 - `EleccionesVerCartas.cs`: Es la clase en donde se manejan las deciones de ver los distintos mazos posibles en el flujo del juego.
 - `Habilidades Superstars`: Es una carpeta en donde se encuentran las clases de los superstars, en las cuales se especifica principalmente el uso de las habilidades especiales de cada tipo de superstar.
