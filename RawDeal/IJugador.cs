@@ -4,7 +4,8 @@ namespace RawDeal;
 
 public interface IJugador
 {
-    void InicializacionDeAtributos(List<IViewableCardInfo> mazo);
+    bool EjecutarHabilidadEspecial();
+    void InicializarLosAtributosNecesarios(List<IViewableCardInfo> mazo);
     void SacarCartasAlInicio();
     void SacarCarta();
     void ActualizarDatos();

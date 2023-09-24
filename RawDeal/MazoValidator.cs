@@ -4,64 +4,81 @@ namespace RawDeal;
 
 public static class MazoValidator
 {
-    public static bool ValidadorDeReglasDeMazo(Mazo mazo, ConjuntoCartas todasCartas)
+    private static List<IViewableCardInfo> _grupoCartasIguales;
+    private static Mazo _mazoARevisar;
+    public static bool ValidadorDeReglasDeMazo(Mazo mazo, ConjuntoCartas conjuntoDeCartas)
     {
-        bool condicionUno = ValidarCantidadDeCartasEnMazo(mazo) && ValidarRepeticionDeCartas(mazo);
-        bool condicionDos = ValidarSoloHeelSoloFace(mazo) && ValidarLogoCartasEquivaleLogoSuperstar(mazo, todasCartas);
+        _mazoARevisar = mazo;
+        bool condicionUno = ValidarCantidadDeCartasEnMazo() && ValidarRepeticionDeCartas();
+        bool condicionDos = ValidarSiHayCartasSoloHeelYSoloFace() && ValidarQueLogoCartasEquivaleLogoSuperstar(conjuntoDeCartas);
         return condicionUno && condicionDos;
     }
     
-    private static bool ValidarCantidadDeCartasEnMazo(Mazo mazo)
+    private static bool ValidarCantidadDeCartasEnMazo()
     {
-        return mazo.CartasDelMazo.Count == 60;
+        return _mazoARevisar.CartasDelMazo.Count == 60;
     }
 
-    private static bool ValidarRepeticionDeCartas(Mazo mazo)
+    private static bool ValidarRepeticionDeCartas()
     {
-        var gruposCartas = mazo.CartasDelMazo.GroupBy(carta => carta.Title);
-        foreach (var grupo in gruposCartas)
+        var agrupacionesDeCartas = _mazoARevisar.CartasDelMazo.GroupBy(carta => carta.Title);
+        foreach (var grupoDeCartasConMismoNombre in agrupacionesDeCartas)
         {
-            int maxPermitido = 3;
-            var cartasIguales = grupo.ToList();
-            maxPermitido = ValidarRepeticionUnique(cartasIguales, maxPermitido);
-            maxPermitido = ValidarRepeticionSetUp(cartasIguales, maxPermitido);
-
-            if (cartasIguales.Count > maxPermitido)
-                return false;
+            _grupoCartasIguales = grupoDeCartasConMismoNombre.ToList();
+            int maxRepeticionesPermitidas = ObtenerMaximasRepeticionesPermitidas();
+            if (_grupoCartasIguales.Count > maxRepeticionesPermitidas) {return false;}
         }
         return true;
     }
     
-    private static bool ValidarSoloHeelSoloFace(Mazo mazo)
+    private static bool ValidarSiHayCartasSoloHeelYSoloFace()
     {
-        bool existeHeel = mazo.CartasDelMazo.Any(c => c.Subtypes.Contains("Heel"));
-        bool existeFace = mazo.CartasDelMazo.Any(c => c.Subtypes.Contains("Face"));
+        bool existeHeel = _mazoARevisar.CartasDelMazo.Any(c => c.Subtypes.Contains("Heel"));
+        bool existeFace = _mazoARevisar.CartasDelMazo.Any(c => c.Subtypes.Contains("Face"));
         return !(existeHeel && existeFace);
     }
 
-    private static bool ValidarLogoCartasEquivaleLogoSuperstar(Mazo mazo, ConjuntoCartas todasCartas)
+    private static bool ValidarQueLogoCartasEquivaleLogoSuperstar(ConjuntoCartas conjuntoDeCartas)
     {
-        var superstarLogo = mazo.SuperstarDelMazo.Logo;
-        foreach (var superstar in todasCartas.SuperstarsPosibles)
+        var logoSuperstarEnRevision = _mazoARevisar.SuperstarDelMazo.Logo;
+        foreach (var superstar in conjuntoDeCartas.SuperstarsPosibles)
         {
-            if (superstar.Logo != superstarLogo)
-                if (mazo.CartasDelMazo.Any(c => c.Subtypes.Contains(superstar.Logo))) { return false; }
+            string logoOtroSuperstar = superstar.Logo;
+            if (!RevisarPorLogosLasCartasDelMazo(logoOtroSuperstar, logoSuperstarEnRevision)) { return false;}
         }
         
         return true;
     }
-    private static int ValidarRepeticionUnique(List<IViewableCardInfo> cartasIguales, int maxPermitido)
+
+    private static bool RevisarPorLogosLasCartasDelMazo(string logoOtroSuperstar, string logoSuperstarEnRevision)
     {
-        if (cartasIguales.Any(c => c.Subtypes.Contains("Unique"))) 
-            maxPermitido = 1;
-        return maxPermitido;
+        if (logoOtroSuperstar != logoSuperstarEnRevision)
+        {
+            if (_mazoARevisar.CartasDelMazo.Any(c => c.Subtypes.Contains(logoOtroSuperstar))) { return false; }
+        }
+        return true;
+    }
+    private static int ObtenerMaximasRepeticionesPermitidas()
+    {
+        int maxRepeticionesPermitidas = 3;
+        maxRepeticionesPermitidas = ValidarRepeticionUnique(maxRepeticionesPermitidas);
+        maxRepeticionesPermitidas = ValidarRepeticionSetUp(maxRepeticionesPermitidas);
+
+        return maxRepeticionesPermitidas;
+    }
+    
+    private static int ValidarRepeticionUnique(int maxRepeticionesPermitido)
+    {
+        if (_grupoCartasIguales.Any(c => c.Subtypes.Contains("Unique"))) 
+            maxRepeticionesPermitido = 1;
+        return maxRepeticionesPermitido;
     }
 
-    private static int ValidarRepeticionSetUp(List<IViewableCardInfo> cartasIguales, int maxPermitido)
+    private static int ValidarRepeticionSetUp(int maxRepeticionesPermitido)
     {
-        if (cartasIguales.Any(c => c.Subtypes.Contains("SetUp"))) 
-            maxPermitido = 70;
-        return maxPermitido;
+        if (_grupoCartasIguales.Any(c => c.Subtypes.Contains("SetUp"))) 
+            maxRepeticionesPermitido = 70;
+        return maxRepeticionesPermitido;
     }
 }
 

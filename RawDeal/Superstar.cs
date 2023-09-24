@@ -16,11 +16,12 @@ public abstract class Superstar : IJugador
     public List<IViewableCardInfo> Ringside { get; private set; }
     public List<IViewableCardInfo> RingArea { get; private set; }
     protected View View;
+    protected Superstar Oponente;
     private int _fortitude;
     
-    public abstract bool HabilidadEspecial(View view, Superstar oponente);
+    public abstract bool EjecutarHabilidadEspecial();
     
-    public virtual bool NoSePuedeEligirSiUsarLaHabilidad()
+    public virtual bool ObtenerQueNoSePuedeEligirSiUsarLaHabilidad()
     {
         return true;
     }
@@ -29,20 +30,30 @@ public abstract class Superstar : IJugador
     {
     }
 
+    public void AgregarAtributosNecesarios(View view, Superstar oponente)
+    {
+        View = view;
+        Oponente = oponente;
+    }
+
+    public bool ComprobarArsenalVacio()
+    {
+        if (Arsenal.Count != 0) { return false; }
+        return true;
+    }
     public List<IViewableCardInfo> RevisarCartasJugables()
     {
         List<IViewableCardInfo> cartasJugables = new();
         foreach (var carta in Hand)
         {
             int intFortitude = Convert.ToInt32(carta.Fortitude);
-            if (intFortitude <= _fortitude)
-                cartasJugables.Add(carta);
+            if (intFortitude <= _fortitude) { cartasJugables.Add(carta); }
         }
 
         return cartasJugables;
     }
 
-    public void InicializacionDeAtributos(List<IViewableCardInfo> mazo)
+    public void InicializarLosAtributosNecesarios(List<IViewableCardInfo> mazo)
     {
         Arsenal = mazo;
         Hand = new List<IViewableCardInfo>();
@@ -62,30 +73,24 @@ public abstract class Superstar : IJugador
     {
         return MemberwiseClone();
     }
-
-    public virtual void SacarCarta()
+    
+    public void HacerDanoAlOponente(int danoHecho)
     {
-        int ultimaCarta = Arsenal.Count - 1;
-        if (ultimaCarta >= 0)
-        {
-            Hand.Add(Arsenal[ultimaCarta]);
-            Arsenal.RemoveAt(ultimaCarta);
-        }
+        int fortitudPorAgregar = danoHecho;
+        if (Oponente.Name == "MANKIND")
+            danoHecho--;
+        
+        View.SayThatSuperstarWillTakeSomeDamage(Oponente.Name, danoHecho);
+        AgregarFortitudeSegunDano(fortitudPorAgregar);
+    }
 
+    public void PasarCartaDesdeUnMazoHastaFondoArsenal(List<IViewableCardInfo> mazoDesde, int indiceCarta)
+    {
+        IViewableCardInfo cartaElegida = mazoDesde[indiceCarta]; 
+        mazoDesde.RemoveAt(indiceCarta);
+        Arsenal.Insert(0, cartaElegida);
         ActualizarDatos();
     }
-
-    public void ActualizarDatos()
-    {
-        DatosJugador = new PlayerInfo(Name, _fortitude, Hand.Count, Arsenal.Count);
-    }
-
-    public void AgregarFortitudeSegunDano(int dano)
-    {
-        _fortitude += dano;
-        ActualizarDatos();
-    }
-
     public IViewableCardInfo PasarCartaDeArsenalARingside()
     {
         int largoArsenal = Arsenal.Count;
@@ -95,43 +100,48 @@ public abstract class Superstar : IJugador
         ActualizarDatos();
         return cartaExtraida;
     }
-
+    
     public void PasarCartaDeManoARingArea(IViewableCardInfo cartaSeleccionada)
     {
         Hand.Remove(cartaSeleccionada);
         RingArea.Add(cartaSeleccionada);
         ActualizarDatos();
     }
-
-    public void PasarCartaDeRingsideAlArsenal(int indexCarta)
-    {
-        IViewableCardInfo cartaElegida = Ringside[indexCarta]; 
-        Ringside.RemoveAt(indexCarta);
-        Arsenal.Insert(0, cartaElegida);
-        ActualizarDatos();
-    }
     
-    public void PasarCartaDeLaManoAlRingside(int indexCarta)
+    public void PasarCartaDeLaManoAlRingside(int indiceCarta)
     {
-        IViewableCardInfo cartaElegida = Hand[indexCarta]; 
+        IViewableCardInfo cartaElegida = Hand[indiceCarta]; 
         Ringside.Add(cartaElegida);
-        Hand.RemoveAt(indexCarta);
+        Hand.RemoveAt(indiceCarta);
         ActualizarDatos();
     }
     
-    public void PasarCartaDeLaManoAlArsenal(int indexCarta)
+    public void PasarCartaDelRingsideALaMano(int indiceCarta)
     {
-        IViewableCardInfo cartaElegida = Hand[indexCarta]; 
-        Hand.RemoveAt(indexCarta);
-        Arsenal.Insert(0, cartaElegida);
-        ActualizarDatos();
-    }
-    
-    public void PasarCartaDelRingsideALaMano(int indexCarta)
-    {
-        IViewableCardInfo cartaElegida = Ringside[indexCarta]; 
-        Ringside.RemoveAt(indexCarta);
+        IViewableCardInfo cartaElegida = Ringside[indiceCarta]; 
+        Ringside.RemoveAt(indiceCarta);
         Hand.Add(cartaElegida);
+        ActualizarDatos();
+    }
+
+    public void ActualizarDatos()
+    {
+        DatosJugador = new PlayerInfo(Name, _fortitude, Hand.Count, Arsenal.Count);
+    }
+    private void AgregarFortitudeSegunDano(int dano)
+    {
+        _fortitude += dano;
+        ActualizarDatos();
+    }
+    public virtual void SacarCarta()
+    {
+        int ultimaCartaDeArsenal = Arsenal.Count - 1;
+        if (ultimaCartaDeArsenal >= 0)
+        {
+            Hand.Add(Arsenal[ultimaCartaDeArsenal]);
+            Arsenal.RemoveAt(ultimaCartaDeArsenal);
+        }
+
         ActualizarDatos();
     }
 }

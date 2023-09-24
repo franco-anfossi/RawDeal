@@ -7,34 +7,31 @@ public class EleccionesJugarCarta
 {
     private List<IViewablePlayInfo> _jugadasPosiblesNoFormateadas = new();
     private List<string> _jugadasPosiblesFormateadas = new();
-    private string _jugadaElegidaFormateada;
+    
     private IViewablePlayInfo _jugadaElegidaNoFormateada;
+    private string _jugadaElegidaFormateada;
+    
     private View _view;
-    private Superstar _jugadorEnTurno;
+    
+    private Superstar _jugadorEnJuego;
     private Superstar _jugadorOponente;
-    private bool _continuarPartida = true;
+    
+    private bool _partidaActiva = true;
 
-    public EleccionesJugarCarta(Superstar jugadorEnTurno, Superstar jugadorOponente, View view)
+    public EleccionesJugarCarta(Superstar jugadorEnJuego, Superstar jugadorOponente, View view)
     {
         _view = view;
-        _jugadorEnTurno = jugadorEnTurno;
+        _jugadorEnJuego = jugadorEnJuego;
         _jugadorOponente = jugadorOponente;
         CrearJugadas();
         FormatearJugada();
     }
-
+    
     public void CrearJugadas()
     {
-        List<IViewableCardInfo> cartasJugables = _jugadorEnTurno.RevisarCartasJugables();
+        List<IViewableCardInfo> cartasJugables = _jugadorEnJuego.RevisarCartasJugables();
         foreach (var cartaJugable in cartasJugables)
-        {
-            string cardTypeMayusculas = cartaJugable.Types[0].ToUpper();
-            if (cardTypeMayusculas != "REVERSAL")
-            {
-                Jugada jugadaPosible = new Jugada(cartaJugable, cardTypeMayusculas);
-                _jugadasPosiblesNoFormateadas.Add(jugadaPosible);
-            }
-        }
+            AgregarJugadaSiEsQueNoEsDeTipoReversal(cartaJugable);
     }
 
     public void FormatearJugada()
@@ -48,63 +45,72 @@ public class EleccionesJugarCarta
 
     public bool ComenzarProcesoDeElecciones()
     {
-        int numeroJugadaSeleccionada = _view.AskUserToSelectAPlay(_jugadasPosiblesFormateadas);
-        if (_jugadasPosiblesFormateadas.Count >= 0 && numeroJugadaSeleccionada != -1)
+        int numeroDeJugadaSeleccionada = _view.AskUserToSelectAPlay(_jugadasPosiblesFormateadas);
+        if (_jugadasPosiblesFormateadas.Count >= 0 && numeroDeJugadaSeleccionada != -1)
         {
-            PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea(numeroJugadaSeleccionada);
-            UsuarioIntentaJugarCarta();
-            SeJuegaLaCartaExitosamente();
-            SeHaceDanoAlOponente();
+            PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea(numeroDeJugadaSeleccionada);
+            IntentarJugarCarta();
+            JugarCartaExitosamente();
+            EjecutarDanoAlOponente();
         }
 
-        return _continuarPartida;
+        return _partidaActiva;
     }
 
+    private void AgregarJugadaSiEsQueNoEsDeTipoReversal(IViewableCardInfo cartaJugable)
+    {
+        string tipoDeCartaEnMayusculas = cartaJugable.Types[0].ToUpper();
+        if (tipoDeCartaEnMayusculas != "REVERSAL")
+        {
+            Jugada jugadaPosible = new Jugada(cartaJugable, tipoDeCartaEnMayusculas);
+            _jugadasPosiblesNoFormateadas.Add(jugadaPosible);
+        }
+    }
     private void PreguntarAlUsuarioParaJugarCartaYPonerlaEnRingArea(int numeroJugadaSeleccionada)
     {
         _jugadaElegidaFormateada = _jugadasPosiblesFormateadas[numeroJugadaSeleccionada];
         _jugadaElegidaNoFormateada = _jugadasPosiblesNoFormateadas[numeroJugadaSeleccionada];
-        _jugadorEnTurno.PasarCartaDeManoARingArea(_jugadaElegidaNoFormateada.CardInfo);
+        _jugadorEnJuego.PasarCartaDeManoARingArea(_jugadaElegidaNoFormateada.CardInfo);
     }
 
-    private void UsuarioIntentaJugarCarta()
+    private void IntentarJugarCarta()
     {
-        _view.SayThatPlayerIsTryingToPlayThisCard(_jugadorEnTurno.Name, _jugadaElegidaFormateada);
+        _view.SayThatPlayerIsTryingToPlayThisCard(_jugadorEnJuego.Name, _jugadaElegidaFormateada);
     }
 
-    private void SeJuegaLaCartaExitosamente()
+    private void JugarCartaExitosamente()
     {
         _view.SayThatPlayerSuccessfullyPlayedACard();
     }
 
-    private void SeHaceDanoAlOponente()
+    private void EjecutarDanoAlOponente()
     {
-        string nombreOponente = _jugadorOponente.Name;
         IViewableCardInfo cartaElegida = _jugadaElegidaNoFormateada.CardInfo;
-        int danoDado = Convert.ToInt32(cartaElegida.Damage);
-        int fortitudPorAgregar = danoDado;
+        int danoHecho = Convert.ToInt32(cartaElegida.Damage);
+        _jugadorEnJuego.HacerDanoAlOponente(danoHecho);
+        if (_jugadorOponente.Name == "MANKIND") { danoHecho--; }
         
-        if (nombreOponente == "MANKIND")
-            danoDado--;
-        
-        _view.SayThatSuperstarWillTakeSomeDamage(nombreOponente, danoDado);
-        _jugadorEnTurno.AgregarFortitudeSegunDano(fortitudPorAgregar);
-        MostrarDanoHechoAlOponente(danoDado);
+        MostrarDanoHechoAlOponente(danoHecho);
     }
 
-    private void MostrarDanoHechoAlOponente(int danoDado)
+    private void MostrarDanoHechoAlOponente(int danoTotalHecho)
     {
-        for (int iteracionDelDano = 1; iteracionDelDano <= danoDado; iteracionDelDano++)
-        {
-            if (_jugadorOponente.Arsenal.Count != 0)
-            {
-                IViewableCardInfo cartaExtraida = _jugadorOponente.PasarCartaDeArsenalARingside();
-                string cartaExtraidaFormateada = Formatter.CardToString(cartaExtraida);
+        for (int iteracionDelDano = 1; iteracionDelDano <= danoTotalHecho; iteracionDelDano++)
+            DecidirSiHacerDanoONo(iteracionDelDano, danoTotalHecho);
+    }
 
-                _view.ShowCardOverturnByTakingDamage(cartaExtraidaFormateada, iteracionDelDano, danoDado);
-            }
-            else
-                _continuarPartida = false;
-        }
+    private void DecidirSiHacerDanoONo(int iteracionDelDano, int danoTotalHecho)
+    {
+        if (!_jugadorOponente.ComprobarArsenalVacio())
+            MostrarCartasPorElDanoHecho(iteracionDelDano, danoTotalHecho);
+        else
+            _partidaActiva = false;
+    }
+
+    private void MostrarCartasPorElDanoHecho(int iteracionDelDano, int danoTotalHecho)
+    {
+        IViewableCardInfo cartaExtraida = _jugadorOponente.PasarCartaDeArsenalARingside();
+        string cartaExtraidaFormateada = Formatter.CardToString(cartaExtraida);
+        _view.ShowCardOverturnByTakingDamage(cartaExtraidaFormateada, iteracionDelDano, danoTotalHecho);
     }
 }

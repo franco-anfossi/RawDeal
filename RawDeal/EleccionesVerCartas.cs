@@ -6,102 +6,112 @@ namespace RawDeal;
 
 public class EleccionesVerCartas
 {
-    private int _jugadorEnJuego;
-    private int _jugadorOponente;
+    private List<Superstar> _jugadores;
+    private int _indiceJugadorEnJuego;
+    private int _indiceJugadorOponente;
     private View _view;
-    private Dictionary<int, List<List<IViewableCardInfo>>> _mazosBrutosJugadores = new();
-    private Dictionary<int, List<List<string>>> _mazosFormateadosJugadores = new();
+    
+    private Dictionary<int, List<List<IViewableCardInfo>>> _mazosBrutosDeLosJugadores = new();
+    private Dictionary<int, List<List<string>>> _mazosFormateadosDeLosJugadores = new();
 
-    public EleccionesVerCartas(List<Superstar> jugadores, int numJugador, View view)
+    private List<string> _manoJugadorEnJuego;
+    private List<string> _ringsideJugadorEnJuego;
+    private List<string> _ringAreaJugadorEnJuego;
+    
+    private List<string> _ringsideJugadorOponente;
+    private List<string> _ringAreaJugadorOponente;
+
+    public EleccionesVerCartas(List<Superstar> jugadores, int numIndiceJugador, View view)
     {
-        _jugadorEnJuego = numJugador;
+        _jugadores = jugadores;
+        _indiceJugadorEnJuego = numIndiceJugador;
         _view = view;
-        GetMazosUsuarios(jugadores);
+        
+        ObtenerMazosUsuarios();
+        FormatearMazosDeCartas();
+        
         ArreglarNumJugadores();
+        AgregarCartasAAtributos();
     }
     
-
-    public void GetMazosUsuarios(List<Superstar> jugadores)
+    private void ObtenerMazosUsuarios()
     {
-        for (int numJugador = 0; numJugador < jugadores.Count; numJugador++)
+        for (int indiceJugador = 0; indiceJugador < 2; indiceJugador++)
         {
-            List<IViewableCardInfo> manoJugador = jugadores[numJugador].Hand;
-            List<IViewableCardInfo> ringsideJugador = jugadores[numJugador].Ringside;
-            List<IViewableCardInfo> ringAreaJugador = jugadores[numJugador].RingArea;
-
-            List<List<IViewableCardInfo>> mazosUnJugador = new List<List<IViewableCardInfo>>();
-            mazosUnJugador.Add(manoJugador);
-            mazosUnJugador.Add(ringsideJugador);
-            mazosUnJugador.Add(ringAreaJugador);
-            _mazosBrutosJugadores[numJugador] = mazosUnJugador;
+            List<List<IViewableCardInfo>> mazosDeUnJugador = ObtenerMazosDeUnJugador(indiceJugador);
+            _mazosBrutosDeLosJugadores[indiceJugador] = mazosDeUnJugador;
         }
-        FormatearCartas();
+    }
+    private void ArreglarNumJugadores()
+    {
+        if (_indiceJugadorEnJuego == 0) { _indiceJugadorOponente = 1; }
+        else { _indiceJugadorOponente = 0; }
     }
     
-    public void FormatearCartas()
+    public void ElegirQueCartasVer()
     {
-        int numAuxliar = 0;
-        foreach (var mazosCartasUnJugador in _mazosBrutosJugadores)
-        {
-            List<List<string>> mazoCartasFormateadas = new List<List<string>>();
-            foreach (var mazoCartas in mazosCartasUnJugador.Value)
-            {
-                List<string> datosDeLasCartas = new List<string>();
-                foreach (var carta in mazoCartas)
-                {
-                    string cartaFormateada = Formatter.CardToString(carta);
-                    datosDeLasCartas.Add(cartaFormateada);
-                }
-                mazoCartasFormateadas.Add(datosDeLasCartas);
-            }
-            _mazosFormateadosJugadores[numAuxliar] = mazoCartasFormateadas;
-            numAuxliar++;
-        }
-    }
-
-    public void ArreglarNumJugadores()
-    {
-        if (_jugadorEnJuego == 0) { _jugadorOponente = 1; }
-        else { _jugadorOponente = 0; }
-    }
-
-    public void EleccionQueCartasVer()
-    {
-        var eleccionDos = _view.AskUserWhatSetOfCardsHeWantsToSee();
-        if (eleccionDos == CardSet.Hand)
+        var eleccionQueMazoVer = _view.AskUserWhatSetOfCardsHeWantsToSee();
+        if (eleccionQueMazoVer == CardSet.Hand)
             VerMano();
-        else if (eleccionDos == CardSet.RingsidePile)
+        else if (eleccionQueMazoVer == CardSet.RingsidePile)
             VerMiRingside();
-        else if (eleccionDos == CardSet.RingArea)
+        else if (eleccionQueMazoVer == CardSet.RingArea)
             VerMiRingArea();
-        else if (eleccionDos == CardSet.OpponentsRingsidePile)
+        else if (eleccionQueMazoVer == CardSet.OpponentsRingsidePile)
             VerRingsideOponente();
-        else if (eleccionDos == CardSet.OpponentsRingArea)
+        else if (eleccionQueMazoVer == CardSet.OpponentsRingArea)
             VerRingAreaOponente();
     }
-
-    private void VerMano()
-    {
-        _view.ShowCards(_mazosFormateadosJugadores[_jugadorEnJuego][0]); 
+    private void AgregarCartasAAtributos()
+    { 
+        _manoJugadorEnJuego = _mazosFormateadosDeLosJugadores[_indiceJugadorEnJuego][0];
+        _ringsideJugadorEnJuego = _mazosFormateadosDeLosJugadores[_indiceJugadorEnJuego][1];
+        _ringAreaJugadorEnJuego = _mazosFormateadosDeLosJugadores[_indiceJugadorEnJuego][2];
+        
+        _ringsideJugadorOponente = _mazosFormateadosDeLosJugadores[_indiceJugadorOponente][1];
+        _ringAreaJugadorOponente = _mazosFormateadosDeLosJugadores[_indiceJugadorOponente][2];
     }
-
-    private void VerMiRingside()
+    
+    private void FormatearMazosDeCartas()
     {
-        _view.ShowCards(_mazosFormateadosJugadores[_jugadorEnJuego][1]);
+        int numeroParaLlaveDelDiccionario = 0;
+        foreach (var mazosCartasUnJugador in _mazosBrutosDeLosJugadores)
+        {
+            List<List<string>> mazoCartasFormateadas = FormatearMazoEspecificoGuardadoEnDiccionario(mazosCartasUnJugador.Value);
+            _mazosFormateadosDeLosJugadores[numeroParaLlaveDelDiccionario] = mazoCartasFormateadas;
+            numeroParaLlaveDelDiccionario++;
+        }
     }
-
-    private void VerMiRingArea()
+    
+    private List<List<string>> FormatearMazoEspecificoGuardadoEnDiccionario(List<List<IViewableCardInfo>> mazosCartasUnJugador)
     {
-        _view.ShowCards(_mazosFormateadosJugadores[_jugadorEnJuego][2]);
-    }
+        List<List<string>> mazoCartasFormateadas = new List<List<string>>();
+        foreach (var mazoCartas in mazosCartasUnJugador)
+        {
+            List<string> datosFormateadosDeLasCartas = Utils.FormatearMazoDeCartas(mazoCartas);
+            mazoCartasFormateadas.Add(datosFormateadosDeLasCartas);
+        }
 
-    private void VerRingsideOponente()
-    {
-        _view.ShowCards(_mazosFormateadosJugadores[_jugadorOponente][1]);
+        return mazoCartasFormateadas;
     }
-
-    private void VerRingAreaOponente()
+    private List<List<IViewableCardInfo>> ObtenerMazosDeUnJugador(int indiceJugador)
     {
-        _view.ShowCards(_mazosFormateadosJugadores[_jugadorOponente][2]);
+        List<List<IViewableCardInfo>> mazosUnJugador = new List<List<IViewableCardInfo>>();
+        
+        List<IViewableCardInfo> manoJugador = _jugadores[indiceJugador].Hand;
+        List<IViewableCardInfo> ringsideJugador = _jugadores[indiceJugador].Ringside;
+        List<IViewableCardInfo> ringAreaJugador = _jugadores[indiceJugador].RingArea;
+        
+        mazosUnJugador.Add(manoJugador);
+        mazosUnJugador.Add(ringsideJugador);
+        mazosUnJugador.Add(ringAreaJugador);
+        
+        return mazosUnJugador;
     }
+    
+    private void VerMano() => _view.ShowCards(_manoJugadorEnJuego); 
+    private void VerMiRingside() => _view.ShowCards(_ringsideJugadorEnJuego);
+    private void VerMiRingArea() => _view.ShowCards(_ringAreaJugadorEnJuego);
+    private void VerRingsideOponente() => _view.ShowCards(_ringsideJugadorOponente);
+    private void VerRingAreaOponente() => _view.ShowCards(_ringAreaJugadorOponente);
 }

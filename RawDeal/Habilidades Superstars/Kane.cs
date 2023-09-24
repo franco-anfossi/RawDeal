@@ -1,29 +1,24 @@
-using RawDealView;
 using RawDealView.Formatters;
 
 namespace RawDeal.Habilidades_Superstars;
 
 public class Kane : Superstar
 {
-    public override bool HabilidadEspecial(View view, Superstar oponente)
+    public override bool EjecutarHabilidadEspecial()
     {
-        bool continuarPartida = true;
-        View = view;
         View.SayThatPlayerIsGoingToUseHisAbility(Name, SuperstarAbility);
-        View.SayThatSuperstarWillTakeSomeDamage(oponente.Name, 1);
-        for (int iteracionDelDano = 1; iteracionDelDano <= 1; iteracionDelDano++)
-        {
-            if (oponente.Arsenal.Count != 0)
-            {
-                IViewableCardInfo cartaExtraida = oponente.PasarCartaDeArsenalARingside();
-                string cartaExtraidaFormateada = Formatter.CardToString(cartaExtraida);
-
-                View.ShowCardOverturnByTakingDamage(cartaExtraidaFormateada, iteracionDelDano, 1);
-            }
-            else
-                continuarPartida = false;
-        }
+        View.SayThatSuperstarWillTakeSomeDamage(Oponente.Name, 1);
+        
+        if (!Oponente.ComprobarArsenalVacio())
+            RetirarUnaCartaDelOponenteAlRingside();
 
         return true;
+    }
+
+    private void RetirarUnaCartaDelOponenteAlRingside()
+    {
+        IViewableCardInfo cartaExtraida = Oponente.PasarCartaDeArsenalARingside();
+        string cartaExtraidaFormateada = Formatter.CardToString(cartaExtraida);
+        View.ShowCardOverturnByTakingDamage(cartaExtraidaFormateada, 1, 1);
     }
 }

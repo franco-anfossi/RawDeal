@@ -1,39 +1,49 @@
-using RawDealView;
-
 namespace RawDeal.Habilidades_Superstars;
 
 public class Mankind : Superstar
 {
-    private bool _sacadaInicial = true;
+    private bool _sacadaDeCartasInicial = true;
+    private int _ultimaCartaDelArsenal;
+    public override bool EjecutarHabilidadEspecial()
+        {
+            return true;
+        }
     public override void SacarCartasAlInicio()
     {
         for (int i = 0; i < HandSize; i++)
             SacarCarta();
-        _sacadaInicial = false;
+        
+        _sacadaDeCartasInicial = false;
         ActualizarDatos();
     }
     public override void SacarCarta()
     {
-        int ultimaCarta = Arsenal.Count - 1;
-        int penultimaCarta = Arsenal.Count - 2;
-        if (ultimaCarta >= 1 && Arsenal.Count >= 1 && penultimaCarta >= 0 && !_sacadaInicial)
-        {
-            for (int restaPosicionCarta = 0; restaPosicionCarta < 2; restaPosicionCarta++)
-            { 
-                Hand.Add(Arsenal[ultimaCarta - restaPosicionCarta]); 
-                Arsenal.RemoveAt(ultimaCarta - restaPosicionCarta); 
-            }
-        }
+        _ultimaCartaDelArsenal = Arsenal.Count - 1;
+        if (VerificarCondicionParaRobarDosCartas())
+            RobarDosCartas();
         else
         {
-            Hand.Add(Arsenal[ultimaCarta]); 
-            Arsenal.RemoveAt(ultimaCarta);
+            Hand.Add(Arsenal[_ultimaCartaDelArsenal]); 
+            Arsenal.RemoveAt(_ultimaCartaDelArsenal);
         }
 
         ActualizarDatos();
     }
-    public override bool HabilidadEspecial(View view, Superstar oponente)
+    
+    private bool VerificarCondicionParaRobarDosCartas()
     {
-        return true;
+        if (_ultimaCartaDelArsenal >= 1 && Arsenal.Count >= 1 && !_sacadaDeCartasInicial) { return true; }
+        return false;
     }
+
+    private void RobarDosCartas()
+    {
+        for (int restaPosicionCarta = 0; restaPosicionCarta < 2; restaPosicionCarta++)
+        { 
+            Hand.Add(Arsenal[_ultimaCartaDelArsenal - restaPosicionCarta]); 
+            Arsenal.RemoveAt(_ultimaCartaDelArsenal - restaPosicionCarta); 
+        }
+    }
+    
+    
 }

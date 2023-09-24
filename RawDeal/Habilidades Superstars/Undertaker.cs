@@ -1,60 +1,53 @@
-using RawDealView;
-using RawDealView.Formatters;
-
 namespace RawDeal.Habilidades_Superstars;
 
 public class Undertaker : Superstar
 {
-    private bool _noSePuedeElegirLaHabilidad = false;
-    private int _vecesEnLasQueSeAUsadoLaHabilidad = 0;
-    public override bool HabilidadEspecial(View view, Superstar oponente)
+    private bool _permisoHabilidad;
+    private int _vecesEnLasQueSeAUsadoLaHabilidad;
+    public override bool EjecutarHabilidadEspecial()
     {
-        View = view;
         if (_vecesEnLasQueSeAUsadoLaHabilidad < 1 && Hand.Count >= 2)
         {
             View.SayThatPlayerIsGoingToUseHisAbility(Name, SuperstarAbility);
             
-            for (int cartasPorSacar = 2; cartasPorSacar > 0; cartasPorSacar--)
-            {
-                List<string> datosDeLasCartasDeLaMano = new List<string>();
-                foreach (var carta in Hand)
-                {
-                    string cartaFormateada = Formatter.CardToString(carta);
-                    datosDeLasCartasDeLaMano.Add(cartaFormateada);
-                }
-                
-                int indexCartaElegida = View.AskPlayerToSelectACardToDiscard(datosDeLasCartasDeLaMano, Name, Name, cartasPorSacar);
-                PasarCartaDeLaManoAlRingside(indexCartaElegida);
-            }
-
-            List<string> datosDeLasCartasDelRingside = new List<string>();
-            foreach (var carta in Ringside)
-            {
-                string cartaFormateada = Formatter.CardToString(carta);
-                datosDeLasCartasDelRingside.Add(cartaFormateada);
-            }
-
-            int indexCartaRingsideElegida = View.AskPlayerToSelectCardsToPutInHisHand(Name, 1, datosDeLasCartasDelRingside);
-            PasarCartaDelRingsideALaMano(indexCartaRingsideElegida);
+            DescartarDosCartasDeLaMano();
+            RobarUnaCartaDelRingside();
             
             _vecesEnLasQueSeAUsadoLaHabilidad++;
-            _noSePuedeElegirLaHabilidad = true;
+            _permisoHabilidad = true;
         }
         return true;
     }
-    public override bool NoSePuedeEligirSiUsarLaHabilidad()
+    public override bool ObtenerQueNoSePuedeEligirSiUsarLaHabilidad()
     {
-        if (Hand.Count >= 2 && _vecesEnLasQueSeAUsadoLaHabilidad < 1) { _noSePuedeElegirLaHabilidad = false; }
-        else { _noSePuedeElegirLaHabilidad = true; }
+        if (Hand.Count >= 2 && _vecesEnLasQueSeAUsadoLaHabilidad < 1) { _permisoHabilidad = false; }
+        else { _permisoHabilidad = true; }
         
-        return _noSePuedeElegirLaHabilidad;
+        return _permisoHabilidad;
     }
     public override void CambiarVisibilidadDeElegirLaHabilidad()
     {
         if (Hand.Count >= 2)
         {
             _vecesEnLasQueSeAUsadoLaHabilidad = 0;
-            _noSePuedeElegirLaHabilidad = false;
+            _permisoHabilidad = false;
         }
+    }
+
+    private void DescartarDosCartasDeLaMano()
+    {
+        for (int cartasPorSacar = 2; cartasPorSacar > 0; cartasPorSacar--)
+        {
+            List<string> datosFormateadosDeLasCartasDeLaMano = Utils.FormatearMazoDeCartas(Hand);
+            int indiceCartaElegida = View.AskPlayerToSelectACardToDiscard(datosFormateadosDeLasCartasDeLaMano, Name, Name, cartasPorSacar);
+            PasarCartaDeLaManoAlRingside(indiceCartaElegida);
+        }
+    }
+
+    private void RobarUnaCartaDelRingside()
+    {
+        List<string> datosFormateadosDeLasCartasDelRingside = Utils.FormatearMazoDeCartas(Ringside);
+        int indiceCartaRingsideElegida = View.AskPlayerToSelectCardsToPutInHisHand(Name, 1, datosFormateadosDeLasCartasDelRingside);
+        PasarCartaDelRingsideALaMano(indiceCartaRingsideElegida);
     }
 }

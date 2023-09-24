@@ -1,69 +1,94 @@
 using System.Text.Json;
 using RawDeal.Habilidades_Superstars;
+using RawDealView.Formatters;
 
 namespace RawDeal;
 
 public static class Utils
 {
-    private static string _archivoJson;
+    private static string? _valorParaLogo;
+    private static string _archivoDeCartasJson;
+    private static string _archivoDeSuperstarJson;
+    private static List<Carta>? _cartasDeserializadas;
+    private static List<Dictionary<string, JsonElement>>? _superstarsDeserializadas;
     
-    public static void AbrirArchivo(string archivo)
-    {
-        _archivoJson = File.ReadAllText(archivo);
-    }
-
-    public static List<Carta> DeserializacionCartas()
-    {
-        var cartas = JsonSerializer.Deserialize<List<Carta>>(_archivoJson);
-        return cartas ?? throw new InvalidOperationException();
-    }
-    
-    public static List<Superstar> DeserializacionSuperstar()
-    {
-        var cartas = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(_archivoJson);
-        List<Superstar> superstars = new List<Superstar>();
-        foreach (var item in cartas)
-        {
-            string? valorParaLogo = item["Logo"].GetString();
-            string superstarJson = JsonSerializer.Serialize(item);
-
-            Superstar? superstar = valorParaLogo switch
-            {
-                "StoneCold" => JsonSerializer.Deserialize<StoneCold>(superstarJson),
-                "Undertaker" => JsonSerializer.Deserialize<Undertaker>(superstarJson),
-                "HHH" => JsonSerializer.Deserialize<HHH>(superstarJson),
-                "Jericho" => JsonSerializer.Deserialize<Jericho>(superstarJson),
-                "Mankind" => JsonSerializer.Deserialize<Mankind>(superstarJson),
-                "TheRock" => JsonSerializer.Deserialize<TheRock>(superstarJson),
-                "Kane" => JsonSerializer.Deserialize<Kane>(superstarJson),
-                _ => throw new InvalidOperationException("Tipo de Superstar no reconocido")
-            };
-            if (superstar != null) superstars.Add(superstar);
-        }
-
-        return superstars;
-    }
-
     public static string[] AbrirMazo(string archivo)
     {
-        string[] lines = File.ReadAllLines(archivo);
-        return lines;
+        string[] lineasDelArchivo = File.ReadAllLines(archivo);
+        return lineasDelArchivo;
     }
-    
-    public static void Shuffle<T>(this IList<T>list) 
-    {
-        var rnd = new Random ();
-        for (var i = list.Count ; i > 0; i--) 
-            list.Swap(0, rnd.Next(0, i)); 
-    } 
-    
     public static void CambiarPosicionesDeLaLista<T>(List<T> lista)
     {
         (lista[0], lista[1]) = (lista[1], lista[0]);
     }
-    
-    private static void Swap<T>(this IList<T>list, int i, int j)
+
+    public static List<string> FormatearMazoDeCartas(List<IViewableCardInfo> mazoDeCartas)
     {
-        (list[i], list[j]) = (list[j], list[i]);
+        List<string> datosFormateadosDeLasCartas = new List<string>();
+        foreach (var carta in mazoDeCartas)
+        {
+            string cartaFormateada = Formatter.CardToString(carta);
+            datosFormateadosDeLasCartas.Add(cartaFormateada);
+        }
+
+        return datosFormateadosDeLasCartas;
+    }
+    
+    public static (List<Superstar>, List<Carta>) DeserializarDeCartasYSuperstarsDesdeLosJson()
+    {
+        string archivoJsonCartas = Path.Combine("data", "cards.json");
+        string archivoJsonSuperstars = Path.Combine("data", "superstar.json");
+        
+        AbrirArchivo(archivoJsonSuperstars);
+        var superstarsDeserializadas = DeserializarSuperstars();
+        
+        AbrirArchivo(archivoJsonCartas);
+        var cartasDeserializadas = DeserializarCartas();
+
+        return (superstarsDeserializadas, cartasDeserializadas)!;
+    }
+    private static void AbrirArchivo(string nombreDelArchivo)
+    {
+        _archivoDeCartasJson = File.ReadAllText(nombreDelArchivo);
+    }
+    private static List<Carta> DeserializarCartas()
+    {
+        _cartasDeserializadas = JsonSerializer.Deserialize<List<Carta>>(_archivoDeCartasJson);
+        return _cartasDeserializadas ?? throw new InvalidOperationException();
+    }
+    
+    private static List<Superstar?> DeserializarSuperstars()
+    {
+        _superstarsDeserializadas = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(_archivoDeCartasJson);
+        List<Superstar?> superstars = AnadirCadaSuperstarDespuesDeDeserializar();
+        
+        return superstars;
+    }
+    private static List<Superstar?> AnadirCadaSuperstarDespuesDeDeserializar()
+    {
+        List<Superstar?> superstars = new List<Superstar?>();
+        foreach (var item in _superstarsDeserializadas!)
+        {
+            _valorParaLogo = item["Logo"].GetString();
+            _archivoDeSuperstarJson = JsonSerializer.Serialize(item);
+            Superstar? superstar = CrearClaseSuperstarDesdeJson();
+            superstars.Add(superstar);
+        }
+        return superstars;
+    }
+    private static Superstar? CrearClaseSuperstarDesdeJson()
+    {
+        Superstar? superstar = _valorParaLogo switch
+        {
+            "StoneCold" => JsonSerializer.Deserialize<StoneCold>(_archivoDeSuperstarJson),
+            "Undertaker" => JsonSerializer.Deserialize<Undertaker>(_archivoDeSuperstarJson),
+            "HHH" => JsonSerializer.Deserialize<HHH>(_archivoDeSuperstarJson),
+            "Jericho" => JsonSerializer.Deserialize<Jericho>(_archivoDeSuperstarJson),
+            "Mankind" => JsonSerializer.Deserialize<Mankind>(_archivoDeSuperstarJson),
+            "TheRock" => JsonSerializer.Deserialize<TheRock>(_archivoDeSuperstarJson),
+            "Kane" => JsonSerializer.Deserialize<Kane>(_archivoDeSuperstarJson),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        return superstar;
     }
 }

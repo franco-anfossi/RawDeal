@@ -1,10 +1,8 @@
-using RawDealView;
-
 namespace RawDeal.Habilidades_Superstars;
 
 public class HHH : Superstar
 {
-    public override bool HabilidadEspecial(View view, Superstar oponente)
+    public override bool EjecutarHabilidadEspecial()
     {
         return true;
     }

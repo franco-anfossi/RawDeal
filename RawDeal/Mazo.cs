@@ -6,48 +6,49 @@ public class Mazo
 {
     private Superstar _superstarDuenoDelMazo;
     private List<IViewableCardInfo> _cartasDelMazo;
-    private ConjuntoCartas _conjuntoCartas;
+    private ConjuntoCartas _conjuntoDeCartas;
     
     public Superstar SuperstarDelMazo => _superstarDuenoDelMazo;
     public List<IViewableCardInfo> CartasDelMazo => _cartasDelMazo;
     
-    public Mazo(string[] listaMazo, ConjuntoCartas conjunto)
+    public Mazo(string[] mazoAbiertoDelArchivo, ConjuntoCartas conjuntoDeCartas)
     {
         _cartasDelMazo = new List<IViewableCardInfo>();
-        _conjuntoCartas = conjunto;
+        _conjuntoDeCartas = conjuntoDeCartas;
 
-        AgregarSuperstarEquivalenteAlMazo(listaMazo);
-        AgregarCartaEquivalenteAlMazo(listaMazo);
-        SetMazoParaElSuperstarDueno();
+        AgregarSuperstarEquivalenteAlMazo(mazoAbiertoDelArchivo);
+        AgregarCartaEquivalenteAlMazo(mazoAbiertoDelArchivo);
+        SetearMazoParaElSuperstarDueno();
     }
 
-    private void AgregarSuperstarEquivalenteAlMazo(string[] listaMazo)
+    private void AgregarSuperstarEquivalenteAlMazo(string[] mazoAbiertoDelArchivo)
     {
-        string nombreSuperstar = listaMazo[0].Replace("(Superstar Card)", "").Trim();
-        foreach (var superstar in _conjuntoCartas.SuperstarsPosibles)
+        string nombreSuperstarDelMazo = mazoAbiertoDelArchivo[0].Replace("(Superstar Card)", "").Trim();
+        foreach (var superstar in _conjuntoDeCartas.SuperstarsPosibles)
         {
-            if (superstar.Name == nombreSuperstar)
-                _superstarDuenoDelMazo = (Superstar)superstar.Clonar();
+            if (superstar.Name == nombreSuperstarDelMazo) { _superstarDuenoDelMazo = (Superstar)superstar.Clonar(); }
         }
     }
 
-    private void AgregarCartaEquivalenteAlMazo(string[] listaMazo)
+    private void AgregarCartaEquivalenteAlMazo(string[] mazoAbieroDelArchivo)
     {
-        foreach (var fila in listaMazo)
-        foreach (var carta in _conjuntoCartas.CartasPosibles)
+        foreach (var nombreDeLaCarta in mazoAbieroDelArchivo)
+        foreach (var carta in _conjuntoDeCartas.CartasPosibles)
         {
-            if (fila.Trim() == carta.Title)
-            {
-                Carta copiaCarta = (Carta)carta.Clonar();
-                _cartasDelMazo.Add(copiaCarta);
-            }
+            if (nombreDeLaCarta.Trim() == carta.Title)
+                AgregarCopiaDeLaClaseBaseDeLaCarta(carta);
         }
     }
 
-    private void SetMazoParaElSuperstarDueno()
+    private void SetearMazoParaElSuperstarDueno()
     {
-        _superstarDuenoDelMazo.InicializacionDeAtributos(_cartasDelMazo);
+        _superstarDuenoDelMazo.InicializarLosAtributosNecesarios(_cartasDelMazo);
     }
-    
+
+    private void AgregarCopiaDeLaClaseBaseDeLaCarta(Carta carta)
+    {
+        Carta copiaCarta = (Carta)carta.Clonar();
+        _cartasDelMazo.Add(copiaCarta);
+    }
     
 }

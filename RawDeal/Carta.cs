@@ -16,9 +16,4 @@ public class Carta : IViewableCardInfo
     {
         return MemberwiseClone();
     }
-    
-    public override string ToString()
-    {
-        return $"{Title}";
-    }
 }
