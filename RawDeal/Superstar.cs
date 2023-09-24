@@ -3,7 +3,7 @@ using RawDealView.Formatters;
 
 namespace RawDeal;
 
-public abstract class Superstar : IJugador
+public abstract class Superstar
 {
     public string Name { get; set; }
     public string Logo { get; set; }
