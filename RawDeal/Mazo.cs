@@ -4,11 +4,11 @@ namespace RawDeal;
 
 public class Mazo
 {
-    private Superstar _superstarDuenoDelMazo;
+    private Jugador _jugadorDuenoDelMazo;
     private List<IViewableCardInfo> _cartasDelMazo;
     private ConjuntoCartas _conjuntoDeCartas;
     
-    public Superstar SuperstarDelMazo => _superstarDuenoDelMazo;
+    public Jugador JugadorDelMazo => _jugadorDuenoDelMazo;
     public List<IViewableCardInfo> CartasDelMazo => _cartasDelMazo;
     
     public Mazo(string[] mazoAbiertoDelArchivo, ConjuntoCartas conjuntoDeCartas)
@@ -26,7 +26,10 @@ public class Mazo
         string nombreSuperstarDelMazo = mazoAbiertoDelArchivo[0].Replace("(Superstar Card)", "").Trim();
         foreach (var superstar in _conjuntoDeCartas.SuperstarsPosibles)
         {
-            if (superstar.Name == nombreSuperstarDelMazo) { _superstarDuenoDelMazo = (Superstar)superstar.Clonar(); }
+            if (superstar.CompararNombres(nombreSuperstarDelMazo))
+            {
+                _jugadorDuenoDelMazo = (Jugador)superstar.Clonar();
+            }
         }
     }
 
@@ -42,7 +45,7 @@ public class Mazo
 
     private void SetearMazoParaElSuperstarDueno()
     {
-        _superstarDuenoDelMazo.InicializarLosAtributosNecesarios(_cartasDelMazo);
+        _jugadorDuenoDelMazo.InicializarLosAtributosNecesarios(_cartasDelMazo);
     }
 
     private void AgregarCopiaDeLaClaseBaseDeLaCarta(Carta carta)

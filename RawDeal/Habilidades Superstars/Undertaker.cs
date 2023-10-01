@@ -1,9 +1,21 @@
+using RawDealView;
+using RawDealView.Formatters;
+
 namespace RawDeal.Habilidades_Superstars;
 
-public class Undertaker : Superstar
+public class Undertaker : Jugador
 {
     private bool _permisoHabilidad;
     private int _vecesEnLasQueSeAUsadoLaHabilidad;
+    public Undertaker(Superstar superstar) : base(superstar)
+    {
+        Name = superstar.Name;
+        Logo = superstar.Logo;
+        HandSize = superstar.HandSize;
+        SuperstarValue = superstar.SuperstarValue;
+        SuperstarAbility = superstar.SuperstarAbility;
+    }
+    
     public override bool EjecutarHabilidadEspecial()
     {
         if (_vecesEnLasQueSeAUsadoLaHabilidad < 1 && Hand.Count >= 2)

@@ -1,8 +1,20 @@
+using RawDealView;
+using RawDealView.Formatters;
+
 namespace RawDeal.Habilidades_Superstars;
 
-public class TheRock : Superstar
+public class TheRock : Jugador
 {
     private bool _respuestaDeLaHabilidad;
+    public TheRock(Superstar superstar) : base(superstar)
+    {
+        Name = superstar.Name;
+        Logo = superstar.Logo;
+        HandSize = superstar.HandSize;
+        SuperstarValue = superstar.SuperstarValue;
+        SuperstarAbility = superstar.SuperstarAbility;
+    }
+    
     public override bool EjecutarHabilidadEspecial()
     {
         if (Ringside.Count != 0)

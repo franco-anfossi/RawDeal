@@ -1,9 +1,21 @@
+using RawDealView;
+using RawDealView.Formatters;
+
 namespace RawDeal.Habilidades_Superstars;
 
-public class StoneCold : Superstar
+public class StoneCold : Jugador
 {
     private bool _permisoHabilidad = false;
     private int _vecesEnLasQueSeAUsadoLaHabilidad = 0;
+    public StoneCold(Superstar superstar) : base(superstar)
+    {
+        Name = superstar.Name;
+        Logo = superstar.Logo;
+        HandSize = superstar.HandSize;
+        SuperstarValue = superstar.SuperstarValue;
+        SuperstarAbility = superstar.SuperstarAbility;
+    }
+    
     public override bool EjecutarHabilidadEspecial()
     {
         if (_vecesEnLasQueSeAUsadoLaHabilidad < 1 && Arsenal.Count >= 0)

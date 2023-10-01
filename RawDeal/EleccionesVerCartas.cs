@@ -6,7 +6,7 @@ namespace RawDeal;
 
 public class EleccionesVerCartas
 {
-    private List<Superstar> _jugadores;
+    private List<Jugador> _jugadores;
     private int _indiceJugadorEnJuego;
     private int _indiceJugadorOponente;
     private View _view;
@@ -21,7 +21,7 @@ public class EleccionesVerCartas
     private List<string> _ringsideJugadorOponente;
     private List<string> _ringAreaJugadorOponente;
 
-    public EleccionesVerCartas(List<Superstar> jugadores, int numIndiceJugador, View view)
+    public EleccionesVerCartas(List<Jugador> jugadores, int numIndiceJugador, View view)
     {
         _jugadores = jugadores;
         _indiceJugadorEnJuego = numIndiceJugador;
@@ -96,11 +96,12 @@ public class EleccionesVerCartas
     }
     private List<List<IViewableCardInfo>> ObtenerMazosDeUnJugador(int indiceJugador)
     {
+        Dictionary<string, List<IViewableCardInfo>> mazos = _jugadores[indiceJugador].ObtenerMazos();
         List<List<IViewableCardInfo>> mazosUnJugador = new List<List<IViewableCardInfo>>();
-        
-        List<IViewableCardInfo> manoJugador = _jugadores[indiceJugador].Hand;
-        List<IViewableCardInfo> ringsideJugador = _jugadores[indiceJugador].Ringside;
-        List<IViewableCardInfo> ringAreaJugador = _jugadores[indiceJugador].RingArea;
+
+        List<IViewableCardInfo> manoJugador = _jugadores[indiceJugador].getHand();
+        List<IViewableCardInfo> ringsideJugador = _jugadores[indiceJugador].getRingside();
+        List<IViewableCardInfo> ringAreaJugador = _jugadores[indiceJugador].getRingArea();
         
         mazosUnJugador.Add(manoJugador);
         mazosUnJugador.Add(ringsideJugador);

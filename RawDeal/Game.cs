@@ -9,7 +9,7 @@ public class Game
     private View _view;
     private string _deckFolder;
     private ConjuntoCartas _conjuntoCartas;
-    private List<Superstar> _jugadores = new();
+    private List<Jugador> _jugadores = new();
     
     private bool _estadoLoopPrincipal = true;
     private bool _estadoLoopElecciones = true;
@@ -17,8 +17,8 @@ public class Game
     private int _indiceJugadorEnJuego;
     private int _indiceJugadorOponente = 1;
 
-    private Superstar _jugadorEnJuego;
-    private Superstar _jugadorOponente;
+    private Jugador _jugadorEnJuego;
+    private Jugador _jugadorOponente;
     
     
     public Game(View view, string deckFolder)
@@ -35,7 +35,7 @@ public class Game
         if (_estadoLoopPrincipal)
         {
             ElegirJugadorInicial();
-            ExtraerCartasInciales();
+            ExtraerCartasIniciales();
         }
         CorrerLoopPrincipalDelJuego();
     }
@@ -50,10 +50,10 @@ public class Game
     }
     private void ElegirJugadorInicial()
     {
-        if (!(_jugadores[0].SuperstarValue >= _jugadores[1].SuperstarValue))
+        if (!(_jugadores[0].DarSuperstarValue() >= _jugadores[1].DarSuperstarValue()))
             Utils.CambiarPosicionesDeLaLista(_jugadores);
     }
-    private void ExtraerCartasInciales()
+    private void ExtraerCartasIniciales()
     {
         foreach (var jugador in _jugadores)
             jugador.SacarCartasAlInicio();
@@ -66,7 +66,7 @@ public class Game
             _estadoLoopElecciones = true;
             InicializarVariablesDeJugadores();
             AgregarAtributosALosSuperstars();
-            _view.SayThatATurnBegins(_jugadorEnJuego.Name);
+            _jugadorEnJuego.DecirQueComienzaElTurno();
             EjecutarLaHabilidadEspecialAntesDeSacarCarta();
             _jugadorEnJuego.CambiarVisibilidadDeElegirLaHabilidad();
             CorrerLoopEleccionesDelJuego();
@@ -101,7 +101,7 @@ public class Game
     {
         while (_estadoLoopElecciones)
         {
-            _view.ShowGameInfo(_jugadorEnJuego.DatosJugador, _jugadorOponente.DatosJugador);
+            _view.ShowGameInfo(_jugadorEnJuego.DarDatosJugador(), _jugadorOponente.DarDatosJugador());
             NextPlay eleccionDeLasPrimerasOpciones = EvaluarCondicionesParaMostrarLaEleccionDeHabilidad();
             ManejarEleccionesPosibles(eleccionDeLasPrimerasOpciones);
         }
@@ -130,7 +130,7 @@ public class Game
     
     private int ManejarMazoValido(Mazo mazo, int jugador)
     {
-        _jugadores.Add(mazo.SuperstarDelMazo);
+        _jugadores.Add(mazo.JugadorDelMazo);
         return jugador;
     }
 
@@ -192,7 +192,7 @@ public class Game
 
     private void SeleccionarOpcionRendirse()
     {
-        _view.CongratulateWinner(_jugadorOponente.Name); 
+        _jugadorOponente.AvisarGanador();
         _estadoLoopPrincipal = false; 
         _estadoLoopElecciones = false;
     }
@@ -200,14 +200,14 @@ public class Game
     private void DeclararVictoriaDelJugadorEnJuego()
     {
         _estadoLoopElecciones = false;
-        _view.CongratulateWinner(_jugadorEnJuego.Name);
+        _jugadorEnJuego.AvisarGanador();
         _estadoLoopPrincipal = _estadoLoopElecciones;
     }
 
     private void DeclararDerrotaDelJugadorEnJuego()
     {
         _estadoLoopElecciones = false;
-        _view.CongratulateWinner(_jugadorOponente.Name);
+        _jugadorOponente.AvisarGanador();
         _estadoLoopPrincipal = _estadoLoopElecciones;
     }
 
@@ -220,15 +220,27 @@ public class Game
     
     private void CambiarJugadores()
     {
-        if (_indiceJugadorEnJuego == 0) { _indiceJugadorEnJuego = 1; }
-        else { _indiceJugadorEnJuego = 0; }
+        if (_indiceJugadorEnJuego == 0)
+        {
+            _indiceJugadorEnJuego = 1;
+        }
+        else
+        {
+            _indiceJugadorEnJuego = 0;
+        }
 
         _jugadorEnJuego = _jugadores[_indiceJugadorEnJuego];
     }
     private void RevisarJugadores()
     {
-        if (_indiceJugadorEnJuego == 0) { _indiceJugadorOponente = 1; }
-        else { _indiceJugadorOponente = 0; }
+        if (_indiceJugadorEnJuego == 0)
+        {
+            _indiceJugadorOponente = 1;
+        }
+        else
+        {
+            _indiceJugadorOponente = 0;
+        }
 
         _jugadorOponente = _jugadores[_indiceJugadorOponente];
     }

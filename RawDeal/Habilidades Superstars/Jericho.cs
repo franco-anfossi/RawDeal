@@ -1,9 +1,22 @@
+using Microsoft.VisualBasic.CompilerServices;
+using RawDealView;
+using RawDealView.Formatters;
+
 namespace RawDeal.Habilidades_Superstars;
 
-public class Jericho : Superstar
+public class Jericho : Jugador
 {
     private bool _permisoHabilidad = false;
     private int _vecesEnLasQueSeAUsadoLaHabilidad = 0;
+    public Jericho(Superstar superstar) : base(superstar)
+    {
+        Name = superstar.Name;
+        Logo = superstar.Logo;
+        HandSize = superstar.HandSize;
+        SuperstarValue = superstar.SuperstarValue;
+        SuperstarAbility = superstar.SuperstarAbility;
+    }
+    
     public override bool EjecutarHabilidadEspecial()
     {
         if (Hand.Count >= 1 && _vecesEnLasQueSeAUsadoLaHabilidad < 1)
@@ -43,9 +56,8 @@ public class Jericho : Superstar
 
     private void DescartarUnaCartaDeLaManoDelOponente()
     {
-        List<string> datosFormateadosDeLasCartasOponente = Utils.FormatearMazoDeCartas(Oponente.Hand);
-        string nombreOponente = Oponente.Name;
-        int indiceCartaOponenteElegida = View.AskPlayerToSelectACardToDiscard(datosFormateadosDeLasCartasOponente, nombreOponente, nombreOponente, 1);
+        List<string> datosFormateadosDeLasCartasOponente = Utils.FormatearMazoDeCartas(Oponente.ObtenerMano());
+        int indiceCartaOponenteElegida = Oponente.PreguntarPorCartaPorDescartar(datosFormateadosDeLasCartasOponente, 1);
         Oponente.PasarCartaDeLaManoAlRingside(indiceCartaOponenteElegida);
     }
 }

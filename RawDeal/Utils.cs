@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using RawDeal.Habilidades_Superstars;
 using RawDealView.Formatters;
@@ -34,7 +35,7 @@ public static class Utils
         return datosFormateadosDeLasCartas;
     }
     
-    public static (List<Superstar>, List<Carta>) DeserializarDeCartasYSuperstarsDesdeLosJson()
+    public static (List<Jugador>, List<Carta>) DeserializarDeCartasYSuperstarsDesdeLosJson()
     {
         string archivoJsonCartas = Path.Combine("data", "cards.json");
         string archivoJsonSuperstars = Path.Combine("data", "superstar.json");
@@ -57,36 +58,38 @@ public static class Utils
         return _cartasDeserializadas ?? throw new InvalidOperationException();
     }
     
-    private static List<Superstar?> DeserializarSuperstars()
+    private static List<Jugador?> DeserializarSuperstars()
     {
         _superstarsDeserializadas = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(_archivoDeCartasJson);
-        List<Superstar?> superstars = AnadirCadaSuperstarDespuesDeDeserializar();
+        List<Jugador?> superstars = AnadirCadaSuperstarDespuesDeDeserializar();
         
         return superstars;
     }
-    private static List<Superstar?> AnadirCadaSuperstarDespuesDeDeserializar()
+    private static List<Jugador?> AnadirCadaSuperstarDespuesDeDeserializar()
     {
-        List<Superstar?> superstars = new List<Superstar?>();
+        List<Jugador?> superstars = new List<Jugador?>();
         foreach (var item in _superstarsDeserializadas!)
         {
             _valorParaLogo = item["Logo"].GetString();
             _archivoDeSuperstarJson = JsonSerializer.Serialize(item);
-            Superstar? superstar = CrearClaseSuperstarDesdeJson();
+            Jugador? superstar = CrearClaseSuperstarDesdeJson();
             superstars.Add(superstar);
         }
         return superstars;
     }
-    private static Superstar? CrearClaseSuperstarDesdeJson()
+    private static Jugador? CrearClaseSuperstarDesdeJson()
     {
-        Superstar? superstar = _valorParaLogo switch
+        Superstar? superstarData = JsonSerializer.Deserialize<Superstar>(_archivoDeSuperstarJson);
+        Console.WriteLine(superstarData);
+        Jugador? superstar = _valorParaLogo switch
         {
-            "StoneCold" => JsonSerializer.Deserialize<StoneCold>(_archivoDeSuperstarJson),
-            "Undertaker" => JsonSerializer.Deserialize<Undertaker>(_archivoDeSuperstarJson),
-            "HHH" => JsonSerializer.Deserialize<HHH>(_archivoDeSuperstarJson),
-            "Jericho" => JsonSerializer.Deserialize<Jericho>(_archivoDeSuperstarJson),
-            "Mankind" => JsonSerializer.Deserialize<Mankind>(_archivoDeSuperstarJson),
-            "TheRock" => JsonSerializer.Deserialize<TheRock>(_archivoDeSuperstarJson),
-            "Kane" => JsonSerializer.Deserialize<Kane>(_archivoDeSuperstarJson),
+            "StoneCold" => new StoneCold(superstarData),
+            "Undertaker" => new Undertaker(superstarData),
+            "HHH" => new HHH(superstarData),
+            "Jericho" => new Jericho(superstarData),
+            "Mankind" => new Mankind(superstarData),
+            "TheRock" => new TheRock(superstarData),
+            "Kane" => new Kane(superstarData),
             _ => throw new ArgumentOutOfRangeException()
         };
         return superstar;

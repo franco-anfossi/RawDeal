@@ -40,10 +40,10 @@ public static class MazoValidator
 
     private static bool ValidarQueLogoCartasEquivaleLogoSuperstar(ConjuntoCartas conjuntoDeCartas)
     {
-        var logoSuperstarEnRevision = _mazoARevisar.SuperstarDelMazo.Logo;
+        var logoSuperstarEnRevision = _mazoARevisar.JugadorDelMazo.ObtenerLogo();
         foreach (var superstar in conjuntoDeCartas.SuperstarsPosibles)
         {
-            string logoOtroSuperstar = superstar.Logo;
+            string logoOtroSuperstar = superstar.ObtenerLogo();
             if (!RevisarPorLogosLasCartasDelMazo(logoOtroSuperstar, logoSuperstarEnRevision)) { return false;}
         }
         

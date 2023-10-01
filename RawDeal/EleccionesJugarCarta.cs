@@ -13,12 +13,12 @@ public class EleccionesJugarCarta
     
     private View _view;
     
-    private Superstar _jugadorEnJuego;
-    private Superstar _jugadorOponente;
+    private Jugador _jugadorEnJuego;
+    private Jugador _jugadorOponente;
     
     private bool _partidaActiva = true;
 
-    public EleccionesJugarCarta(Superstar jugadorEnJuego, Superstar jugadorOponente, View view)
+    public EleccionesJugarCarta(Jugador jugadorEnJuego, Jugador jugadorOponente, View view)
     {
         _view = view;
         _jugadorEnJuego = jugadorEnJuego;
@@ -75,7 +75,7 @@ public class EleccionesJugarCarta
 
     private void IntentarJugarCarta()
     {
-        _view.SayThatPlayerIsTryingToPlayThisCard(_jugadorEnJuego.Name, _jugadaElegidaFormateada);
+        _jugadorEnJuego.IntentarJugarCarta(_jugadaElegidaFormateada);
     }
 
     private void JugarCartaExitosamente()
@@ -88,7 +88,10 @@ public class EleccionesJugarCarta
         IViewableCardInfo cartaElegida = _jugadaElegidaNoFormateada.CardInfo;
         int danoHecho = Convert.ToInt32(cartaElegida.Damage);
         _jugadorEnJuego.HacerDanoAlOponente(danoHecho);
-        if (_jugadorOponente.Name == "MANKIND") { danoHecho--; }
+        if (_jugadorOponente.RevisarSiEsManking())
+        {
+            danoHecho--;
+        }
         
         MostrarDanoHechoAlOponente(danoHecho);
     }
