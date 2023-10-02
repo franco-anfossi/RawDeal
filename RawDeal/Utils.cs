@@ -1,87 +1,82 @@
-using System.Runtime.InteropServices;
 using System.Text.Json;
-using RawDeal.Habilidades_Superstars;
+using RawDeal.Superstars;
 using RawDealView.Formatters;
 
 namespace RawDeal;
 
 public static class Utils
 {
-    private static string? _valorParaLogo;
-    private static string _archivoDeCartasJson;
-    private static string _archivoDeSuperstarJson;
-    private static List<Carta>? _cartasDeserializadas;
-    private static List<Dictionary<string, JsonElement>>? _superstarsDeserializadas;
+    private static string? _logoValue;
+    private static string? _jsonCardsArchive;
+    private static string? _jsonSuperstarsArchive;
+    private static List<Card>? _deserializedCards;
+    private static List<Dictionary<string, JsonElement>>? _deserializedSuperstars;
     
-    public static string[] AbrirMazo(string archivo)
+    public static string[] OpenDeckArchive(string archive)
     {
-        string[] lineasDelArchivo = File.ReadAllLines(archivo);
-        return lineasDelArchivo;
+        string[] archiveLines = File.ReadAllLines(archive);
+        return archiveLines;
     }
-    public static void CambiarPosicionesDeLaLista<T>(List<T> lista)
+    public static void ChangePositionsOfTheList<T>(List<T> list)
     {
-        (lista[0], lista[1]) = (lista[1], lista[0]);
+        (list[0], list[1]) = (list[1], list[0]);
     }
 
-    public static List<string> FormatearMazoDeCartas(List<IViewableCardInfo> mazoDeCartas)
+    public static List<string> FormatDecksOfCards(List<IViewableCardInfo> deckOfCards)
     {
-        List<string> datosFormateadosDeLasCartas = new List<string>();
-        foreach (var carta in mazoDeCartas)
+        List<string> formattedCardData = new List<string>();
+        foreach (var card in deckOfCards)
         {
-            string cartaFormateada = Formatter.CardToString(carta);
-            datosFormateadosDeLasCartas.Add(cartaFormateada);
+            string formattedCard = Formatter.CardToString(card);
+            formattedCardData.Add(formattedCard);
         }
 
-        return datosFormateadosDeLasCartas;
+        return formattedCardData;
     }
     
-    public static (List<Jugador>, List<Carta>) DeserializarDeCartasYSuperstarsDesdeLosJson()
+    public static (List<Player>, List<Card>) DeserializeCardsAndSuperstars()
     {
-        string archivoJsonCartas = Path.Combine("data", "cards.json");
-        string archivoJsonSuperstars = Path.Combine("data", "superstar.json");
+        string cardsJsonPath = Path.Combine("data", "cards.json");
+        string superstarsJsonPath = Path.Combine("data", "superstar.json");
         
-        AbrirArchivo(archivoJsonSuperstars);
-        var superstarsDeserializadas = DeserializarSuperstars();
+        _jsonSuperstarsArchive = File.ReadAllText(superstarsJsonPath);
+        var deserializedSuperstars = DeserializeSuperstars();
         
-        AbrirArchivo(archivoJsonCartas);
-        var cartasDeserializadas = DeserializarCartas();
+        _jsonCardsArchive = File.ReadAllText(cardsJsonPath);
+        var deserializedCards = DeserializeCards();
 
-        return (superstarsDeserializadas, cartasDeserializadas)!;
+        return (deserializedSuperstars, deserializedCards)!;
     }
-    private static void AbrirArchivo(string nombreDelArchivo)
+    private static List<Card> DeserializeCards()
     {
-        _archivoDeCartasJson = File.ReadAllText(nombreDelArchivo);
-    }
-    private static List<Carta> DeserializarCartas()
-    {
-        _cartasDeserializadas = JsonSerializer.Deserialize<List<Carta>>(_archivoDeCartasJson);
-        return _cartasDeserializadas ?? throw new InvalidOperationException();
+        _deserializedCards = JsonSerializer.Deserialize<List<Card>>(_jsonCardsArchive);
+        return _deserializedCards ?? throw new InvalidOperationException();
     }
     
-    private static List<Jugador?> DeserializarSuperstars()
+    private static List<Player?> DeserializeSuperstars()
     {
-        _superstarsDeserializadas = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(_archivoDeCartasJson);
-        List<Jugador?> superstars = AnadirCadaSuperstarDespuesDeDeserializar();
+        _deserializedSuperstars = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(_jsonSuperstarsArchive);
+        List<Player?> superstars = AddSuperstarAfterDeserialize();
         
         return superstars;
     }
-    private static List<Jugador?> AnadirCadaSuperstarDespuesDeDeserializar()
+    private static List<Player?> AddSuperstarAfterDeserialize()
     {
-        List<Jugador?> superstars = new List<Jugador?>();
-        foreach (var item in _superstarsDeserializadas!)
+        List<Player?> superstars = new List<Player?>();
+        foreach (var item in _deserializedSuperstars!)
         {
-            _valorParaLogo = item["Logo"].GetString();
-            _archivoDeSuperstarJson = JsonSerializer.Serialize(item);
-            Jugador? superstar = CrearClaseSuperstarDesdeJson();
+            _logoValue = item["Logo"].GetString();
+            _jsonSuperstarsArchive = JsonSerializer.Serialize(item);
+            Player superstar = CreateSuperstarClass();
             superstars.Add(superstar);
         }
         return superstars;
     }
-    private static Jugador? CrearClaseSuperstarDesdeJson()
+    private static Player CreateSuperstarClass()
     {
-        Superstar? superstarData = JsonSerializer.Deserialize<Superstar>(_archivoDeSuperstarJson);
-        Console.WriteLine(superstarData);
-        Jugador? superstar = _valorParaLogo switch
+        SuperstarData superstarData = JsonSerializer.Deserialize<SuperstarData>(_jsonSuperstarsArchive);
+        
+        Player superstar = _logoValue switch
         {
             "StoneCold" => new StoneCold(superstarData),
             "Undertaker" => new Undertaker(superstarData),

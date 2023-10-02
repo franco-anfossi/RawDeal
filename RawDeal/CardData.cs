@@ -1,6 +1,6 @@
 namespace RawDeal;
 
-public class EstructuraDeDatosDeCartas
+public class CardData
 {
     public string Title { get; set; }
     public List<string> Types { get; set; }

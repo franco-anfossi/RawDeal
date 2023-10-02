@@ -2,7 +2,7 @@ using RawDealView.Formatters;
 
 namespace RawDeal;
 
-public class Carta : IViewableCardInfo
+public class Card : IViewableCardInfo
 {
     public string Title { get; set; }
     public List<string> Types { get; set; }
@@ -12,7 +12,7 @@ public class Carta : IViewableCardInfo
     public string StunValue { get; set; }
     public string CardEffect { get; set; }
 
-    public object Clonar()
+    public object Clone()
     {
         return MemberwiseClone();
     }

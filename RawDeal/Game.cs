@@ -1,5 +1,4 @@
 using RawDealView;
-using RawDealView.Formatters;
 using RawDealView.Options;
 
 namespace RawDeal;
@@ -8,240 +7,228 @@ public class Game
 {
     private View _view;
     private string _deckFolder;
-    private ConjuntoCartas _conjuntoCartas;
-    private List<Jugador> _jugadores = new();
+    private CardsSet _cardsSet;
+    private List<Player> _players = new();
     
-    private bool _estadoLoopPrincipal = true;
-    private bool _estadoLoopElecciones = true;
+    private bool _principalLoopState = true;
+    private bool _electionsLoopState = true;
     
-    private int _indiceJugadorEnJuego;
-    private int _indiceJugadorOponente = 1;
+    private int _inTurnPlayerIndex;
+    private int _opponentPlayerIndex = 1;
 
-    private Jugador _jugadorEnJuego;
-    private Jugador _jugadorOponente;
+    private Player _inTurnPlayer;
+    private Player _opponentPlayer;
     
     
     public Game(View view, string deckFolder)
     {
-        var (superstarsDeserializados, cartasDeserializadas) = Utils.DeserializarDeCartasYSuperstarsDesdeLosJson();
-        _conjuntoCartas = new ConjuntoCartas(cartasDeserializadas, superstarsDeserializados);
+        var (deserializedSuperstars, deserializedCards) = Utils.DeserializeCardsAndSuperstars();
+        _cardsSet = new CardsSet(deserializedCards, deserializedSuperstars);
         _view = view;
         _deckFolder = deckFolder;
     }
 
     public void Play()
     {
-        IniciarEleccionMazo();
-        if (_estadoLoopPrincipal)
+        SelectDeck();
+        if (_principalLoopState)
         {
-            ElegirJugadorInicial();
-            ExtraerCartasIniciales();
+            SelectFirstPlayer();
+            DrawInitialCards();
         }
-        CorrerLoopPrincipalDelJuego();
+        RunPrincipalGameLoop();
     }
-    private void IniciarEleccionMazo()
+    private void SelectDeck()
     {
-        for (int indiceJugador = 0; indiceJugador < 2; indiceJugador++)
+        for (int playerIndex = 0; playerIndex < 2; playerIndex++)
         {
-            string[] mazoObtenidoDelArchivo = AbrirMazoSegunArchivo();
-            Mazo nuevoMazo = new Mazo(mazoObtenidoDelArchivo, _conjuntoCartas);
-            indiceJugador = ValidarMazoParaContinuarJuego(nuevoMazo, indiceJugador);
+            string[] openedDeckFromArchive = OpenDeckFromSelectedArchive();
+            Deck newDeck = new Deck(openedDeckFromArchive, _cardsSet);
+            playerIndex = ValidateDeck(newDeck, playerIndex);
         }
     }
-    private void ElegirJugadorInicial()
+    private void SelectFirstPlayer()
     {
-        if (!(_jugadores[0].DarSuperstarValue() >= _jugadores[1].DarSuperstarValue()))
-            Utils.CambiarPosicionesDeLaLista(_jugadores);
+        if (!(_players[0].GetSuperstarValue() >= _players[1].GetSuperstarValue()))
+            Utils.ChangePositionsOfTheList(_players);
     }
-    private void ExtraerCartasIniciales()
+    private void DrawInitialCards()
     {
-        foreach (var jugador in _jugadores)
-            jugador.SacarCartasAlInicio();
+        foreach (var player in _players)
+            player.DrawCardsInTheBeginning();
     }
     
-    private void CorrerLoopPrincipalDelJuego()
+    private void RunPrincipalGameLoop()
     {
-        while (_estadoLoopPrincipal)
+        while (_principalLoopState)
         {
-            _estadoLoopElecciones = true;
-            InicializarVariablesDeJugadores();
-            AgregarAtributosALosSuperstars();
-            _jugadorEnJuego.DecirQueComienzaElTurno();
-            EjecutarLaHabilidadEspecialAntesDeSacarCarta();
-            _jugadorEnJuego.CambiarVisibilidadDeElegirLaHabilidad();
-            CorrerLoopEleccionesDelJuego();
+            _electionsLoopState = true;
+            InitializePlayerVariables();
+            AddNecessarySuperstarAttributes();
+            _inTurnPlayer.SayPlayerTurnBegin();
+            PlaySpecialAbilityBeforeDrawingACard();
+            _inTurnPlayer.ChangeAbilitySelectionVisibility();
+            RunGameElectionsLoop();
         }
     }
     
-    private string[] AbrirMazoSegunArchivo()
+    private string[] OpenDeckFromSelectedArchive()
     {
-        string rutaDelMazo = _view.AskUserToSelectDeck(_deckFolder);
-        var mazoAbiertoDeArchivo = Utils.AbrirMazo(rutaDelMazo);
-        return mazoAbiertoDeArchivo;
+        string deckPath = _view.AskUserToSelectDeck(_deckFolder);
+        var openedDeckFromArchive = Utils.OpenDeckArchive(deckPath);
+        return openedDeckFromArchive;
     }
-    private int ValidarMazoParaContinuarJuego(Mazo mazo, int indiceJugador)
+    private int ValidateDeck(Deck deck, int playerIndex)
     {
-        if (!MazoValidator.ValidadorDeReglasDeMazo(mazo, _conjuntoCartas))
-            indiceJugador = ManejarMazoNoValido();
+        if (!DeckValidator.ValidateDeckRules(deck, _cardsSet))
+            playerIndex = ManageInvalidDeck();
         else
-            indiceJugador = ManejarMazoValido(mazo, indiceJugador);
-        return indiceJugador;
+            playerIndex = ManageValidDeck(deck, playerIndex);
+        return playerIndex;
     }
-    private void EjecutarLaHabilidadEspecialAntesDeSacarCarta()
+    private void PlaySpecialAbilityBeforeDrawingACard()
     {
-        bool estadoParaSacarCarta = true;
+        bool drawCardState = true;
 
-        if (_jugadorEnJuego.ObtenerQueNoSePuedeEligirSiUsarLaHabilidad())
-            estadoParaSacarCarta = _jugadorEnJuego.EjecutarHabilidadEspecial();
+        if (_inTurnPlayer.VerifyAbilityUsability())
+            drawCardState = _inTurnPlayer.PlaySpecialAbility();
 
-        if (estadoParaSacarCarta)
-            _jugadorEnJuego.SacarCarta();
+        if (drawCardState)
+            _inTurnPlayer.DrawCard();
     }
-    private void CorrerLoopEleccionesDelJuego()
+    private void RunGameElectionsLoop()
     {
-        while (_estadoLoopElecciones)
+        while (_electionsLoopState)
         {
-            _view.ShowGameInfo(_jugadorEnJuego.DarDatosJugador(), _jugadorOponente.DarDatosJugador());
-            NextPlay eleccionDeLasPrimerasOpciones = EvaluarCondicionesParaMostrarLaEleccionDeHabilidad();
-            ManejarEleccionesPosibles(eleccionDeLasPrimerasOpciones);
+            _view.ShowGameInfo(_inTurnPlayer.GetPlayerInfo(), _opponentPlayer.GetPlayerInfo());
+            NextPlay firstOptionChoice = ShowAppropriateOptionsSelector();
+            ManagePossibleOptions(firstOptionChoice);
         }
     }
 
-    private void InicializarVariablesDeJugadores()
+    private void InitializePlayerVariables()
     {
-        _jugadorEnJuego = _jugadores[_indiceJugadorEnJuego];
-        _jugadorOponente = _jugadores[_indiceJugadorOponente];
+        _inTurnPlayer = _players[_inTurnPlayerIndex];
+        _opponentPlayer = _players[_opponentPlayerIndex];
     }
-    private void AgregarAtributosALosSuperstars()
+    private void AddNecessarySuperstarAttributes()
     {
-        _jugadorEnJuego.AgregarAtributosNecesarios(_view, _jugadorOponente);
-        _jugadorOponente.AgregarAtributosNecesarios(_view, _jugadorEnJuego);
+        _inTurnPlayer.ApplyNecessaryAttributes(_view, _opponentPlayer);
+        _opponentPlayer.ApplyNecessaryAttributes(_view, _inTurnPlayer);
     }
     
-    private NextPlay EvaluarCondicionesParaMostrarLaEleccionDeHabilidad()
+    private NextPlay ShowAppropriateOptionsSelector()
     {
-        NextPlay primerasOpcionesDeEleccionDelJuego;
-        if (_jugadorEnJuego.ObtenerQueNoSePuedeEligirSiUsarLaHabilidad())
-            primerasOpcionesDeEleccionDelJuego = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
+        NextPlay firstOptionChoice;
+        if (_inTurnPlayer.VerifyAbilityUsability())
+            firstOptionChoice = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
         else
-            primerasOpcionesDeEleccionDelJuego = _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible(); 
-        return primerasOpcionesDeEleccionDelJuego;
+            firstOptionChoice = _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible(); 
+        return firstOptionChoice;
     }
     
-    private int ManejarMazoValido(Mazo mazo, int jugador)
+    private int ManageValidDeck(Deck deck, int playerIndex)
     {
-        _jugadores.Add(mazo.JugadorDelMazo);
-        return jugador;
+        _players.Add(deck.PlayerDeckOwner);
+        return playerIndex;
     }
 
-    private int ManejarMazoNoValido()
+    private int ManageInvalidDeck()
     {
         _view.SayThatDeckIsInvalid();
-        _estadoLoopPrincipal = false;
-        int jugador = 2;
-        return jugador;
+        _principalLoopState = false;
+        int numberOutOfIndex = 2;
+        return numberOutOfIndex;
     }
 
-    private void ManejarEleccionesPosibles(NextPlay eleccionDeLaPrimeraOpcion)
+    private void ManagePossibleOptions(NextPlay firstOptionChoice)
     {
-        if (eleccionDeLaPrimeraOpcion == NextPlay.ShowCards)
-            SeleccionarOpcionMostrarCartas();
+        if (firstOptionChoice == NextPlay.ShowCards)
+            SelectShowCardsOption();
             
-        else if (eleccionDeLaPrimeraOpcion == NextPlay.PlayCard)
-            SeleccionarOpcionJugarCartas();
+        else if (firstOptionChoice == NextPlay.PlayCard)
+            SelectPlayCardOption();
             
-        else if (eleccionDeLaPrimeraOpcion == NextPlay.UseAbility)
-            SeleccionarOpcionJugarHabilidad();
+        else if (firstOptionChoice == NextPlay.UseAbility)
+            SelectPlayAbilityOption();
             
-        else if (eleccionDeLaPrimeraOpcion == NextPlay.EndTurn)
-            SeleccionarOpcionFinalizarTurno();
+        else if (firstOptionChoice == NextPlay.EndTurn)
+            SelectEndTurnOption();
             
-        else if (eleccionDeLaPrimeraOpcion == NextPlay.GiveUp)
-            SeleccionarOpcionRendirse();
+        else if (firstOptionChoice == NextPlay.GiveUp)
+            SelectGiveUpOption();
     }
     
-    private void SeleccionarOpcionMostrarCartas()
+    private void SelectShowCardsOption()
     {
-        EleccionesVerCartas eleccionesParaVerCartas = new EleccionesVerCartas(_jugadores, _indiceJugadorEnJuego, _view);
-        eleccionesParaVerCartas.ElegirQueCartasVer();
+        var optionsToViewDeck = new OptionsToViewDeck(_players, _inTurnPlayerIndex, _opponentPlayerIndex, _view);
+        optionsToViewDeck.SelectWhatDeckToView();
     }
-    private void SeleccionarOpcionJugarCartas()
+    private void SelectPlayCardOption()
     {
-        EleccionesJugarCarta eleccionDeCartasPorJugar = new EleccionesJugarCarta(_jugadorEnJuego, _jugadorOponente, _view);
-        _estadoLoopElecciones = eleccionDeCartasPorJugar.ComenzarProcesoDeElecciones();
-        if (!_estadoLoopElecciones)
-            DeclararVictoriaDelJugadorEnJuego();
-    }
-
-    private void SeleccionarOpcionJugarHabilidad()
-    {
-        _jugadorEnJuego.EjecutarHabilidadEspecial();
+        var optionsToPlayCard = new OptionsToPlayCard(_inTurnPlayer, _opponentPlayer, _view);
+        _electionsLoopState = optionsToPlayCard.StartElectionProcess();
+        if (!_electionsLoopState)
+            DeclareVictoryOfThePlayerInTurn();
     }
 
-    private void SeleccionarOpcionFinalizarTurno()
+    private void SelectPlayAbilityOption()
     {
-        if (_jugadorOponente.ComprobarArsenalVacio())
-            DeclararVictoriaDelJugadorEnJuego();
+        _inTurnPlayer.PlaySpecialAbility();
+    }
+
+    private void SelectEndTurnOption()
+    {
+        if (_opponentPlayer.CheckForEmptyArsenal())
+            DeclareVictoryOfThePlayerInTurn();
         
-        else if (_jugadorEnJuego.ComprobarArsenalVacio())
-            DeclararDerrotaDelJugadorEnJuego();
+        else if (_inTurnPlayer.CheckForEmptyArsenal())
+            DeclareLossOfThePlayerInTurn();
         
         else
-            CambiarLaPosicionDeLosJugadores();
+            ChangePlayersPositions();
     }
 
-    private void SeleccionarOpcionRendirse()
+    private void SelectGiveUpOption()
     {
-        _jugadorOponente.AvisarGanador();
-        _estadoLoopPrincipal = false; 
-        _estadoLoopElecciones = false;
+        _opponentPlayer.NotifyThatPlayerWon();
+        _principalLoopState = false; 
+        _electionsLoopState = false;
     }
 
-    private void DeclararVictoriaDelJugadorEnJuego()
+    private void DeclareVictoryOfThePlayerInTurn()
     {
-        _estadoLoopElecciones = false;
-        _jugadorEnJuego.AvisarGanador();
-        _estadoLoopPrincipal = _estadoLoopElecciones;
+        _electionsLoopState = false;
+        _inTurnPlayer.NotifyThatPlayerWon();
+        _principalLoopState = _electionsLoopState;
     }
 
-    private void DeclararDerrotaDelJugadorEnJuego()
+    private void DeclareLossOfThePlayerInTurn()
     {
-        _estadoLoopElecciones = false;
-        _jugadorOponente.AvisarGanador();
-        _estadoLoopPrincipal = _estadoLoopElecciones;
+        _electionsLoopState = false;
+        _opponentPlayer.NotifyThatPlayerWon();
+        _principalLoopState = _electionsLoopState;
     }
 
-    private void CambiarLaPosicionDeLosJugadores()
+    private void ChangePlayersPositions()
     {
-        CambiarJugadores();
-        RevisarJugadores();
-        _estadoLoopElecciones = false;
+        ChangePlayersIndex();
+        _inTurnPlayer = _players[_inTurnPlayerIndex];
+        _opponentPlayer = _players[_opponentPlayerIndex];
+        _electionsLoopState = false;
     }
     
-    private void CambiarJugadores()
+    private void ChangePlayersIndex()
     {
-        if (_indiceJugadorEnJuego == 0)
+        if (_inTurnPlayerIndex == 0)
         {
-            _indiceJugadorEnJuego = 1;
+            _inTurnPlayerIndex = 1;
+            _opponentPlayerIndex = 0;
         }
         else
         {
-            _indiceJugadorEnJuego = 0;
+            _inTurnPlayerIndex = 0;
+            _opponentPlayerIndex = 1;
         }
-
-        _jugadorEnJuego = _jugadores[_indiceJugadorEnJuego];
-    }
-    private void RevisarJugadores()
-    {
-        if (_indiceJugadorEnJuego == 0)
-        {
-            _indiceJugadorOponente = 1;
-        }
-        else
-        {
-            _indiceJugadorOponente = 0;
-        }
-
-        _jugadorOponente = _jugadores[_indiceJugadorOponente];
     }
 }
