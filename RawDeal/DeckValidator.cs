@@ -2,31 +2,41 @@ using RawDealView.Formatters;
 
 namespace RawDeal;
 
-public static class DeckValidator
+public class DeckValidator
 {
-    private static List<IViewableCardInfo> _equalCardsGroup;
-    private static Deck _deckToReview;
-    public static bool ValidateDeckRules(Deck deck, CardsSet cardsSet)
+    private List<IViewableCardInfo> _equalCardsGroup = new();
+    private Deck _deckToReview;
+    private CardsSet _cardsSet;
+    private string _logoSuperstarToReview;
+    private string _logoOtherSuperstar;
+    private int _maxRepetitionsAllowed;
+
+    public DeckValidator(Deck deck, CardsSet cardsSet)
     {
         _deckToReview = deck;
+        _cardsSet = cardsSet;
+    }
+
+    public bool ValidateDeckRules()
+    {
         bool conditionOne = ValidateDeckLength() && ValidateCardRepetitions();
-        bool conditionTwo = ValidateIfCardsAreOnlyHeelOrFace() && ValidateCardLogoEqualToSuperstarLogo(cardsSet);
+        bool conditionTwo = ValidateIfCardsAreOnlyHeelOrFace() && ValidateCardLogoEqualToSuperstarLogo();
         return conditionOne && conditionTwo;
     }
     
-    private static bool ValidateDeckLength()
+    private bool ValidateDeckLength()
     {
         return _deckToReview.DeckCards.Count == 60;
     }
 
-    private static bool ValidateCardRepetitions()
+    private bool ValidateCardRepetitions()
     {
         var cardGrouping = _deckToReview.DeckCards.GroupBy(card => card.Title);
         foreach (var cardGroupsWithSameName in cardGrouping)
         {
             _equalCardsGroup = cardGroupsWithSameName.ToList();
-            int maxRepetitionsAllowed = GetMaximumRepetitionsAllowed();
-            if (_equalCardsGroup.Count > maxRepetitionsAllowed)
+            GetMaximumRepetitionsAllowed();
+            if (_equalCardsGroup.Count > _maxRepetitionsAllowed)
             {
                 return false;
             }
@@ -34,20 +44,20 @@ public static class DeckValidator
         return true;
     }
     
-    private static bool ValidateIfCardsAreOnlyHeelOrFace()
+    private bool ValidateIfCardsAreOnlyHeelOrFace()
     {
         bool heelExists = _deckToReview.DeckCards.Any(c => c.Subtypes.Contains("Heel"));
         bool faceExists = _deckToReview.DeckCards.Any(c => c.Subtypes.Contains("Face"));
         return !(heelExists && faceExists);
     }
 
-    private static bool ValidateCardLogoEqualToSuperstarLogo(CardsSet cardsSet)
+    private bool ValidateCardLogoEqualToSuperstarLogo()
     {
-        var logoSuperstarToReview = _deckToReview.PlayerDeckOwner.GetLogo();
-        foreach (var superstar in cardsSet.PossibleSuperstars)
+        _logoSuperstarToReview = _deckToReview.PlayerDeckOwner.GetLogo();
+        foreach (var superstar in _cardsSet.PossibleSuperstars)
         {
-            string logoOtherSuperstar = superstar.GetLogo();
-            if (!ReviewDeckCardsByLogo(logoOtherSuperstar, logoSuperstarToReview))
+            _logoOtherSuperstar = superstar.GetLogo();
+            if (!ReviewDeckCardsByLogo())
             {
                 return false;
             }
@@ -56,36 +66,32 @@ public static class DeckValidator
         return true;
     }
 
-    private static bool ReviewDeckCardsByLogo(string logoOtherSuperstar, string logoSuperstarToReview)
+    private bool ReviewDeckCardsByLogo()
     {
-        if (logoOtherSuperstar != logoSuperstarToReview)
+        if (_logoOtherSuperstar != _logoSuperstarToReview)
         {
-            if (_deckToReview.DeckCards.Any(c => c.Subtypes.Contains(logoOtherSuperstar)))
+            if (_deckToReview.DeckCards.Any(c => c.Subtypes.Contains(_logoOtherSuperstar)))
                 return false;
         }
         return true;
     }
-    private static int GetMaximumRepetitionsAllowed()
+    private void GetMaximumRepetitionsAllowed()
     {
-        int maxRepetitionsAllowed = 3;
-        maxRepetitionsAllowed = ValidateUniqueRepetitions(maxRepetitionsAllowed);
-        maxRepetitionsAllowed = ValidarSetUpRepetitions(maxRepetitionsAllowed);
-
-        return maxRepetitionsAllowed;
+        _maxRepetitionsAllowed = 3;
+        ValidateUniqueRepetitions();
+        ValidateSetUpRepetitions();
     }
     
-    private static int ValidateUniqueRepetitions(int maxRepetitionsAllowed)
+    private void ValidateUniqueRepetitions()
     {
         if (_equalCardsGroup.Any(c => c.Subtypes.Contains("Unique"))) 
-            maxRepetitionsAllowed = 1;
-        return maxRepetitionsAllowed;
+            _maxRepetitionsAllowed = 1;
     }
 
-    private static int ValidarSetUpRepetitions(int maxRepetitionsAllowed)
+    private void ValidateSetUpRepetitions()
     {
         if (_equalCardsGroup.Any(c => c.Subtypes.Contains("SetUp"))) 
-            maxRepetitionsAllowed = 70;
-        return maxRepetitionsAllowed;
+            _maxRepetitionsAllowed = 70;
     }
 }
 

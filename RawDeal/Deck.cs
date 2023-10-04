@@ -45,16 +45,14 @@ public class Deck
             }
         }
     }
-
-    private void InitializeDeckSuperstarAttributes()
-    {
-        _playerDeckOwner.InitializeNecessaryAttributes(_deckCards);
-    }
-
     private Card CopyBaseCard(Card card)
     {
         Card cardCopy = (Card)card.Clone();
         return cardCopy;
     }
     
+    private void InitializeDeckSuperstarAttributes()
+    {
+        _playerDeckOwner.InitializeNecessaryAttributes(_deckCards);
+    }
 }

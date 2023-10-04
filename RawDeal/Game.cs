@@ -1,3 +1,4 @@
+using RawDeal.Deserializers;
 using RawDealView;
 using RawDealView.Options;
 
@@ -22,7 +23,12 @@ public class Game
     
     public Game(View view, string deckFolder)
     {
-        var (deserializedSuperstars, deserializedCards) = Utils.DeserializeCardsAndSuperstars();
+        SuperstarDeserializer superstarDeserializer = new SuperstarDeserializer();
+        CardDeserializer cardDeserializer = new CardDeserializer();
+        
+        var deserializedSuperstars = superstarDeserializer.DeserializeSuperstars();
+        var deserializedCards = cardDeserializer.DeserializeCards();
+        
         _cardsSet = new CardsSet(deserializedCards, deserializedSuperstars);
         _view = view;
         _deckFolder = deckFolder;
@@ -80,7 +86,8 @@ public class Game
     }
     private int ValidateDeck(Deck deck, int playerIndex)
     {
-        if (!DeckValidator.ValidateDeckRules(deck, _cardsSet))
+        DeckValidator deckValidator = new DeckValidator(deck, _cardsSet);
+        if (!deckValidator.ValidateDeckRules())
             playerIndex = ManageInvalidDeck();
         else
             playerIndex = ManageValidDeck(deck, playerIndex);
