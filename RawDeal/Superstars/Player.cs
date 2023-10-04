@@ -1,7 +1,7 @@
 using RawDealView;
 using RawDealView.Formatters;
 
-namespace RawDeal;
+namespace RawDeal.Superstars;
 
 public abstract class Player
 {

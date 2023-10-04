@@ -1,3 +1,5 @@
+using RawDeal.Cards;
+using RawDeal.Superstars;
 using RawDealView.Formatters;
 
 namespace RawDeal;
@@ -38,7 +40,7 @@ public class Deck
         foreach (var cardName in openDeckFromArchive)
         foreach (var card in _cardsSet.PossibleCards)
         {
-            if (cardName.Trim() == card.Title)
+            if (card.CompareCardTitle(cardName))
             {
                 Card cardCopy = CopyBaseCard(card);
                 _deckCards.Add(cardCopy);

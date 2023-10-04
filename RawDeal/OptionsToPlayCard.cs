@@ -1,3 +1,4 @@
+using RawDeal.Superstars;
 using RawDealView.Formatters;
 using RawDealView;
 
@@ -59,11 +60,23 @@ public class OptionsToPlayCard
 
     private void SavePlayablePlay(IViewableCardInfo playableCard)
     {
-        string cardType = playableCard.Types[0].ToUpper();
-        if (cardType != "REVERSAL")
+        if (!playableCard.Types.Contains("Reversal"))
         {
-            PlayInfo possiblePlayInfo = new PlayInfo(playableCard, cardType);
-            _notFormattedPossiblePlays.Add(possiblePlayInfo);
+            if (playableCard.Types.Contains("Action") && playableCard.Types.Contains("Maneuver"))
+            {
+                for (int typeNumber = 0; typeNumber < 2; typeNumber++)
+                {
+                    string cardType = playableCard.Types[typeNumber].ToUpper();
+                    PlayInfo possiblePlayInfo = new PlayInfo(playableCard, cardType);
+                    _notFormattedPossiblePlays.Add(possiblePlayInfo);
+                }
+            }
+            else
+            {
+                string cardType = playableCard.Types[0].ToUpper();
+                PlayInfo possiblePlayInfo = new PlayInfo(playableCard, cardType);
+                _notFormattedPossiblePlays.Add(possiblePlayInfo);
+            }
         }
     }
     private void AskUserToPlayCardAndPutItIntoRingArea(int selectedPlayNumber)

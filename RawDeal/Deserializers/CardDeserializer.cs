@@ -1,4 +1,5 @@
 using System.Text.Json;
+using RawDeal.Cards;
 
 namespace RawDeal.Deserializers;
 

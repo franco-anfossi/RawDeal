@@ -1,3 +1,6 @@
+using RawDeal.Cards;
+using RawDeal.Superstars;
+
 namespace RawDeal;
 
 public class CardsSet

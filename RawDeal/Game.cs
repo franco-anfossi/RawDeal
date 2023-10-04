@@ -1,4 +1,5 @@
 using RawDeal.Deserializers;
+using RawDeal.Superstars;
 using RawDealView;
 using RawDealView.Options;
 
