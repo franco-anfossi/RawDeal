@@ -129,40 +129,34 @@ public abstract class Player
         return Name == "MANKIND";
     }
 
-    public void ShowFormatedHand()
+    public void ShowFormattedHand()
     {
-        List<string> formatedHand = FormatHand();
-        View.ShowCards(formatedHand);
+        View.ShowCards(FormatHand());
     }
     
-    public void ShowFormatedRingside()
+    public void ShowFormattedRingside()
     {
-        List<string> formatedRingside = FormatRingside();
-        View.ShowCards(formatedRingside);
+        View.ShowCards(FormatRingside());
     }
     
-    public void ShowFormatedRingArea()
+    public void ShowFormattedRingArea()
     {
-        List<string> formatedRingArea = FormatRingArea();
-        View.ShowCards(formatedRingArea);
+        View.ShowCards(FormatRingArea());
     }
 
     public List<string> FormatHand()
     {
-        List<string> formatedHand = Utils.FormatDecksOfCards(Hand);
-        return formatedHand;
+        return Utils.FormatDecksOfCards(Hand);
     }
 
     private List<string> FormatRingside()
     {
-        List<string> formatedRingside = Utils.FormatDecksOfCards(Ringside);
-        return formatedRingside;
+        return Utils.FormatDecksOfCards(Ringside);
     }
 
     private List<string> FormatRingArea()
     {
-        List<string> formatedRingArea = Utils.FormatDecksOfCards(RingArea);
-        return formatedRingArea;
+        return Utils.FormatDecksOfCards(RingArea);
     }
     public void AttackTheOpponent(int damageDone)
     {

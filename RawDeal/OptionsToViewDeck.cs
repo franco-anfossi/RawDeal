@@ -1,6 +1,5 @@
 using RawDealView;
 using RawDealView.Options;
-using RawDealView.Formatters;
 
 namespace RawDeal;
 
@@ -21,14 +20,14 @@ public class OptionsToViewDeck
     {
         var selectedDeckToView = _view.AskUserWhatSetOfCardsHeWantsToSee();
         if (selectedDeckToView == CardSet.Hand)
-            _inTurnPlayer.ShowFormatedHand();
+            _inTurnPlayer.ShowFormattedHand();
         else if (selectedDeckToView == CardSet.RingsidePile)
-            _inTurnPlayer.ShowFormatedRingside();
+            _inTurnPlayer.ShowFormattedRingside();
         else if (selectedDeckToView == CardSet.RingArea)
-            _inTurnPlayer.ShowFormatedRingArea();
+            _inTurnPlayer.ShowFormattedRingArea();
         else if (selectedDeckToView == CardSet.OpponentsRingsidePile)
-            _opponentPlayer.ShowFormatedRingside();
+            _opponentPlayer.ShowFormattedRingside();
         else if (selectedDeckToView == CardSet.OpponentsRingArea)
-            _opponentPlayer.ShowFormatedRingArea();
+            _opponentPlayer.ShowFormattedRingArea();
     }
 }
