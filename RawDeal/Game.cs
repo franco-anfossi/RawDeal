@@ -168,7 +168,7 @@ public class Game
     
     private void SelectShowCardsOption()
     {
-        var optionsToViewDeck = new OptionsToViewDeck(_players, _inTurnPlayerIndex, _opponentPlayerIndex, _view);
+        var optionsToViewDeck = new OptionsToViewDeck(_inTurnPlayer, _opponentPlayer, _view);
         optionsToViewDeck.SelectWhatDeckToView();
     }
     private void SelectPlayCardOption()

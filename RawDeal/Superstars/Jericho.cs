@@ -51,14 +51,14 @@ public class Jericho : Player
     private void DiscardOneCardFromJerichoHand()
     {
         View.SayThatPlayerIsGoingToUseHisAbility(Name, SuperstarAbility);
-        List<string> formattedCardData = Utils.FormatDecksOfCards(Hand);
+        List<string> formattedCardData = FormatHand();
         int selectedCardIndex = View.AskPlayerToSelectACardToDiscard(formattedCardData, Name, Name, 1);
         PassCardFromHandToRingside(selectedCardIndex);
     }
 
     private void DiscardOneCardFromOpponentHand()
     {
-        List<string> formattedCardData = Utils.FormatDecksOfCards(Opponent.GetHand());
+        List<string> formattedCardData = Opponent.FormatHand();
         int selectedCardIndex = Opponent.AskForCardsToDiscard(formattedCardData, 1);
         Opponent.PassCardFromHandToRingside(selectedCardIndex);
     }

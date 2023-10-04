@@ -60,29 +60,15 @@ public abstract class Player
     {
         return Arsenal.Count == 0;
     }
-    public List<IViewableCardInfo> GetHand()
-     { 
-         return Hand;
-     }
-     
-     public List<IViewableCardInfo> GetRingside()
-     { 
-         return Ringside;
-     }
-     
-     public List<IViewableCardInfo> GetRingArea()
-     { 
-         return RingArea;
-     }
-     public PlayerInfo GetPlayerInfo()
-     {
-         return PlayerInfo;
-     }
+    public PlayerInfo GetPlayerInfo()
+    {
+        return PlayerInfo;
+    }
  
-     public int GetSuperstarValue()
-     {
-         return SuperstarValue;
-     }
+    public int GetSuperstarValue()
+    {
+        return SuperstarValue;
+    }
     public List<IViewableCardInfo> CheckForPlayableCards()
     {
         List<IViewableCardInfo> playableCards = new();
@@ -142,7 +128,42 @@ public abstract class Player
     {
         return Name == "MANKIND";
     }
+
+    public void ShowFormatedHand()
+    {
+        List<string> formatedHand = FormatHand();
+        View.ShowCards(formatedHand);
+    }
     
+    public void ShowFormatedRingside()
+    {
+        List<string> formatedRingside = FormatRingside();
+        View.ShowCards(formatedRingside);
+    }
+    
+    public void ShowFormatedRingArea()
+    {
+        List<string> formatedRingArea = FormatRingArea();
+        View.ShowCards(formatedRingArea);
+    }
+
+    public List<string> FormatHand()
+    {
+        List<string> formatedHand = Utils.FormatDecksOfCards(Hand);
+        return formatedHand;
+    }
+
+    private List<string> FormatRingside()
+    {
+        List<string> formatedRingside = Utils.FormatDecksOfCards(Ringside);
+        return formatedRingside;
+    }
+
+    private List<string> FormatRingArea()
+    {
+        List<string> formatedRingArea = Utils.FormatDecksOfCards(RingArea);
+        return formatedRingArea;
+    }
     public void AttackTheOpponent(int damageDone)
     {
         int fortitudeToAdd = damageDone;
