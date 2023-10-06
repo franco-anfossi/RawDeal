@@ -14,6 +14,11 @@ public class Mankind : Player
         SuperstarAbility = superstarData.SuperstarAbility;
     }
     
+    public override PlayerDecksController BuildPlayerDecksController()
+    {
+        return new MankindDecksController(Decks, HandSize);
+    }
+    
     public override bool PlaySpecialAbility()
     {
         return true;

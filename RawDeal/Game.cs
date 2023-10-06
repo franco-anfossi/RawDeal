@@ -18,6 +18,9 @@ public class Game
     private int _inTurnPlayerIndex;
     private int _opponentPlayerIndex = 1;
 
+    private PlayerDecksController _inTurnPlayerDecksController;
+    private PlayerDecksController _opponentPlayerDecksController;
+    
     private Player _inTurnPlayer;
     private Player _opponentPlayer;
     
@@ -53,6 +56,12 @@ public class Game
             Deck newDeck = new Deck(openedDeckFromArchive, _cardsSet);
             playerIndex = ValidateDeck(newDeck, playerIndex);
         }
+    }
+    
+    private void InitializePlayersDecksControllers()
+    {
+        _inTurnPlayerDecksController = _inTurnPlayer.BuildPlayerDecksController();
+        _opponentPlayerDecksController = _opponentPlayer.BuildPlayerDecksController();
     }
     private void SelectFirstPlayer()
     {
@@ -169,8 +178,7 @@ public class Game
     
     private void SelectShowCardsOption()
     {
-        var optionsToViewDeck = new OptionsToViewDeck(_inTurnPlayer, _opponentPlayer, _view);
-        optionsToViewDeck.SelectWhatDeckToView();
+        _inTurnPlayer.ShowOptionsToViewDeck();
     }
     private void SelectPlayCardOption()
     {

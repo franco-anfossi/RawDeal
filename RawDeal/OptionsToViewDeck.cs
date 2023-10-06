@@ -1,4 +1,3 @@
-using RawDeal.Superstars;
 using RawDealView;
 using RawDealView.Options;
 
@@ -6,14 +5,14 @@ namespace RawDeal;
 
 public class OptionsToViewDeck
 {
-    private Player _inTurnPlayer;
-    private Player _opponentPlayer;
-    private View _view;
+    private readonly Dictionary<DeckName, List<string>> _playerDecks;
+    private readonly Dictionary<DeckName, List<string>> _opponentDecks;
+    private readonly View _view;
 
-    public OptionsToViewDeck(Player inTurnPlayer, Player opponentPlayer, View view)
+    public OptionsToViewDeck(Dictionary<DeckName, List<string>> playerDecks, Dictionary<DeckName, List<string>> opponentDecks, View view)
     {
-        _inTurnPlayer = inTurnPlayer;
-        _opponentPlayer = opponentPlayer;
+        _playerDecks = playerDecks;
+        _opponentDecks = opponentDecks;
         _view = view;
     }
 
@@ -21,14 +20,18 @@ public class OptionsToViewDeck
     {
         var selectedDeckToView = _view.AskUserWhatSetOfCardsHeWantsToSee();
         if (selectedDeckToView == CardSet.Hand)
-            _inTurnPlayer.ShowFormattedHand();
+            _view.ShowCards(_playerDecks[DeckName.Hand]);
+        
         else if (selectedDeckToView == CardSet.RingsidePile)
-            _inTurnPlayer.ShowFormattedRingside();
+            _view.ShowCards(_playerDecks[DeckName.Ringside]);
+        
         else if (selectedDeckToView == CardSet.RingArea)
-            _inTurnPlayer.ShowFormattedRingArea();
+            _view.ShowCards(_playerDecks[DeckName.RingArea]);
+        
         else if (selectedDeckToView == CardSet.OpponentsRingsidePile)
-            _opponentPlayer.ShowFormattedRingside();
+            _view.ShowCards(_opponentDecks[DeckName.Ringside]);
+        
         else if (selectedDeckToView == CardSet.OpponentsRingArea)
-            _opponentPlayer.ShowFormattedRingArea();
+            _view.ShowCards(_opponentDecks[DeckName.RingArea]);
     }
 }

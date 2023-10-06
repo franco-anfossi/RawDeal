@@ -17,10 +17,15 @@ public abstract class Player
     protected List<IViewableCardInfo> Arsenal;
     protected List<IViewableCardInfo> Ringside;
     protected List<IViewableCardInfo> RingArea;
+    protected Dictionary<DeckName, List<IViewableCardInfo>> Decks;
+    protected Dictionary<DeckName, List<string>> FormattedDecks;
+    protected PlayerDecksController PlayerDecksController;
+    protected SuperstarData SuperstarData;
     private int _fortitude;
 
     protected Player(SuperstarData superstarData)
     {
+        SuperstarData = superstarData;
         Name = superstarData.Name;
         Logo = superstarData.Logo;
         HandSize = superstarData.HandSize;
@@ -38,6 +43,31 @@ public abstract class Player
     public virtual void ChangeAbilitySelectionVisibility()
     {
     }
+
+    public void ShowOptionsToViewDeck()
+    {
+        var playerDecks = BuildFormattedDecks();
+        var opponentDecks = Opponent.BuildFormattedDecks();
+        var optionsToViewDeck = new OptionsToViewDeck(playerDecks, opponentDecks, View);
+        optionsToViewDeck.SelectWhatDeckToView();
+    }
+    
+    private Dictionary<DeckName, List<string>> BuildFormattedDecks()
+    {
+        FormattedDecks = new Dictionary<DeckName, List<string>>
+        {
+            { DeckName.Hand, FormatDeck(Hand) },
+            { DeckName.Ringside, FormatDeck(Ringside) },
+            { DeckName.RingArea, FormatDeck(RingArea) }
+        };
+        return FormattedDecks;
+    }
+
+    protected List<string> FormatDeck(List<IViewableCardInfo> deck)
+    {
+        return Utils.FormatDecksOfCards(deck);
+    }
+
     public void SayThatPlayerWillTakeDamage(int damageDone)
     {
         View.SayThatSuperstarWillTakeSomeDamage(Name, damageDone);
@@ -84,13 +114,31 @@ public abstract class Player
         return playableCards;
     }
 
-    public void InitializeNecessaryAttributes(List<IViewableCardInfo> deck)
+    public void InitializeNecessaryAttributes(List<IViewableCardInfo> arsenalDeck)
     {
-        Arsenal = deck;
+        BuildDecksDictionary(arsenalDeck);
+        
+        Arsenal = arsenalDeck;
         Hand = new List<IViewableCardInfo>();
         Ringside = new List<IViewableCardInfo>();
         RingArea = new List<IViewableCardInfo>();
-        _fortitude = 0;
+    }
+
+    private void BuildDecksDictionary(List<IViewableCardInfo> arsenalDeck)
+    {
+        Decks = new Dictionary<DeckName, List<IViewableCardInfo>>
+        {
+            { DeckName.Hand, new List<IViewableCardInfo>() },
+            { DeckName.Arsenal, arsenalDeck },
+            { DeckName.Ringside, new List<IViewableCardInfo>() },
+            { DeckName.RingArea, new List<IViewableCardInfo>() }
+        };
+    }
+
+    public virtual PlayerDecksController BuildPlayerDecksController()
+    {
+        PlayerDecksController = new PlayerDecksController(Decks, HandSize);
+        return PlayerDecksController;
     }
     
     public virtual void DrawCardsInTheBeginning()
@@ -128,35 +176,9 @@ public abstract class Player
     {
         return Name == "MANKIND";
     }
-
-    public void ShowFormattedHand()
-    {
-        View.ShowCards(FormatHand());
-    }
-    
-    public void ShowFormattedRingside()
-    {
-        View.ShowCards(FormatRingside());
-    }
-    
-    public void ShowFormattedRingArea()
-    {
-        View.ShowCards(FormatRingArea());
-    }
-
     public List<string> FormatHand()
     {
         return Utils.FormatDecksOfCards(Hand);
-    }
-
-    private List<string> FormatRingside()
-    {
-        return Utils.FormatDecksOfCards(Ringside);
-    }
-
-    private List<string> FormatRingArea()
-    {
-        return Utils.FormatDecksOfCards(RingArea);
     }
     public void AttackTheOpponent(int damageDone)
     {

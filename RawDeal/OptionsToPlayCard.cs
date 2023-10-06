@@ -16,6 +16,10 @@ public class OptionsToPlayCard
     
     private Player _inTurnPlayer;
     private Player _opponentPlayer;
+
+    private string _playerName;
+    private string _opponentName;
+    
     
     private bool _activeGame = true;
 
