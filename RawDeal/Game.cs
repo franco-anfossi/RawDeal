@@ -17,12 +17,14 @@ public class Game
     
     private int _inTurnPlayerIndex;
     private int _opponentPlayerIndex = 1;
-
-    private PlayerDecksController _inTurnPlayerDecksController;
-    private PlayerDecksController _opponentPlayerDecksController;
     
     private Player _inTurnPlayer;
     private Player _opponentPlayer;
+    
+    private PlayerDecksController _inTurnPlayerDecksController;
+    private PlayerDecksController _opponentPlayerDecksController;
+    
+    private PlayerInfoManager _playerInfoManager;
     
     
     public Game(View view, string deckFolder)
@@ -63,6 +65,15 @@ public class Game
         _inTurnPlayerDecksController = _inTurnPlayer.BuildPlayerDecksController();
         _opponentPlayerDecksController = _opponentPlayer.BuildPlayerDecksController();
     }
+    
+    private void ChangePlayersDecksControllers()
+    {
+        var newInTurnPlayerDecksController = _inTurnPlayerDecksController;
+        var newOpponentPlayerDecksController = _opponentPlayerDecksController;
+        
+        _inTurnPlayerDecksController = newOpponentPlayerDecksController;
+        _opponentPlayerDecksController = newInTurnPlayerDecksController;
+    }
     private void SelectFirstPlayer()
     {
         if (!(_players[0].GetSuperstarValue() >= _players[1].GetSuperstarValue()))
@@ -71,7 +82,9 @@ public class Game
     private void DrawInitialCards()
     {
         foreach (var player in _players)
+        {
             player.DrawCardsInTheBeginning();
+        }
     }
     
     private void RunPrincipalGameLoop()
@@ -86,6 +99,13 @@ public class Game
             _inTurnPlayer.ChangeAbilitySelectionVisibility();
             RunGameElectionsLoop();
         }
+    }
+
+    private void UpdatePlayersInfo()
+    {
+        PlayerInfo inTurnPlayerInfo = _inTurnPlayer.BuildPlayerInfo();
+        PlayerInfo opponentPlayerInfo = _opponentPlayer.BuildPlayerInfo();
+        _playerInfoManager = new PlayerInfoManager(inTurnPlayerInfo, opponentPlayerInfo, _view);
     }
     
     private string[] OpenDeckFromSelectedArchive()
@@ -111,7 +131,9 @@ public class Game
             drawCardState = _inTurnPlayer.PlaySpecialAbility();
 
         if (drawCardState)
+        {
             _inTurnPlayer.DrawCard();
+        }
     }
     private void RunGameElectionsLoop()
     {
@@ -178,7 +200,7 @@ public class Game
     
     private void SelectShowCardsOption()
     {
-        _inTurnPlayer.ShowOptionsToViewDeck();
+        _inTurnPlayer.ShowOptionsToViewDecks();
     }
     private void SelectPlayCardOption()
     {

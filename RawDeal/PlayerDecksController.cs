@@ -12,13 +12,23 @@ public class PlayerDecksController
         _playerDecks = playerDecks;
         _handSize = handSize;
     }
+    private Dictionary<DeckName, List<string>> BuildFormattedDecks()
+    {
+        var formattedDecks = new Dictionary<DeckName, List<string>>
+        {
+            { DeckName.Hand, FormatDeck(DeckName.Hand) },
+            { DeckName.Ringside, FormatDeck(DeckName.Ringside) },
+            { DeckName.RingArea, FormatDeck(DeckName.RingArea) }
+        };
+        return formattedDecks;
+    }
     
-    public List<string> FormatDeck(DeckName deckName)
+    private List<string> FormatDeck(DeckName deckName)
     {
         return Utils.FormatDecksOfCards(_playerDecks[deckName]);
     }
     
-    public Dictionary<DeckName, int> ShowUpdatedDeckInfo()
+    public Dictionary<DeckName, int> ShowUpdatedDeckCounts()
     {
         var deckInfo = new Dictionary<DeckName, int>
         {
@@ -26,6 +36,11 @@ public class PlayerDecksController
             { DeckName.Arsenal, _playerDecks[DeckName.Arsenal].Count }
         };
         return deckInfo;
+    }
+
+    public Dictionary<DeckName, List<IViewableCardInfo>> ShowUpdatedDeckInfo()
+    {
+        return _playerDecks;
     }
 
     public virtual void DrawCardsInTheBeginning()

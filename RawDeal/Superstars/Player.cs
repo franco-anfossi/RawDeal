@@ -44,7 +44,7 @@ public abstract class Player
     {
     }
 
-    public void ShowOptionsToViewDeck()
+    public void ShowOptionsToViewDecks()
     {
         var playerDecks = BuildFormattedDecks();
         var opponentDecks = Opponent.BuildFormattedDecks();
@@ -82,6 +82,7 @@ public abstract class Player
         View = view;
         Opponent = opponent;
     }
+    
     public string GetLogo()
     {
         return Logo;
@@ -139,6 +140,12 @@ public abstract class Player
     {
         PlayerDecksController = new PlayerDecksController(Decks, HandSize);
         return PlayerDecksController;
+    }
+    
+    public PlayerInfo BuildPlayerInfo()
+    {
+        var playerInfo = new PlayerInfo(Name, _fortitude, Decks[DeckName.Hand].Count, Decks[DeckName.Arsenal].Count);
+        return playerInfo;
     }
     
     public virtual void DrawCardsInTheBeginning()
