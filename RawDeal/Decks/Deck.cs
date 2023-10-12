@@ -1,8 +1,8 @@
-using RawDeal.Cards;
+using RawDeal.Data_Structures;
 using RawDeal.Superstars;
 using RawDealView.Formatters;
 
-namespace RawDeal;
+namespace RawDeal.Decks;
 
 public class Deck
 {
@@ -42,19 +42,19 @@ public class Deck
         {
             if (card.CompareCardTitle(cardName))
             {
-                Card cardCopy = CopyBaseCard(card);
-                _deckCards.Add(cardCopy);
+                CardData cardDataCopy = CopyBaseCard(card);
+                _deckCards.Add(cardDataCopy);
             }
         }
     }
-    private Card CopyBaseCard(Card card)
+    private CardData CopyBaseCard(CardData cardData)
     {
-        Card cardCopy = (Card)card.Clone();
-        return cardCopy;
+        CardData cardDataCopy = (CardData)cardData.Clone();
+        return cardDataCopy;
     }
     
     private void InitializeDeckSuperstarAttributes()
     {
-        _playerDeckOwner.InitializeNecessaryAttributes(_deckCards);
+        _playerDeckOwner.BuildDeckInfo(_deckCards);
     }
 }

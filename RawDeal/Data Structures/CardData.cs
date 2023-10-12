@@ -1,6 +1,8 @@
-namespace RawDeal;
+using RawDealView.Formatters;
 
-public class CardData
+namespace RawDeal.Data_Structures;
+
+public class CardData : IViewableCardInfo
 {
     public string Title { get; set; }
     public List<string> Types { get; set; }
@@ -9,4 +11,14 @@ public class CardData
     public string Damage { get; set; }
     public string StunValue { get; set; }
     public string CardEffect { get; set; }
+    
+    public bool CompareCardTitle(string otherCardTitle)
+    {
+        return Title == otherCardTitle;
+    }
+
+    public object Clone()
+    {
+        return MemberwiseClone();
+    }
 }

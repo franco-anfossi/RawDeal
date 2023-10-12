@@ -1,14 +1,12 @@
+using RawDeal.Data_Structures;
+
 namespace RawDeal.Superstars;
 
 public class HHH : Player
 {
     public HHH(SuperstarData superstarData) : base(superstarData)
     {
-        Name = superstarData.Name;
-        Logo = superstarData.Logo;
-        HandSize = superstarData.HandSize;
-        SuperstarValue = superstarData.SuperstarValue;
-        SuperstarAbility = superstarData.SuperstarAbility;
+        SuperstarData = superstarData;
     }
     public override bool PlaySpecialAbility()
     {

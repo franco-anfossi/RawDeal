@@ -1,3 +1,6 @@
+using RawDeal.Data_Structures;
+using RawDeal.Effects;
+
 namespace RawDeal.Superstars;
 
 public class StoneCold : Player
@@ -6,16 +9,12 @@ public class StoneCold : Player
     private int _timesTheAbilityWasUsed;
     public StoneCold(SuperstarData superstarData) : base(superstarData)
     {
-        Name = superstarData.Name;
-        Logo = superstarData.Logo;
-        HandSize = superstarData.HandSize;
-        SuperstarValue = superstarData.SuperstarValue;
-        SuperstarAbility = superstarData.SuperstarAbility;
+        SuperstarData = superstarData;
     }
     
     public override bool PlaySpecialAbility()
     {
-        if (_timesTheAbilityWasUsed < 1 && Arsenal.Count >= 0)
+        if (_timesTheAbilityWasUsed < 1 && DecksInfo.Arsenal.Count >= 0)
         {
             ExecuteAbilitySteps();
             _timesTheAbilityWasUsed++;
@@ -35,11 +34,11 @@ public class StoneCold : Player
 
     private void ExecuteAbilitySteps()
     {
-        View.SayThatPlayerIsGoingToUseHisAbility(Name, SuperstarAbility);
-        View.SayThatPlayerDrawCards(Name, 1);
-        DrawCard();
-        List<string> formattedCardData = Utils.FormatDecksOfCards(Hand);
-        int selectedCardIndex = View.AskPlayerToReturnOneCardFromHisHandToHisArsenal(Name, formattedCardData);
-        PassCardFromADeckToTheBackOfTheArsenal(Hand, selectedCardIndex);
+        View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
+        View.SayThatPlayerDrawCards(SuperstarData.Name, 1);
+        PlayerDecksController.DrawTurnCard();
+        var importantPlayerData = BuildImportantPlayerData();
+        var returnCardEffect = new ReturnCardToArsenalEffect(importantPlayerData, View);
+        returnCardEffect.Apply();
     }
 }

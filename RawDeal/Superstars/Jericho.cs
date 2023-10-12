@@ -1,3 +1,6 @@
+using RawDeal.Data_Structures;
+using RawDeal.Effects;
+
 namespace RawDeal.Superstars;
 
 public class Jericho : Player
@@ -6,19 +9,25 @@ public class Jericho : Player
     private int _timesTheAbilityWasUsed;
     public Jericho(SuperstarData superstarData) : base(superstarData)
     {
-        Name = superstarData.Name;
-        Logo = superstarData.Logo;
-        HandSize = superstarData.HandSize;
-        SuperstarValue = superstarData.SuperstarValue;
-        SuperstarAbility = superstarData.SuperstarAbility;
+        SuperstarData = superstarData;
     }
     
     public override bool PlaySpecialAbility()
     {
-        if (Hand.Count >= 1 && _timesTheAbilityWasUsed < 1)
+        if (DecksInfo.Hand.Count >= 1 && _timesTheAbilityWasUsed < 1)
         {
-            DiscardOneCardFromJerichoHand();
-            DiscardOneCardFromOpponentHand();
+            View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
+
+            var importantPlayerData = BuildImportantPlayerData();
+            
+            var playerDiscardHandCardsEffect = 
+                new AskToDiscardHandCardsEffect(importantPlayerData, View, 1);
+            
+            var opponentDiscardHandCardsEffect = 
+                new AskToDiscardHandCardsEffect(OpponentData, View, 1);
+            
+            playerDiscardHandCardsEffect.Apply();
+            opponentDiscardHandCardsEffect.Apply();
             
             _timesTheAbilityWasUsed++;
             _abilityPermission = true;
@@ -27,39 +36,20 @@ public class Jericho : Player
     }
     public override bool VerifyAbilityUsability()
     {
-        if (Hand.Count >= 1 && _timesTheAbilityWasUsed < 1)
-        {
+        if (DecksInfo.Hand.Count >= 1 && _timesTheAbilityWasUsed < 1)
             _abilityPermission = false;
-        }
         else
-        {
             _abilityPermission = true;
-        }
         
         return _abilityPermission;
     }
 
     public override void ChangeAbilitySelectionVisibility()
     {
-        if (Hand.Count >= 1)
+        if (DecksInfo.Hand.Count >= 1)
         {
             _timesTheAbilityWasUsed = 0;
             _abilityPermission = false;
         }
-    }
-
-    private void DiscardOneCardFromJerichoHand()
-    {
-        View.SayThatPlayerIsGoingToUseHisAbility(Name, SuperstarAbility);
-        List<string> formattedCardData = FormatDeck(Hand);
-        int selectedCardIndex = View.AskPlayerToSelectACardToDiscard(formattedCardData, Name, Name, 1);
-        PassCardFromHandToRingside(selectedCardIndex);
-    }
-
-    private void DiscardOneCardFromOpponentHand()
-    {
-        List<string> formattedCardData = Opponent.FormatHand();
-        int selectedCardIndex = Opponent.AskForCardsToDiscard(formattedCardData, 1);
-        Opponent.PassCardFromHandToRingside(selectedCardIndex);
     }
 }

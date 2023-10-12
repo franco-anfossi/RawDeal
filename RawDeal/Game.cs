@@ -1,4 +1,6 @@
+using RawDeal.Decks;
 using RawDeal.Deserializers;
+using RawDeal.Exceptions;
 using RawDeal.Superstars;
 using RawDealView;
 using RawDealView.Options;
@@ -7,10 +9,10 @@ namespace RawDeal;
 
 public class Game
 {
-    private View _view;
-    private string _deckFolder;
-    private CardsSet _cardsSet;
-    private List<Player> _players = new();
+    private readonly View _view;
+    private readonly string _deckFolder;
+    private readonly CardsSet _cardsSet;
+    private readonly List<Player> _players = new();
     
     private bool _principalLoopState = true;
     private bool _electionsLoopState = true;
@@ -23,8 +25,6 @@ public class Game
     
     private PlayerDecksController _inTurnPlayerDecksController;
     private PlayerDecksController _opponentPlayerDecksController;
-    
-    private PlayerInfoManager _playerInfoManager;
     
     
     public Game(View view, string deckFolder)
@@ -42,22 +42,46 @@ public class Game
 
     public void Play()
     {
-        SelectDeck();
-        if (_principalLoopState)
+        try
         {
-            SelectFirstPlayer();
-            DrawInitialCards();
+            TryToPlayGame();
         }
+        catch (InvalidDeckException)
+        {
+            _view.SayThatDeckIsInvalid();
+        }
+    }
+
+    private void TryToPlayGame()
+    {
+        SelectDeck();
+        SelectFirstPlayer();
+        InitializePlayerVariables();
+        InitializePlayersDecksControllers();
+        DrawInitialCards();
         RunPrincipalGameLoop();
     }
+    
     private void SelectDeck()
     {
         for (int playerIndex = 0; playerIndex < 2; playerIndex++)
         {
             string[] openedDeckFromArchive = OpenDeckFromSelectedArchive();
             Deck newDeck = new Deck(openedDeckFromArchive, _cardsSet);
-            playerIndex = ValidateDeck(newDeck, playerIndex);
+            ValidateDeck(newDeck);
         }
+    }
+    
+    private void SelectFirstPlayer()
+    {
+        if (!(_players[0].GetSuperstarValue() >= _players[1].GetSuperstarValue()))
+            Utils.ChangePositionsOfTheList(_players);
+    }
+    
+    private void InitializePlayerVariables()
+    {
+        _inTurnPlayer = _players[_inTurnPlayerIndex];
+        _opponentPlayer = _players[_opponentPlayerIndex];
     }
     
     private void InitializePlayersDecksControllers()
@@ -74,17 +98,11 @@ public class Game
         _inTurnPlayerDecksController = newOpponentPlayerDecksController;
         _opponentPlayerDecksController = newInTurnPlayerDecksController;
     }
-    private void SelectFirstPlayer()
-    {
-        if (!(_players[0].GetSuperstarValue() >= _players[1].GetSuperstarValue()))
-            Utils.ChangePositionsOfTheList(_players);
-    }
+    
     private void DrawInitialCards()
     {
-        foreach (var player in _players)
-        {
-            player.DrawCardsInTheBeginning();
-        }
+        _inTurnPlayerDecksController.DrawCardsInTheBeginning();
+        _opponentPlayerDecksController.DrawCardsInTheBeginning();
     }
     
     private void RunPrincipalGameLoop()
@@ -92,7 +110,6 @@ public class Game
         while (_principalLoopState)
         {
             _electionsLoopState = true;
-            InitializePlayerVariables();
             AddNecessarySuperstarAttributes();
             _inTurnPlayer.SayPlayerTurnBegin();
             PlaySpecialAbilityBeforeDrawingACard();
@@ -101,11 +118,11 @@ public class Game
         }
     }
 
-    private void UpdatePlayersInfo()
+    private PlayerInfoManager UpdatePlayersInfo()
     {
         PlayerInfo inTurnPlayerInfo = _inTurnPlayer.BuildPlayerInfo();
         PlayerInfo opponentPlayerInfo = _opponentPlayer.BuildPlayerInfo();
-        _playerInfoManager = new PlayerInfoManager(inTurnPlayerInfo, opponentPlayerInfo, _view);
+        return new PlayerInfoManager(inTurnPlayerInfo, opponentPlayerInfo, _view);
     }
     
     private string[] OpenDeckFromSelectedArchive()
@@ -114,14 +131,13 @@ public class Game
         var openedDeckFromArchive = Utils.OpenDeckArchive(deckPath);
         return openedDeckFromArchive;
     }
-    private int ValidateDeck(Deck deck, int playerIndex)
+    private void ValidateDeck(Deck deck)
     {
         DeckValidator deckValidator = new DeckValidator(deck, _cardsSet);
-        if (!deckValidator.ValidateDeckRules())
-            playerIndex = ManageInvalidDeck();
+        if (deckValidator.ValidateDeckRules())
+            _players.Add(deck.PlayerDeckOwner);
         else
-            playerIndex = ManageValidDeck(deck, playerIndex);
-        return playerIndex;
+            throw new InvalidDeckException();
     }
     private void PlaySpecialAbilityBeforeDrawingACard()
     {
@@ -131,29 +147,27 @@ public class Game
             drawCardState = _inTurnPlayer.PlaySpecialAbility();
 
         if (drawCardState)
-        {
-            _inTurnPlayer.DrawCard();
-        }
+            _inTurnPlayerDecksController.DrawTurnCard();
     }
     private void RunGameElectionsLoop()
     {
         while (_electionsLoopState)
         {
-            _view.ShowGameInfo(_inTurnPlayer.GetPlayerInfo(), _opponentPlayer.GetPlayerInfo());
+            var playerInfoManager = UpdatePlayersInfo();
+            playerInfoManager.ShowPlayerInfo();
             NextPlay firstOptionChoice = ShowAppropriateOptionsSelector();
             ManagePossibleOptions(firstOptionChoice);
         }
     }
 
-    private void InitializePlayerVariables()
-    {
-        _inTurnPlayer = _players[_inTurnPlayerIndex];
-        _opponentPlayer = _players[_opponentPlayerIndex];
-    }
+    
     private void AddNecessarySuperstarAttributes()
     {
-        _inTurnPlayer.ApplyNecessaryAttributes(_view, _opponentPlayer);
-        _opponentPlayer.ApplyNecessaryAttributes(_view, _inTurnPlayer);
+        var opponentPlayerInfo = _opponentPlayer.BuildImportantPlayerData();
+        var inTurnPlayerInfo = _inTurnPlayer.BuildImportantPlayerData();
+        
+        _inTurnPlayer.ApplyNecessaryAttributes(_view, opponentPlayerInfo);
+        _opponentPlayer.ApplyNecessaryAttributes(_view, inTurnPlayerInfo);
     }
     
     private NextPlay ShowAppropriateOptionsSelector()
@@ -164,20 +178,6 @@ public class Game
         else
             firstOptionChoice = _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible(); 
         return firstOptionChoice;
-    }
-    
-    private int ManageValidDeck(Deck deck, int playerIndex)
-    {
-        _players.Add(deck.PlayerDeckOwner);
-        return playerIndex;
-    }
-
-    private int ManageInvalidDeck()
-    {
-        _view.SayThatDeckIsInvalid();
-        _principalLoopState = false;
-        int numberOutOfIndex = 2;
-        return numberOutOfIndex;
     }
 
     private void ManagePossibleOptions(NextPlay firstOptionChoice)
@@ -204,10 +204,18 @@ public class Game
     }
     private void SelectPlayCardOption()
     {
-        var optionsToPlayCard = new OptionsToPlayCard(_inTurnPlayer, _opponentPlayer, _view);
-        _electionsLoopState = optionsToPlayCard.StartElectionProcess();
-        if (!_electionsLoopState)
+        try
+        {
+            var inTurnPlayerInfo = _inTurnPlayer.BuildImportantPlayerData();
+            var opponentPlayerInfo = _opponentPlayer.BuildImportantPlayerData();
+        
+            var optionsToPlayCard = new OptionsToPlayCard(inTurnPlayerInfo, opponentPlayerInfo, _view);
+            optionsToPlayCard.StartElectionProcess();
+        }
+        catch (NoArsenalCardsException)
+        {
             DeclareVictoryOfThePlayerInTurn();
+        }
     }
 
     private void SelectPlayAbilityOption()
@@ -217,10 +225,10 @@ public class Game
 
     private void SelectEndTurnOption()
     {
-        if (_opponentPlayer.CheckForEmptyArsenal())
+        if (_opponentPlayerDecksController.CheckForEmptyArsenal())
             DeclareVictoryOfThePlayerInTurn();
         
-        else if (_inTurnPlayer.CheckForEmptyArsenal())
+        else if (_inTurnPlayerDecksController.CheckForEmptyArsenal())
             DeclareLossOfThePlayerInTurn();
         
         else
@@ -251,6 +259,7 @@ public class Game
     private void ChangePlayersPositions()
     {
         ChangePlayersIndex();
+        ChangePlayersDecksControllers();
         _inTurnPlayer = _players[_inTurnPlayerIndex];
         _opponentPlayer = _players[_opponentPlayerIndex];
         _electionsLoopState = false;

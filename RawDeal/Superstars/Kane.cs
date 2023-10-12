@@ -1,4 +1,5 @@
-using RawDealView.Formatters;
+using RawDeal.Data_Structures;
+using RawDeal.Effects;
 
 namespace RawDeal.Superstars;
 
@@ -6,28 +7,18 @@ public class Kane : Player
 {
     public Kane(SuperstarData superstarData) : base(superstarData)
     {
-        Name = superstarData.Name;
-        Logo = superstarData.Logo;
-        HandSize = superstarData.HandSize;
-        SuperstarValue = superstarData.SuperstarValue;
-        SuperstarAbility = superstarData.SuperstarAbility;
+        SuperstarData = superstarData;
     }
     
     public override bool PlaySpecialAbility()
     {
-        View.SayThatPlayerIsGoingToUseHisAbility(Name, SuperstarAbility);
-        Opponent.SayThatPlayerWillTakeDamage(1);
+        View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
+        var opponentDiscardArsenalCardsEffect = 
+            new DiscardArsenalCardsEffect(OpponentData, View, 1);
         
-        if (!Opponent.CheckForEmptyArsenal())
-            DiscardOneOpponentCard();
+        if (!OpponentData.DecksController.CheckForEmptyArsenal())
+            opponentDiscardArsenalCardsEffect.Apply();
 
         return true;
-    }
-
-    private void DiscardOneOpponentCard()
-    {
-        IViewableCardInfo selectedCard = Opponent.PassCardFromArsenalToRingside();
-        string formattedCardData = Formatter.CardToString(selectedCard);
-        View.ShowCardOverturnByTakingDamage(formattedCardData, 1, 1);
     }
 }

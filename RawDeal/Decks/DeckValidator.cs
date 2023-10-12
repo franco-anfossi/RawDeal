@@ -1,6 +1,6 @@
 using RawDealView.Formatters;
 
-namespace RawDeal;
+namespace RawDeal.Decks;
 
 public class DeckValidator
 {

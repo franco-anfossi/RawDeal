@@ -1,40 +1,39 @@
-using RawDeal.Superstars;
-using RawDealView.Formatters;
 using RawDealView;
+using RawDeal.Cards;
+using RawDealView.Formatters;
+using RawDeal.Data_Structures;
 
 namespace RawDeal;
 
 public class OptionsToPlayCard
 {
+    private View _view;
+    
+    private ImportantPlayerData _inTurnPlayerInfo;
+    private ImportantPlayerData _opponentInfo;
+    
     private List<IViewablePlayInfo> _notFormattedPossiblePlays = new();
     private List<string> _formattedPossiblePlays = new();
     
     private IViewablePlayInfo _notFormattedSelectedPlay;
     private string _formattedSelectedPlay;
     
-    private View _view;
-    
-    private Player _inTurnPlayer;
-    private Player _opponentPlayer;
+    private CardControllerDecider _cardControllerDecider;
+    private BasicCardController _cardController;
 
-    private string _playerName;
-    private string _opponentName;
-    
-    
-    private bool _activeGame = true;
-
-    public OptionsToPlayCard(Player inTurnPlayer, Player opponentPlayer, View view)
+    public OptionsToPlayCard(ImportantPlayerData playerData, ImportantPlayerData opponentData, View view)
     {
         _view = view;
-        _inTurnPlayer = inTurnPlayer;
-        _opponentPlayer = opponentPlayer;
-        CreatePlays();
+        _inTurnPlayerInfo = playerData;
+        _opponentInfo = opponentData;
+        
+        CreatePlayablePlays();
         FormatPlay();
     }
 
-    private void CreatePlays()
+    private void CreatePlayablePlays()
     {
-        List<IViewableCardInfo> playableCards = _inTurnPlayer.CheckForPlayableCards();
+        var playableCards = _inTurnPlayerInfo.DecksController.CheckForPlayableCards();
         foreach (var playableCard in playableCards)
             SavePlayablePlay(playableCard);
     }
@@ -48,29 +47,45 @@ public class OptionsToPlayCard
         }
     }
 
-    public bool StartElectionProcess()
+    public void StartElectionProcess()
     {
         int selectedPlayNumber = _view.AskUserToSelectAPlay(_formattedPossiblePlays);
         if (_formattedPossiblePlays.Count >= 0 && selectedPlayNumber != -1)
         {
-            AskUserToPlayCardAndPutItIntoRingArea(selectedPlayNumber);
-            _inTurnPlayer.TryToPlayCard(_formattedSelectedPlay);
+            InitializeVariables(selectedPlayNumber);
+            _view.SayThatPlayerIsTryingToPlayThisCard(_inTurnPlayerInfo.Name, _formattedSelectedPlay);
             _view.SayThatPlayerSuccessfullyPlayedACard();
-            MakeDamageToOpponent();
+            BuildGeneralCardManager();
+            BuildCorrectCardController();
+            _cardController.ApplyEffect();
         }
+    }
 
-        return _activeGame;
+    private void BuildGeneralCardManager()
+    {
+        _cardControllerDecider = new CardControllerDecider(_notFormattedSelectedPlay);
+    }
+
+    private void BuildCorrectCardController()
+    {
+        var cardControllerType = _cardControllerDecider.DecideCardController();
+        if (cardControllerType == CardControllerTypes.BasicHybridCard)
+            _cardController = 
+                new BasicHybridController(_inTurnPlayerInfo, _opponentInfo, _notFormattedSelectedPlay, _view);
+        else
+            _cardController = 
+                new BasicCardController(_inTurnPlayerInfo, _opponentInfo, _notFormattedSelectedPlay, _view);
     }
 
     private void SavePlayablePlay(IViewableCardInfo playableCard)
     {
         if (!playableCard.Types.Contains("Reversal"))
-        {
-            if (playableCard.Types.Contains("Action") && playableCard.Types.Contains("Maneuver"))
+        { 
+            if (playableCard.Types.Contains("Maneuver") && playableCard.Types.Contains("Action"))
             {
-                for (int typeNumber = 0; typeNumber < 2; typeNumber++)
+                for (int typesIndex = 0; typesIndex < 2; typesIndex++)
                 {
-                    string cardType = playableCard.Types[typeNumber].ToUpper();
+                    string cardType = playableCard.Types[typesIndex].ToUpper();
                     PlayInfo possiblePlayInfo = new PlayInfo(playableCard, cardType);
                     _notFormattedPossiblePlays.Add(possiblePlayInfo);
                 }
@@ -83,44 +98,9 @@ public class OptionsToPlayCard
             }
         }
     }
-    private void AskUserToPlayCardAndPutItIntoRingArea(int selectedPlayNumber)
+    private void InitializeVariables(int selectedPlayNum)
     {
-        _formattedSelectedPlay = _formattedPossiblePlays[selectedPlayNumber];
-        _notFormattedSelectedPlay = _notFormattedPossiblePlays[selectedPlayNumber];
-        _inTurnPlayer.PassCardFromHandToRingArea(_notFormattedSelectedPlay.CardInfo);
-    }
-
-    private void MakeDamageToOpponent()
-    {
-        IViewableCardInfo selectedCard = _notFormattedSelectedPlay.CardInfo;
-        int damageDone = Convert.ToInt32(selectedCard.Damage);
-        _inTurnPlayer.AttackTheOpponent(damageDone);
-        if (_opponentPlayer.CheckIfPlayerIsMankind())
-        {
-            damageDone--;
-        }
-        
-        ShowDamageDoneToOpponent(damageDone);
-    }
-
-    private void ShowDamageDoneToOpponent(int totalDamageDone)
-    {
-        for (int currentDamage = 1; currentDamage <= totalDamageDone; currentDamage++)
-            DecideToMakeDamageOrNot(currentDamage, totalDamageDone);
-    }
-
-    private void DecideToMakeDamageOrNot(int currentDamage, int totalDamageDone)
-    {
-        if (!_opponentPlayer.CheckForEmptyArsenal())
-            ShowCardsBecauseOfDamage(currentDamage, totalDamageDone);
-        else
-            _activeGame = false;
-    }
-
-    private void ShowCardsBecauseOfDamage(int currentDamage, int totalDamageDone)
-    {
-        IViewableCardInfo drawnCard = _opponentPlayer.PassCardFromArsenalToRingside();
-        string formattedDrawnCard = Formatter.CardToString(drawnCard);
-        _view.ShowCardOverturnByTakingDamage(formattedDrawnCard, currentDamage, totalDamageDone);
+        _formattedSelectedPlay = _formattedPossiblePlays[selectedPlayNum];
+        _notFormattedSelectedPlay = _notFormattedPossiblePlays[selectedPlayNum];
     }
 }

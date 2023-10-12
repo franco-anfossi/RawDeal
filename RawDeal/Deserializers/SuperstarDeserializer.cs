@@ -1,4 +1,5 @@
 using System.Text.Json;
+using RawDeal.Data_Structures;
 using RawDeal.Superstars;
 
 namespace RawDeal.Deserializers;

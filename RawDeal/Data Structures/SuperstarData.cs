@@ -1,4 +1,4 @@
-namespace RawDeal.Superstars;
+namespace RawDeal.Data_Structures;
 
 public class SuperstarData
 {
@@ -7,4 +7,10 @@ public class SuperstarData
     public int HandSize { get; set; }
     public int SuperstarValue { get; set; }
     public string SuperstarAbility { get; set; }
+    public int Fortitude { get; set; }
+    
+    public object Clone()
+    {
+        return MemberwiseClone();
+    }
 }

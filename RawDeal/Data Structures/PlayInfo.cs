@@ -1,6 +1,6 @@
 using RawDealView.Formatters;
 
-namespace RawDeal;
+namespace RawDeal.Data_Structures;
 
 public class PlayInfo : IViewablePlayInfo
 {
