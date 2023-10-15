@@ -7,13 +7,13 @@ namespace RawDeal;
 
 public class OptionsToPlayCard
 {
-    private View _view;
+    private readonly View _view;
     
-    private ImportantPlayerData _inTurnPlayerInfo;
-    private ImportantPlayerData _opponentInfo;
+    private readonly ImportantPlayerData _inTurnPlayerInfo;
+    private readonly ImportantPlayerData _opponentInfo;
     
-    private List<IViewablePlayInfo> _notFormattedPossiblePlays = new();
-    private List<string> _formattedPossiblePlays = new();
+    private readonly List<IViewablePlayInfo> _notFormattedPossiblePlays = new();
+    private readonly List<string> _formattedPossiblePlays = new();
     
     private IViewablePlayInfo _notFormattedSelectedPlay;
     private string _formattedSelectedPlay;

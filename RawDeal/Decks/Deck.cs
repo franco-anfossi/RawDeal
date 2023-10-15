@@ -7,8 +7,8 @@ namespace RawDeal.Decks;
 public class Deck
 {
     private Player _playerDeckOwner;
-    private List<IViewableCardInfo> _deckCards;
-    private CardsSet _cardsSet;
+    private readonly List<IViewableCardInfo> _deckCards;
+    private readonly CardsSet _cardsSet;
     
     public Player PlayerDeckOwner => _playerDeckOwner;
     public List<IViewableCardInfo> DeckCards => _deckCards;

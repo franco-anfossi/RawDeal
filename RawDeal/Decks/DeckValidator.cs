@@ -5,8 +5,8 @@ namespace RawDeal.Decks;
 public class DeckValidator
 {
     private List<IViewableCardInfo> _equalCardsGroup = new();
-    private Deck _deckToReview;
-    private CardsSet _cardsSet;
+    private readonly Deck _deckToReview;
+    private readonly CardsSet _cardsSet;
     private string _logoSuperstarToReview;
     private string _logoOtherSuperstar;
     private int _maxRepetitionsAllowed;

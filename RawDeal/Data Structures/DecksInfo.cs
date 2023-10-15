@@ -4,10 +4,10 @@ namespace RawDeal.Data_Structures;
 
 public class DecksInfo
 {
-    public List<IViewableCardInfo> Hand;
-    public List<IViewableCardInfo> Arsenal;
-    public List<IViewableCardInfo> Ringside;
-    public List<IViewableCardInfo> RingArea;
+    public readonly List<IViewableCardInfo> Hand;
+    public readonly List<IViewableCardInfo> Arsenal;
+    public readonly List<IViewableCardInfo> Ringside;
+    public readonly List<IViewableCardInfo> RingArea;
     
     public DecksInfo(List<IViewableCardInfo> arsenal)
     {

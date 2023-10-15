@@ -1,18 +1,17 @@
 using RawDeal.Data_Structures;
-using RawDeal.Decks;
 using RawDealView;
 
 namespace RawDeal.Effects;
 
 public class AskToDiscardHandCardsEffect : Effect
 {
-    private int _cardsToDiscard;
+    private readonly int _cardsToDiscard;
     
     public AskToDiscardHandCardsEffect(
         ImportantPlayerData superstarData, View view, int cardsToDiscard) : base(superstarData, view)
     {
-        _view = view;
-        _playerData = superstarData;
+        View = view;
+        PlayerData = superstarData;
         _cardsToDiscard = cardsToDiscard;
     }
     
@@ -20,14 +19,14 @@ public class AskToDiscardHandCardsEffect : Effect
     {
         for (int cardsToDraw = _cardsToDiscard; cardsToDraw > 0; cardsToDraw--)
         {
-            var formattedCardData = _playerData.DecksController.BuildFormattedDecks();
+            var formattedCardData = PlayerData.DecksController.BuildFormattedDecks();
             var formattedHand = formattedCardData.Hand;
-            int selectedCardIndex = _view.AskPlayerToSelectACardToDiscard(formattedHand, 
-                _playerData.Name, _playerData.Name, cardsToDraw);
-            var cardData = _playerData.DecksController.BuildDecks();
+            int selectedCardIndex = View.AskPlayerToSelectACardToDiscard(formattedHand, 
+                PlayerData.Name, PlayerData.Name, cardsToDraw);
+            var cardData = PlayerData.DecksController.BuildDecks();
             var selectedCard = cardData.Hand[selectedCardIndex];
             
-            _playerData.DecksController.PassCardFromHandToRingside(selectedCard);
+            PlayerData.DecksController.PassCardFromHandToRingside(selectedCard);
         }
     }
 }

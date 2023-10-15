@@ -6,21 +6,21 @@ namespace RawDeal.Effects;
 
 public class MustDiscardHandCardEffect : Effect
 {
-    private IViewableCardInfo _cardToDiscard;
+    private readonly IViewableCardInfo _cardToDiscard;
     
     public MustDiscardHandCardEffect(
         ImportantPlayerData superstarData, View view, IViewableCardInfo cardToDiscard) : base(superstarData, view)
     {
-        _view = view;
-        _playerData = superstarData;
+        View = view;
+        PlayerData = superstarData;
         _cardToDiscard = cardToDiscard;
     }
     
     public override void Apply()
     {
-        _view.SayThatPlayerMustDiscardThisCard(_playerData.Name, _cardToDiscard.Title);
-        _playerData.DecksController.PassCardFromHandToRingside(_cardToDiscard);
-        _playerData.DecksController.DrawCard();
-        _view.SayThatPlayerDrawCards(_playerData.Name, 1);
+        View.SayThatPlayerMustDiscardThisCard(PlayerData.Name, _cardToDiscard.Title);
+        PlayerData.DecksController.PassCardFromHandToRingside(_cardToDiscard);
+        PlayerData.DecksController.DrawCard();
+        View.SayThatPlayerDrawCards(PlayerData.Name, 1);
     }
 }

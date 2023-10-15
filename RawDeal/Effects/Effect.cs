@@ -1,19 +1,18 @@
 using RawDeal.Data_Structures;
-using RawDeal.Decks;
 using RawDealView;
 
 namespace RawDeal.Effects;
 
 public abstract class Effect
 {
-    protected View _view;
-    protected ImportantPlayerData _playerData;
+    protected View View;
+    protected ImportantPlayerData PlayerData;
     
     protected Effect(ImportantPlayerData superstarData, View view)
     {
-        _view = view;
-        _playerData = superstarData;
+        View = view;
+        PlayerData = superstarData;
     }
-    
+
     public abstract void Apply();
 }

@@ -1,13 +1,12 @@
 using RawDeal.Data_Structures;
-using RawDeal.Superstars;
 
 namespace RawDeal.Decks;
 
 public class MankindDecksController : PlayerDecksController
 {
-    private DecksInfo _playerDecks;
+    private readonly DecksInfo _playerDecks;
     private bool _initialDraw = true;
-    private SuperstarData _playerData;
+    private readonly SuperstarData _playerData;
     private int _lastArsenalCardIndex;
     
     

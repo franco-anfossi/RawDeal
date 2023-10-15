@@ -2,5 +2,5 @@ namespace RawDeal.Cards;
 
 public enum CardControllerTypes
 {
-    BasicCard, BasicHybridCard
+    BasicCard, BasicHybridCard, BasicReversalCard
 }

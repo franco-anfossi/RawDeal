@@ -2,10 +2,10 @@ namespace RawDeal.Data_Structures;
 
 public class FormattedDecksInfo
 {
-    public List<string> Hand;
-    public List<string> Arsenal;
-    public List<string> Ringside;
-    public List<string> RingArea;
+    public readonly List<string> Hand;
+    public readonly List<string> Arsenal;
+    public readonly List<string> Ringside;
+    public readonly List<string> RingArea;
     
     public FormattedDecksInfo(DecksInfo decksInfo)
     {

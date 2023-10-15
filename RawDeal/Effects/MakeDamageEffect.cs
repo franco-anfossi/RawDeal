@@ -1,3 +1,4 @@
+using RawDeal.Cards;
 using RawDeal.Data_Structures;
 using RawDeal.Exceptions;
 using RawDealView;
@@ -7,25 +8,40 @@ namespace RawDeal.Effects;
 
 public class MakeDamageEffect : Effect
 {
-    private IViewablePlayInfo _selectedPlay;
+    private readonly IViewablePlayInfo _selectedPlay;
+    private readonly ImportantPlayerData _opponentData;
     
     public MakeDamageEffect(
-        ImportantPlayerData superstarData, IViewablePlayInfo selectedPlay, View view) : base(superstarData, view)
+        ImportantPlayerData superstarData, ImportantPlayerData opponentData, 
+        IViewablePlayInfo selectedPlay, View view) : base(superstarData, view)
     {
-        _view = view;
-        _playerData = superstarData;
+        View = view;
+        PlayerData = superstarData;
+        _opponentData = opponentData;
         _selectedPlay = selectedPlay;
     }
 
     public override void Apply()
     {
-        MakeDamageToOpponent();
+        var cardControllerDecider = new CardControllerDecider(_selectedPlay);
+        var reversalType = cardControllerDecider.DecideReversalCardController();
+
+        if (reversalType == CardControllerTypes.BasicReversalCard)
+        {
+            var cardController = new BasicReversalCardController(PlayerData, _opponentData, _selectedPlay, View);
+            cardController.ApplyEffect();
+        }
+        else
+        {
+            MakeDamageToOpponent();
+            AddFortitudeToPlayer();
+        }
     }
-    
-    public void AddFortitudeToPlayer()
+
+    private void AddFortitudeToPlayer()
     {
         int damageDone = Convert.ToInt32(_selectedPlay.CardInfo.Damage);
-        _playerData.SuperstarData.Fortitude += damageDone;
+        PlayerData.SuperstarData.Fortitude += damageDone;
     }
 
     private void MakeDamageToOpponent()
@@ -34,7 +50,7 @@ public class MakeDamageEffect : Effect
         damageDone = ReduceDamageIfMankind(damageDone);
         if (damageDone > 0)
         {
-            _view.SayThatSuperstarWillTakeSomeDamage(_playerData.Name, damageDone);
+            View.SayThatSuperstarWillTakeSomeDamage(_opponentData.Name, damageDone);
             ShowDamageDoneToOpponent(damageDone);
         }
         
@@ -48,7 +64,7 @@ public class MakeDamageEffect : Effect
 
     private void DecideToMakeDamageOrNot(int currentDamage, int totalDamageDone)
     {
-        if (!_playerData.DecksController.CheckForEmptyArsenal())
+        if (!_opponentData.DecksController.CheckForEmptyArsenal())
             ShowCardsBecauseOfDamage(currentDamage, totalDamageDone);
         else
             throw new NoArsenalCardsException();
@@ -56,14 +72,14 @@ public class MakeDamageEffect : Effect
 
     private void ShowCardsBecauseOfDamage(int currentDamage, int totalDamageDone)
     {
-        IViewableCardInfo drawnCard = _playerData.DecksController.PassCardFromArsenalToRingside();
+        IViewableCardInfo drawnCard = _opponentData.DecksController.PassCardFromArsenalToRingside();
         string formattedDrawnCard = Formatter.CardToString(drawnCard);
-        _view.ShowCardOverturnByTakingDamage(formattedDrawnCard, currentDamage, totalDamageDone);
+        View.ShowCardOverturnByTakingDamage(formattedDrawnCard, currentDamage, totalDamageDone);
     }
     
     private int ReduceDamageIfMankind(int damageDone)
     {
-        if (_playerData.Name == "MANKIND")
+        if (_opponentData.Name == "MANKIND")
             damageDone--;
         return damageDone;
     }

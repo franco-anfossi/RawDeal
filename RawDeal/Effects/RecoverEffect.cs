@@ -1,26 +1,25 @@
 using RawDeal.Data_Structures;
-using RawDeal.Decks;
 using RawDealView;
 
 namespace RawDeal.Effects;
 
 public class RecoverEffect : Effect
 {
-    private int _cardsToRecover;
+    private readonly int _cardsToRecover;
     
     public RecoverEffect(ImportantPlayerData superstarData, View view, int cardsToRecover) : base(superstarData, view)
     {
-        _view = view;
-        _playerData = superstarData;
+        View = view;
+        PlayerData = superstarData;
         _cardsToRecover = cardsToRecover;
     }
     
     public override void Apply()
     {
-        var formattedCardData = _playerData.DecksController.BuildFormattedDecks();
+        var formattedCardData = PlayerData.DecksController.BuildFormattedDecks();
         var formattedRingside = formattedCardData.Ringside;
         int selectedCardIndex = 
-            _view.AskPlayerToSelectCardsToRecover(_playerData.Name, _cardsToRecover, formattedRingside);
-        _playerData.DecksController.PassCardFromRingsideToTheBackOfTheArsenal(selectedCardIndex);
+            View.AskPlayerToSelectCardsToRecover(PlayerData.Name, _cardsToRecover, formattedRingside);
+        PlayerData.DecksController.PassCardFromRingsideToTheBackOfTheArsenal(selectedCardIndex);
     }
 }

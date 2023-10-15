@@ -1,5 +1,3 @@
-using System.Text.Json;
-using RawDeal.Superstars;
 using RawDealView.Formatters;
 
 namespace RawDeal;

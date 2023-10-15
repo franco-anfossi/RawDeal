@@ -4,9 +4,9 @@ namespace RawDeal.Data_Structures;
 
 public class ImportantPlayerData
 {
-    public string Name;
-    public SuperstarData SuperstarData;
-    public PlayerDecksController DecksController;
+    public readonly string Name;
+    public readonly SuperstarData SuperstarData;
+    public readonly PlayerDecksController DecksController;
     
     public ImportantPlayerData(SuperstarData superstarData, PlayerDecksController decksController)
     {

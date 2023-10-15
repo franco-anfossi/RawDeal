@@ -7,27 +7,25 @@ namespace RawDeal.Cards;
 
 public class BasicCardController
 {
-    private View _view;
-    private IViewablePlayInfo _selectedPlay;
-    private ImportantPlayerData _playerData;
-    private ImportantPlayerData _opponentData;
+    protected View View;
+    protected IViewablePlayInfo SelectedPlay;
+    protected ImportantPlayerData PlayerData;
+    protected ImportantPlayerData OpponentData;
     
-    public BasicCardController(ImportantPlayerData playerData, ImportantPlayerData opponentData, IViewablePlayInfo selectedPlay, View view)
+    public BasicCardController(ImportantPlayerData playerData, ImportantPlayerData opponentData, 
+        IViewablePlayInfo selectedPlay, View view)
     {
-        _view = view;
-        _selectedPlay = selectedPlay;
-        _playerData = playerData;
-        _opponentData = opponentData;
+        View = view;
+        SelectedPlay = selectedPlay;
+        PlayerData = playerData;
+        OpponentData = opponentData;
     }
     
     public virtual void ApplyEffect()
     {
-        _playerData.DecksController.PassCardFromHandToRingArea(_selectedPlay.CardInfo);
+        PlayerData.DecksController.PassCardFromHandToRingArea(SelectedPlay.CardInfo);
         
-        var playerMakeDamageEffect = new MakeDamageEffect(_playerData, _selectedPlay, _view);
-        playerMakeDamageEffect.AddFortitudeToPlayer();
-        
-        var opponentMakeDamageEffect = new MakeDamageEffect(_opponentData, _selectedPlay, _view);
-        opponentMakeDamageEffect.Apply();
+        var makeDamageEffect = new MakeDamageEffect(PlayerData, OpponentData,SelectedPlay, View);
+        makeDamageEffect.Apply();
     }
 }

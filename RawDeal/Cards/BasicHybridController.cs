@@ -7,38 +7,29 @@ namespace RawDeal.Cards;
 
 public class BasicHybridController : BasicCardController
 {
-    private View _view;
-    private IViewablePlayInfo _selectedPlay;
-    private ImportantPlayerData _playerData;
-    private ImportantPlayerData _opponentData;
-    
-    public BasicHybridController(
-        ImportantPlayerData playerData, ImportantPlayerData opponentData, 
+    public BasicHybridController(ImportantPlayerData playerData, ImportantPlayerData opponentData, 
         IViewablePlayInfo selectedPlay, View view) : base(playerData, opponentData, selectedPlay, view)
     {
-        _view = view;
-        _selectedPlay = selectedPlay;
-        _playerData = playerData;
-        _opponentData = opponentData;
+        View = view;
+        SelectedPlay = selectedPlay;
+        PlayerData = playerData;
+        OpponentData = opponentData;
     }
     
     public override void ApplyEffect()
     {
-        if (_selectedPlay.PlayedAs == "MANEUVER")
+        if (SelectedPlay.PlayedAs == "MANEUVER")
         {
-            _playerData.DecksController.PassCardFromHandToRingArea(_selectedPlay.CardInfo);
+            PlayerData.DecksController.PassCardFromHandToRingArea(SelectedPlay.CardInfo);
             
-            var playerMakeDamageEffect = new MakeDamageEffect(_playerData, _selectedPlay, _view);
-            playerMakeDamageEffect.AddFortitudeToPlayer();
-            
-            var opponentMakeDamageEffect = new MakeDamageEffect(_opponentData, _selectedPlay, _view);
-            opponentMakeDamageEffect.Apply();
+            var makeDamageEffect = new MakeDamageEffect(PlayerData, OpponentData,SelectedPlay, View);
+            makeDamageEffect.Apply();
         }
-        else if (_selectedPlay.PlayedAs == "ACTION")
+        else if (SelectedPlay.PlayedAs == "ACTION")
         {
-            var cardToDiscard = _selectedPlay.CardInfo;
+            var cardToDiscard = SelectedPlay.CardInfo;
             
-            var playerMustDiscardCardEffect = new MustDiscardHandCardEffect(_playerData, _view, cardToDiscard);
+            var playerMustDiscardCardEffect = new MustDiscardHandCardEffect(PlayerData, View, cardToDiscard);
             playerMustDiscardCardEffect.Apply();
         }
     }

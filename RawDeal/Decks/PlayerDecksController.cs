@@ -1,13 +1,12 @@
 using RawDeal.Data_Structures;
-using RawDealView;
 using RawDealView.Formatters;
 
 namespace RawDeal.Decks;
 
 public class PlayerDecksController
 {
-    private DecksInfo _playerDecks;
-    private SuperstarData _playerData;
+    private readonly DecksInfo _playerDecks;
+    private readonly SuperstarData _playerData;
     
     public PlayerDecksController(DecksInfo playerDecks, SuperstarData superstarData)
     {
@@ -25,6 +24,23 @@ public class PlayerDecksController
     {
         return _playerDecks;
     }
+
+    public (List<string>, List<IViewableCardInfo>) SearchForReversalInHand(string reversalName)
+    {
+        var cardsWithName = new List<IViewableCardInfo>();
+        foreach (var card in _playerDecks.Hand)
+        {
+            var hasReversal = card.Types.Contains("Reversal");
+            var hasName = card.Subtypes.Contains(reversalName);
+            if (hasReversal && hasName)
+                cardsWithName.Add(card);
+        }
+
+        var formattedCards = Utils.FormatDecksOfCards(cardsWithName);
+        return (formattedCards, cardsWithName);
+    }
+    
+    
     
     public (int, int) ShowUpdatedDeckCounts()
     {
