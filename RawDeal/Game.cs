@@ -186,7 +186,7 @@ public class Game
             SelectShowCardsOption();
             
         else if (firstOptionChoice == NextPlay.PlayCard)
-            SelectPlayCardOption();
+            TryToSelectPlayCardOption();
             
         else if (firstOptionChoice == NextPlay.UseAbility)
             SelectPlayAbilityOption();
@@ -202,20 +202,29 @@ public class Game
     {
         _inTurnPlayer.ShowOptionsToViewDecks();
     }
-    private void SelectPlayCardOption()
+    private void TryToSelectPlayCardOption()
     {
         try
         {
-            var inTurnPlayerInfo = _inTurnPlayer.BuildImportantPlayerData();
-            var opponentPlayerInfo = _opponentPlayer.BuildImportantPlayerData();
-        
-            var optionsToPlayCard = new OptionsToPlayCard(inTurnPlayerInfo, opponentPlayerInfo, _view);
-            optionsToPlayCard.StartElectionProcess();
+            SelectPlayCardOption();
         }
         catch (NoArsenalCardsException)
         {
             DeclareVictoryOfThePlayerInTurn();
         }
+        catch (EndOfTurnException)
+        {
+            SelectEndTurnOption();
+        }
+    }
+
+    private void SelectPlayCardOption()
+    {
+        var inTurnPlayerInfo = _inTurnPlayer.BuildImportantPlayerData();
+        var opponentPlayerInfo = _opponentPlayer.BuildImportantPlayerData();
+        
+        var optionsToPlayCard = new OptionsToPlayCard(inTurnPlayerInfo, opponentPlayerInfo, _view);
+        optionsToPlayCard.StartElectionProcess();
     }
 
     private void SelectPlayAbilityOption()

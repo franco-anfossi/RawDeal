@@ -54,7 +54,6 @@ public class OptionsToPlayCard
         {
             InitializeVariables(selectedPlayNumber);
             _view.SayThatPlayerIsTryingToPlayThisCard(_inTurnPlayerInfo.Name, _formattedSelectedPlay);
-            _view.SayThatPlayerSuccessfullyPlayedACard();
             BuildGeneralCardManager();
             BuildCorrectCardController();
             _cardController.ApplyEffect();

@@ -23,8 +23,6 @@ public class BasicCardController
     
     public virtual void ApplyEffect()
     {
-        PlayerData.DecksController.PassCardFromHandToRingArea(SelectedPlay.CardInfo);
-        
         var makeDamageEffect = new MakeDamageEffect(PlayerData, OpponentData,SelectedPlay, View);
         makeDamageEffect.Apply();
     }

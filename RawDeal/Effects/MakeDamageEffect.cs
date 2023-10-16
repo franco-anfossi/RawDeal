@@ -23,19 +23,13 @@ public class MakeDamageEffect : Effect
 
     public override void Apply()
     {
-        var cardControllerDecider = new CardControllerDecider(_selectedPlay);
-        var reversalType = cardControllerDecider.DecideReversalCardController();
-
-        if (reversalType == CardControllerTypes.BasicReversalCard)
-        {
-            var cardController = new BasicReversalCardController(PlayerData, _opponentData, _selectedPlay, View);
-            cardController.ApplyEffect();
-        }
-        else
-        {
-            MakeDamageToOpponent();
-            AddFortitudeToPlayer();
-        }
+        var cardController = new BasicReversalCardController(PlayerData, _opponentData, _selectedPlay, View);
+        cardController.ApplyEffect();
+        
+        View.SayThatPlayerSuccessfullyPlayedACard();
+        PlayerData.DecksController.PassCardFromHandToRingArea(_selectedPlay.CardInfo);
+        MakeDamageToOpponent();
+        AddFortitudeToPlayer();
     }
 
     private void AddFortitudeToPlayer()

@@ -25,7 +25,7 @@ public class PlayerDecksController
         return _playerDecks;
     }
 
-    public (List<string>, List<IViewableCardInfo>) SearchForReversalInHand(string reversalName)
+    public List<IViewableCardInfo> SearchForReversalInHand(string reversalName)
     {
         var cardsWithName = new List<IViewableCardInfo>();
         foreach (var card in _playerDecks.Hand)
@@ -36,8 +36,20 @@ public class PlayerDecksController
                 cardsWithName.Add(card);
         }
 
-        var formattedCards = Utils.FormatDecksOfCards(cardsWithName);
-        return (formattedCards, cardsWithName);
+        return cardsWithName;
+    }
+
+    public List<string> CreateFormattedPlays(List<IViewableCardInfo> cardsToPlays)
+    {
+        var formattedPlays = new List<string>();
+        foreach (var card in cardsToPlays)
+        {
+            var play = new PlayInfo(card, card.Types[0].ToUpper());
+            var formattedPlay = Formatter.PlayToString(play);
+            formattedPlays.Add(formattedPlay);
+        }
+
+        return formattedPlays;
     }
     
     

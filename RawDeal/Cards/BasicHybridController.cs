@@ -20,13 +20,12 @@ public class BasicHybridController : BasicCardController
     {
         if (SelectedPlay.PlayedAs == "MANEUVER")
         {
-            PlayerData.DecksController.PassCardFromHandToRingArea(SelectedPlay.CardInfo);
-            
             var makeDamageEffect = new MakeDamageEffect(PlayerData, OpponentData,SelectedPlay, View);
             makeDamageEffect.Apply();
         }
         else if (SelectedPlay.PlayedAs == "ACTION")
         {
+            View.SayThatPlayerSuccessfullyPlayedACard();
             var cardToDiscard = SelectedPlay.CardInfo;
             
             var playerMustDiscardCardEffect = new MustDiscardHandCardEffect(PlayerData, View, cardToDiscard);
