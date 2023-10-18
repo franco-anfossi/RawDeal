@@ -25,34 +25,18 @@ public class PlayerDecksController
         return _playerDecks;
     }
 
-    public List<IViewableCardInfo> SearchForReversalInHand(string reversalName)
+    public List<IViewableCardInfo> SearchForReversalInHand()
     {
         var cardsWithName = new List<IViewableCardInfo>();
         foreach (var card in _playerDecks.Hand)
         {
             var hasReversal = card.Types.Contains("Reversal");
-            var hasName = card.Subtypes.Contains(reversalName);
-            if (hasReversal && hasName)
+            if (hasReversal)
                 cardsWithName.Add(card);
         }
 
         return cardsWithName;
     }
-
-    public List<string> CreateFormattedPlays(List<IViewableCardInfo> cardsToPlays)
-    {
-        var formattedPlays = new List<string>();
-        foreach (var card in cardsToPlays)
-        {
-            var play = new PlayInfo(card, card.Types[0].ToUpper());
-            var formattedPlay = Formatter.PlayToString(play);
-            formattedPlays.Add(formattedPlay);
-        }
-
-        return formattedPlays;
-    }
-    
-    
     
     public (int, int) ShowUpdatedDeckCounts()
     {
@@ -94,6 +78,7 @@ public class PlayerDecksController
         }
     }
     
+    // TODO: Eliminar codigo duplicado agregar parametro para saber cuantas cartas robar quizas
     public void DrawCard()
     {
         int lastCardOfTheArsenal = _playerDecks.Arsenal.Count - 1;
@@ -124,8 +109,27 @@ public class PlayerDecksController
         var arsenalLength = _playerDecks.Arsenal.Count;
         var selectedCard = _playerDecks.Arsenal[arsenalLength - 1];
         _playerDecks.Arsenal.RemoveAt(arsenalLength - 1);
-        _playerDecks.Ringside.Add(selectedCard);
+        PassCardToRingside(selectedCard);
         return selectedCard;
+    }
+
+    public IViewableCardInfo DrawLastCardOfArsenal()
+    {
+        var arsenalLength = _playerDecks.Arsenal.Count;
+        var selectedCard = _playerDecks.Arsenal[arsenalLength - 1];
+        _playerDecks.Arsenal.RemoveAt(arsenalLength - 1);
+
+        return selectedCard;
+    }
+    
+    public void PassCardToRingside(IViewableCardInfo selectedCard)
+    {
+        _playerDecks.Ringside.Add(selectedCard);
+    }
+    
+    public void PassCardToRingArea(IViewableCardInfo selectedCard)
+    {
+        _playerDecks.RingArea.Add(selectedCard);
     }
     
     public void PassCardFromHandToRingArea(IViewableCardInfo selectedCard)

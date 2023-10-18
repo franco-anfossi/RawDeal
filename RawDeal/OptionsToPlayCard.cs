@@ -50,7 +50,7 @@ public class OptionsToPlayCard
     public void StartElectionProcess()
     {
         int selectedPlayNumber = _view.AskUserToSelectAPlay(_formattedPossiblePlays);
-        if (_formattedPossiblePlays.Count >= 0 && selectedPlayNumber != -1)
+        if (_formattedPossiblePlays.Count > 0 && selectedPlayNumber != -1)
         {
             InitializeVariables(selectedPlayNumber);
             _view.SayThatPlayerIsTryingToPlayThisCard(_inTurnPlayerInfo.Name, _formattedSelectedPlay);

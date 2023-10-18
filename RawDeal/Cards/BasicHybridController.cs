@@ -1,5 +1,6 @@
 using RawDeal.Data_Structures;
 using RawDeal.Effects;
+using RawDeal.Reversals;
 using RawDealView;
 using RawDealView.Formatters;
 
@@ -25,9 +26,13 @@ public class BasicHybridController : BasicCardController
         }
         else if (SelectedPlay.PlayedAs == "ACTION")
         {
-            View.SayThatPlayerSuccessfullyPlayedACard();
+            
             var cardToDiscard = SelectedPlay.CardInfo;
             
+            var reversalFromHand = new ReversalFromHandController(PlayerData, OpponentData, SelectedPlay, View);
+            reversalFromHand.SelectReversalFromHand();
+            
+            View.SayThatPlayerSuccessfullyPlayedACard();
             var playerMustDiscardCardEffect = new MustDiscardHandCardEffect(PlayerData, View, cardToDiscard);
             playerMustDiscardCardEffect.Apply();
         }

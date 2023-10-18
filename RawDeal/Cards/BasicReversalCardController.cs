@@ -18,26 +18,7 @@ public class BasicReversalCardController : BasicCardController
     
     public override void ApplyEffect()
     {
-        var reversalCards = ReversalFromHand();
-        var reversalPlaysInfo = OpponentData.DecksController.CreateFormattedPlays(reversalCards);
-        var numReversalToPlay = View.AskUserToSelectAReversal(OpponentData.Name, reversalPlaysInfo);
-        if (numReversalToPlay != -1)
-        {
-            View.SayThatPlayerReversedTheCard(OpponentData.Name, reversalPlaysInfo[numReversalToPlay]);
-            OpponentData.DecksController.PassCardFromHandToRingArea(reversalCards[numReversalToPlay]);
-            PlayerData.DecksController.PassCardFromHandToRingside(SelectedPlay.CardInfo);
-            throw new EndOfTurnException();
-        }
-    }
-    
-    private List<IViewableCardInfo> ReversalFromHand()
-    {
-        if (SelectedPlay.PlayedAs == "ACTION")
-        {
-            return OpponentData.DecksController.SearchForReversalInHand($"ReversalAction");
-        }
-        var subtype = SelectedPlay.CardInfo.Subtypes[0];
-        return OpponentData.DecksController.SearchForReversalInHand($"Reversal{subtype}");
+        throw new EndOfTurnException();
     }
     
 }

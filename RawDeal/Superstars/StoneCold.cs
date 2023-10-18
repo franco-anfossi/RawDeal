@@ -28,8 +28,12 @@ public class StoneCold : Player
     }
     public override void ChangeAbilitySelectionVisibility()
     {
-        _timesTheAbilityWasUsed = 0;
-        _abilityPermission = false;
+        if (DecksInfo.Arsenal.Count > 0)  
+        {
+            _timesTheAbilityWasUsed = 0;
+            _abilityPermission = false;
+        }
+        
     }
 
     private void ExecuteAbilitySteps()

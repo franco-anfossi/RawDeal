@@ -142,7 +142,7 @@ public class Game
     private void PlaySpecialAbilityBeforeDrawingACard()
     {
         bool drawCardState = true;
-
+        Console.WriteLine(_inTurnPlayer.VerifyAbilityUsability());
         if (_inTurnPlayer.VerifyAbilityUsability())
             drawCardState = _inTurnPlayer.PlaySpecialAbility();
 
@@ -173,6 +173,7 @@ public class Game
     private NextPlay ShowAppropriateOptionsSelector()
     {
         NextPlay firstOptionChoice;
+        Console.WriteLine(_inTurnPlayer.VerifyAbilityUsability());
         if (_inTurnPlayer.VerifyAbilityUsability())
             firstOptionChoice = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
         else

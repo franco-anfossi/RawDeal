@@ -1,6 +1,6 @@
-using RawDeal.Cards;
 using RawDeal.Data_Structures;
 using RawDeal.Exceptions;
+using RawDeal.Reversals;
 using RawDealView;
 using RawDealView.Formatters;
 
@@ -23,8 +23,8 @@ public class MakeDamageEffect : Effect
 
     public override void Apply()
     {
-        var cardController = new BasicReversalCardController(PlayerData, _opponentData, _selectedPlay, View);
-        cardController.ApplyEffect();
+        var reversalFromHand = new ReversalFromHandController(PlayerData, _opponentData, _selectedPlay, View);
+        reversalFromHand.SelectReversalFromHand();
         
         View.SayThatPlayerSuccessfullyPlayedACard();
         PlayerData.DecksController.PassCardFromHandToRingArea(_selectedPlay.CardInfo);
@@ -66,9 +66,14 @@ public class MakeDamageEffect : Effect
 
     private void ShowCardsBecauseOfDamage(int currentDamage, int totalDamageDone)
     {
-        IViewableCardInfo drawnCard = _opponentData.DecksController.PassCardFromArsenalToRingside();
+        IViewableCardInfo drawnCard = _opponentData.DecksController.DrawLastCardOfArsenal();
         string formattedDrawnCard = Formatter.CardToString(drawnCard);
         View.ShowCardOverturnByTakingDamage(formattedDrawnCard, currentDamage, totalDamageDone);
+        var damageCompleted = currentDamage == totalDamageDone;
+        var reversalFromArsenal = new ReversalFromArsenalController(
+            PlayerData, _opponentData, _selectedPlay, drawnCard, damageCompleted, View);
+        reversalFromArsenal.ReviewIfReversalPlayable();
+        _opponentData.DecksController.PassCardToRingside(drawnCard);
     }
     
     private int ReduceDamageIfMankind(int damageDone)
