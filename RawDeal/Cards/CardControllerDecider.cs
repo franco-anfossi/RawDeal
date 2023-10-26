@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using RawDealView.Formatters;
 
 namespace RawDeal.Cards;
@@ -13,12 +14,17 @@ public class CardControllerDecider
     
     public CardControllerTypes DecideCardController()
     {
-        if (CheckForBasicHybridCardsNames() && CheckForHybridCard())
-        {
+        if (CheckForBasicHybridCardsNames())
             return CardControllerTypes.BasicHybridCard;
-        }
+        if (CheckForPlayerDiscardCard())
+            return CardControllerTypes.PlayerDiscardCard;
+        if (CheckForOpponentDiscardCard())
+            return CardControllerTypes.OpponentDiscardCard;
+        if (_playInfo.CardInfo.Title == "Jockeying for Position")
+            return CardControllerTypes.JockeyingForPosition;
         return CardControllerTypes.BasicCard;
     }
+
     private bool CheckForBasicHybridCardsNames()
     {
         var nameOne = _playInfo.CardInfo.Title == "Chop";
@@ -26,18 +32,49 @@ public class CardControllerDecider
         var nameThree = _playInfo.CardInfo.Title == "Collar & Elbow Lockup";
         return nameOne || nameTwo || nameThree;
     }
-    
-    private bool CheckForHybridCard()
+
+    private bool CheckForPlayerDiscardCard()
     {
-        var cardTypes = _playInfo.CardInfo.Types;
-        var isAction = cardTypes.Contains("Action");
-        var isManeuver = cardTypes.Contains("Maneuver");
-        return isAction && isManeuver;
+        var effectPattern = @"When successfully played, discard (\d+) card(s?) of your choice from your hand";
+        return Regex.IsMatch(_playInfo.CardInfo.CardEffect, effectPattern);
+    }
+    private bool CheckForOpponentDiscardCard()
+    {
+        var effectPattern = @"When successfully played, opponent must discard (\d+) card(s?)";
+        return Regex.IsMatch(_playInfo.CardInfo.CardEffect, effectPattern);
     }
     
     public CardControllerTypes DecideReversalCardController()
     {
-        return CheckForNoEffectReversalCard() ? CardControllerTypes.BasicReversalCard : CardControllerTypes.BasicCard;
+        if (CheckForNoEffectReversalCard())
+        {
+            return CardControllerTypes.BasicReversalCard;
+        }
+        if (CheckForCardsThatCanBeUsedFromSevenDOrLess() && CheckIfDoesDamageToOpponent())
+        {
+            return CardControllerTypes.DoUnknownDamageCard;
+        }
+        if (CheckForCardsThatCanBeUsedFromSevenDOrLess())
+        {
+            return CardControllerTypes.LessThanEightCard;
+        }
+        if (CheckForPlayerDrawCard())
+        {
+            return CardControllerTypes.PlayerDrawCard;
+        }
+
+        if (_playInfo.CardInfo.Title == "Clean Break")
+        {
+            return CardControllerTypes.CleanBreakReversal;
+        } 
+        
+        if (_playInfo.CardInfo.Title == "Jockeying for Position")
+        {
+            return CardControllerTypes.JockeyingForPosition;
+        }
+        
+
+        return CardControllerTypes.BasicCard;
     }
     
     private bool CheckForNoEffectReversalCard()
@@ -50,5 +87,21 @@ public class CardControllerDecider
         
         return isGrappleReversal || isStrikeReversal || isSubmissionReversal || isActionReversal;
     }
+
+    private bool CheckForCardsThatCanBeUsedFromSevenDOrLess()
+    {
+        var cardEffect = _playInfo.CardInfo.CardEffect;
+        return cardEffect.Contains(" that does 7D or less.");
+    }
     
+    private bool CheckIfDoesDamageToOpponent()
+    {
+        var cardEffect = _playInfo.CardInfo.CardEffect;
+        return cardEffect.Contains("# = D of maneuver card being reversed. Read as 0 when in your Ring area");
+    }
+    private bool CheckForPlayerDrawCard()
+    {
+        var effectPattern = @" draw (\d+) card(s?).";
+        return Regex.IsMatch(_playInfo.CardInfo.CardEffect, effectPattern);
+    }
 }

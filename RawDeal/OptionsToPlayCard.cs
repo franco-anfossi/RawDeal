@@ -70,7 +70,13 @@ public class OptionsToPlayCard
         var cardControllerType = _cardControllerDecider.DecideCardController();
         if (cardControllerType == CardControllerTypes.BasicHybridCard)
             _cardController = 
-                new BasicHybridController(_inTurnPlayerInfo, _opponentInfo, _notFormattedSelectedPlay, _view);
+                new BasicHybridCardController(_inTurnPlayerInfo, _opponentInfo, _notFormattedSelectedPlay, _view);
+        else if (cardControllerType == CardControllerTypes.PlayerDiscardCard)
+            _cardController =
+                new CardPlayerDiscardsController(_inTurnPlayerInfo, _opponentInfo, _notFormattedSelectedPlay, _view);
+        else if (cardControllerType == CardControllerTypes.JockeyingForPosition)
+            _cardController = 
+                new JockeyingForPosition(_inTurnPlayerInfo, _opponentInfo, _notFormattedSelectedPlay, _view);
         else
             _cardController = 
                 new BasicCardController(_inTurnPlayerInfo, _opponentInfo, _notFormattedSelectedPlay, _view);
@@ -78,7 +84,7 @@ public class OptionsToPlayCard
 
     private void SavePlayablePlay(IViewableCardInfo playableCard)
     {
-        if (!playableCard.Types.Contains("Reversal"))
+        if (!playableCard.Types[0].Contains("Reversal"))
         { 
             if (playableCard.Types.Contains("Maneuver") && playableCard.Types.Contains("Action"))
             {

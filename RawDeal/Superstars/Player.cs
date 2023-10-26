@@ -13,6 +13,7 @@ public abstract class Player
     protected SuperstarData SuperstarData;
     protected ImportantPlayerData OpponentData;
     protected PlayerDecksController PlayerDecksController;
+    private ChangesByJockeyingForPosition _changesByJockeyingForPosition = new();
 
     protected Player(SuperstarData superstarData)
     {
@@ -78,7 +79,7 @@ public abstract class Player
     
     public ImportantPlayerData BuildImportantPlayerData()
     {
-        return new ImportantPlayerData(SuperstarData, PlayerDecksController);
+        return new ImportantPlayerData(SuperstarData, PlayerDecksController, _changesByJockeyingForPosition);
     } 
 
     public object Clone()
@@ -101,6 +102,11 @@ public abstract class Player
     public void SayPlayerTurnBegin()
     {
         View.SayThatATurnBegins(SuperstarData.Name);
+    }
+    
+    public void ResetChangesByJockeyingForPosition()
+    {
+        _changesByJockeyingForPosition.Reset();
     }
 }
     

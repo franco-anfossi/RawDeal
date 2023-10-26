@@ -6,9 +6,9 @@ using RawDealView.Formatters;
 
 namespace RawDeal.Cards;
 
-public class BasicHybridController : BasicCardController
+public class BasicHybridCardController : BasicCardController
 {
-    public BasicHybridController(ImportantPlayerData playerData, ImportantPlayerData opponentData, 
+    public BasicHybridCardController(ImportantPlayerData playerData, ImportantPlayerData opponentData, 
         IViewablePlayInfo selectedPlay, View view) : base(playerData, opponentData, selectedPlay, view)
     {
         View = view;
@@ -21,17 +21,13 @@ public class BasicHybridController : BasicCardController
     {
         if (SelectedPlay.PlayedAs == "MANEUVER")
         {
-            var makeDamageEffect = new MakeDamageEffect(PlayerData, OpponentData,SelectedPlay, View);
-            makeDamageEffect.Apply();
+            TryToReverse();
+            MakeDamage();
         }
         else if (SelectedPlay.PlayedAs == "ACTION")
         {
-            
             var cardToDiscard = SelectedPlay.CardInfo;
-            
-            var reversalFromHand = new ReversalFromHandController(PlayerData, OpponentData, SelectedPlay, View);
-            reversalFromHand.SelectReversalFromHand();
-            
+            TryToReverse();
             View.SayThatPlayerSuccessfullyPlayedACard();
             var playerMustDiscardCardEffect = new MustDiscardHandCardEffect(PlayerData, View, cardToDiscard);
             playerMustDiscardCardEffect.Apply();

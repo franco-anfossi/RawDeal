@@ -58,6 +58,7 @@ public class Game
         SelectFirstPlayer();
         InitializePlayerVariables();
         InitializePlayersDecksControllers();
+        AddNecessarySuperstarAttributes();
         DrawInitialCards();
         RunPrincipalGameLoop();
     }
@@ -110,7 +111,6 @@ public class Game
         while (_principalLoopState)
         {
             _electionsLoopState = true;
-            AddNecessarySuperstarAttributes();
             _inTurnPlayer.SayPlayerTurnBegin();
             PlaySpecialAbilityBeforeDrawingACard();
             _inTurnPlayer.ChangeAbilitySelectionVisibility();
@@ -142,7 +142,6 @@ public class Game
     private void PlaySpecialAbilityBeforeDrawingACard()
     {
         bool drawCardState = true;
-        Console.WriteLine(_inTurnPlayer.VerifyAbilityUsability());
         if (_inTurnPlayer.VerifyAbilityUsability())
             drawCardState = _inTurnPlayer.PlaySpecialAbility();
 
@@ -173,7 +172,6 @@ public class Game
     private NextPlay ShowAppropriateOptionsSelector()
     {
         NextPlay firstOptionChoice;
-        Console.WriteLine(_inTurnPlayer.VerifyAbilityUsability());
         if (_inTurnPlayer.VerifyAbilityUsability())
             firstOptionChoice = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
         else
@@ -193,7 +191,10 @@ public class Game
             SelectPlayAbilityOption();
             
         else if (firstOptionChoice == NextPlay.EndTurn)
+        {
+            ResetPlayersChangesByJockeyingForPosition();
             SelectEndTurnOption();
+        }
             
         else if (firstOptionChoice == NextPlay.GiveUp)
             SelectGiveUpOption();
@@ -211,7 +212,7 @@ public class Game
         }
         catch (NoArsenalCardsException)
         {
-            DeclareVictoryOfThePlayerInTurn();
+            SelectEndTurnOption();
         }
         catch (EndOfTurnException)
         {
@@ -273,6 +274,12 @@ public class Game
         _inTurnPlayer = _players[_inTurnPlayerIndex];
         _opponentPlayer = _players[_opponentPlayerIndex];
         _electionsLoopState = false;
+    }
+    
+    private void ResetPlayersChangesByJockeyingForPosition()
+    {
+        _inTurnPlayer.ResetChangesByJockeyingForPosition();
+        _opponentPlayer.ResetChangesByJockeyingForPosition();
     }
     
     private void ChangePlayersIndex()
