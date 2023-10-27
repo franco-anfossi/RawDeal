@@ -131,9 +131,5 @@
       </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Boundaries\" />
-    </ItemGroup>
-
 
 </Project>
