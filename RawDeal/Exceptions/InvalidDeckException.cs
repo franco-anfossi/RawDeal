@@ -1,5 +1,3 @@
 namespace RawDeal.Exceptions;
 
-public class InvalidDeckException : ApplicationException
-{
-}
+public class InvalidDeckException : ApplicationException { }

@@ -1,33 +1,27 @@
+using RawDealView;
 using RawDeal.Decks;
-using RawDeal.Deserializers;
 using RawDeal.Exceptions;
 using RawDeal.Superstars;
-using RawDealView;
 using RawDealView.Options;
+using RawDeal.Deserializers;
 
 namespace RawDeal;
 
 public class Game
 {
     private readonly View _view;
-    private readonly string _deckFolder;
-    private readonly CardsSet _cardsSet;
-    private readonly List<Player> _players = new();
-    
-    private bool _principalLoopState = true;
-    private bool _electionsLoopState = true;
-    
-    private int _inTurnPlayerIndex;
-    private int _opponentPlayerIndex = 1;
-    
-    private Player _inTurnPlayer;
-    private Player _opponentPlayer;
-    
-    private PlayerDecksController _inTurnPlayerDecksController;
-    private PlayerDecksController _opponentPlayerDecksController;
-    
-    
+    private readonly GameDeckManager _gameDeckManager;
+    private GamePlayerManager _gamePlayerManager;
+
     public Game(View view, string deckFolder)
+    {
+        var cardsSet = DeserializeArchives();
+        
+        _view = view;
+        _gameDeckManager = new GameDeckManager(deckFolder, cardsSet, _view);
+    }
+
+    private CardsSet DeserializeArchives()
     {
         SuperstarDeserializer superstarDeserializer = new SuperstarDeserializer();
         CardDeserializer cardDeserializer = new CardDeserializer();
@@ -35,9 +29,7 @@ public class Game
         var deserializedSuperstars = superstarDeserializer.DeserializeSuperstars();
         var deserializedCards = cardDeserializer.DeserializeCards();
         
-        _cardsSet = new CardsSet(deserializedCards, deserializedSuperstars);
-        _view = view;
-        _deckFolder = deckFolder;
+        return new CardsSet(deserializedCards, deserializedSuperstars);
     }
 
     public void Play()
@@ -54,245 +46,111 @@ public class Game
 
     private void TryToPlayGame()
     {
-        SelectDeck();
-        SelectFirstPlayer();
-        InitializePlayerVariables();
-        InitializePlayersDecksControllers();
-        AddNecessarySuperstarAttributes();
-        DrawInitialCards();
-        RunPrincipalGameLoop();
+        var players = SelectDeck();
+        InitializeGamePlayerManager(players);
+        _gamePlayerManager.InitializeNecessaryPlayerVariables();
+        _gamePlayerManager.DrawInitialCards();
+        TryToRunPrincipalGameLoop();
     }
     
-    private void SelectDeck()
+    private List<Player> SelectDeck()
     {
-        for (int playerIndex = 0; playerIndex < 2; playerIndex++)
+        return _gameDeckManager.SelectDeck(new List<Player>());
+    }
+    
+    private void InitializeGamePlayerManager(List<Player> players)
+    {
+        _gamePlayerManager = new GamePlayerManager(players, _view);
+    }
+    
+    private void TryToRunPrincipalGameLoop()
+    {
+        try
         {
-            string[] openedDeckFromArchive = OpenDeckFromSelectedArchive();
-            Deck newDeck = new Deck(openedDeckFromArchive, _cardsSet);
-            ValidateDeck(newDeck);
+            RunPrincipalGameLoop();
+        }
+        catch (EndOfPrincipalLoop winnerName)
+        {
+            _view.CongratulateWinner(winnerName.Message);
         }
     }
-    
-    private void SelectFirstPlayer()
-    {
-        if (!(_players[0].GetSuperstarValue() >= _players[1].GetSuperstarValue()))
-            Utils.ChangePositionsOfTheList(_players);
-    }
-    
-    private void InitializePlayerVariables()
-    {
-        _inTurnPlayer = _players[_inTurnPlayerIndex];
-        _opponentPlayer = _players[_opponentPlayerIndex];
-    }
-    
-    private void InitializePlayersDecksControllers()
-    {
-        _inTurnPlayerDecksController = _inTurnPlayer.BuildPlayerDecksController();
-        _opponentPlayerDecksController = _opponentPlayer.BuildPlayerDecksController();
-    }
-    
-    private void ChangePlayersDecksControllers()
-    {
-        var newInTurnPlayerDecksController = _inTurnPlayerDecksController;
-        var newOpponentPlayerDecksController = _opponentPlayerDecksController;
-        
-        _inTurnPlayerDecksController = newOpponentPlayerDecksController;
-        _opponentPlayerDecksController = newInTurnPlayerDecksController;
-    }
-    
-    private void DrawInitialCards()
-    {
-        _inTurnPlayerDecksController.DrawCardsInTheBeginning();
-        _opponentPlayerDecksController.DrawCardsInTheBeginning();
-    }
-    
+
     private void RunPrincipalGameLoop()
     {
-        while (_principalLoopState)
+        while (true)
         {
-            _electionsLoopState = true;
-            _inTurnPlayer.SayPlayerTurnBegin();
-            PlaySpecialAbilityBeforeDrawingACard();
-            _inTurnPlayer.ChangeAbilitySelectionVisibility();
+            _gamePlayerManager.SayThatSuperstarStartsTurn();
+            _gamePlayerManager.PlaySpecialAbilityBeforeDrawingACard();
+            _gamePlayerManager.DrawCard();
+            _gamePlayerManager.ResetAbility();
+            TryToRunGameElectionsLoop();
+        }
+    }
+
+    private void TryToRunGameElectionsLoop()
+    {
+        try
+        {
             RunGameElectionsLoop();
         }
-    }
-
-    private PlayerInfoManager UpdatePlayersInfo()
-    {
-        PlayerInfo inTurnPlayerInfo = _inTurnPlayer.BuildPlayerInfo();
-        PlayerInfo opponentPlayerInfo = _opponentPlayer.BuildPlayerInfo();
-        return new PlayerInfoManager(inTurnPlayerInfo, opponentPlayerInfo, _view);
-    }
-    
-    private string[] OpenDeckFromSelectedArchive()
-    {
-        string deckPath = _view.AskUserToSelectDeck(_deckFolder);
-        var openedDeckFromArchive = Utils.OpenDeckArchive(deckPath);
-        return openedDeckFromArchive;
-    }
-    private void ValidateDeck(Deck deck)
-    {
-        DeckValidator deckValidator = new DeckValidator(deck, _cardsSet);
-        if (deckValidator.ValidateDeckRules())
-            _players.Add(deck.PlayerDeckOwner);
-        else
-            throw new InvalidDeckException();
-    }
-    private void PlaySpecialAbilityBeforeDrawingACard()
-    {
-        bool drawCardState = true;
-        if (_inTurnPlayer.VerifyAbilityUsability())
-            drawCardState = _inTurnPlayer.PlaySpecialAbility();
-
-        if (drawCardState)
-            _inTurnPlayerDecksController.DrawTurnCard();
-    }
-    private void RunGameElectionsLoop()
-    {
-        while (_electionsLoopState)
+        catch (EndOfElectionLoop)
         {
-            var playerInfoManager = UpdatePlayersInfo();
-            playerInfoManager.ShowPlayerInfo();
-            NextPlay firstOptionChoice = ShowAppropriateOptionsSelector();
-            ManagePossibleOptions(firstOptionChoice);
+            _gamePlayerManager.ChangePlayersPositions();
         }
     }
 
-    
-    private void AddNecessarySuperstarAttributes()
+    private void RunGameElectionsLoop()
     {
-        var opponentPlayerInfo = _opponentPlayer.BuildImportantPlayerData();
-        var inTurnPlayerInfo = _inTurnPlayer.BuildImportantPlayerData();
-        
-        _inTurnPlayer.ApplyNecessaryAttributes(_view, opponentPlayerInfo);
-        _opponentPlayer.ApplyNecessaryAttributes(_view, inTurnPlayerInfo);
-    }
-    
-    private NextPlay ShowAppropriateOptionsSelector()
-    {
-        NextPlay firstOptionChoice;
-        if (_inTurnPlayer.VerifyAbilityUsability())
-            firstOptionChoice = _view.AskUserWhatToDoWhenHeCannotUseHisAbility();
-        else
-            firstOptionChoice = _view.AskUserWhatToDoWhenUsingHisAbilityIsPossible(); 
-        return firstOptionChoice;
+        while (true)
+        {
+            var playerInfoManager = _gamePlayerManager.UpdatePlayersInfo();
+            playerInfoManager.ShowPlayerInfo();
+            NextPlay firstOptionChoice = _gamePlayerManager.ShowAppropriateOptionsSelector();
+            ManagePossibleOptions(firstOptionChoice);
+        }
     }
 
     private void ManagePossibleOptions(NextPlay firstOptionChoice)
     {
         if (firstOptionChoice == NextPlay.ShowCards)
-            SelectShowCardsOption();
+            _gamePlayerManager.SelectShowCardsOption();
             
         else if (firstOptionChoice == NextPlay.PlayCard)
             TryToSelectPlayCardOption();
             
         else if (firstOptionChoice == NextPlay.UseAbility)
-            SelectPlayAbilityOption();
+            _gamePlayerManager.SelectPlayAbilityOption();
             
         else if (firstOptionChoice == NextPlay.EndTurn)
         {
-            ResetPlayersChangesByJockeyingForPosition();
+            _gamePlayerManager.ResetPlayersChangesByJockeyingForPosition();
             SelectEndTurnOption();
         }
             
         else if (firstOptionChoice == NextPlay.GiveUp)
-            SelectGiveUpOption();
+            _gamePlayerManager.GiveUp();
     }
     
-    private void SelectShowCardsOption()
-    {
-        _inTurnPlayer.ShowOptionsToViewDecks();
-    }
     private void TryToSelectPlayCardOption()
     {
         try
         {
-            SelectPlayCardOption();
+            _gamePlayerManager.SelectPlayCardOption();
         }
-        catch (NoArsenalCardsException)
+        catch (NoArsenalCardsException winnerName)
         {
-            SelectEndTurnOption();
+            throw new EndOfPrincipalLoop(winnerName.Message);
         }
         catch (EndOfTurnException)
         {
             SelectEndTurnOption();
         }
     }
-
-    private void SelectPlayCardOption()
-    {
-        var inTurnPlayerInfo = _inTurnPlayer.BuildImportantPlayerData();
-        var opponentPlayerInfo = _opponentPlayer.BuildImportantPlayerData();
-        
-        var optionsToPlayCard = new OptionsToPlayCard(inTurnPlayerInfo, opponentPlayerInfo, _view);
-        optionsToPlayCard.StartElectionProcess();
-    }
-
-    private void SelectPlayAbilityOption()
-    {
-        _inTurnPlayer.PlaySpecialAbility();
-    }
-
+    
     private void SelectEndTurnOption()
     {
-        if (_opponentPlayerDecksController.CheckForEmptyArsenal())
-            DeclareVictoryOfThePlayerInTurn();
-        
-        else if (_inTurnPlayerDecksController.CheckForEmptyArsenal())
-            DeclareLossOfThePlayerInTurn();
-        
-        else
-            ChangePlayersPositions();
-    }
-
-    private void SelectGiveUpOption()
-    {
-        _opponentPlayer.NotifyThatPlayerWon();
-        _principalLoopState = false; 
-        _electionsLoopState = false;
-    }
-
-    private void DeclareVictoryOfThePlayerInTurn()
-    {
-        _electionsLoopState = false;
-        _inTurnPlayer.NotifyThatPlayerWon();
-        _principalLoopState = _electionsLoopState;
-    }
-
-    private void DeclareLossOfThePlayerInTurn()
-    {
-        _electionsLoopState = false;
-        _opponentPlayer.NotifyThatPlayerWon();
-        _principalLoopState = _electionsLoopState;
-    }
-
-    private void ChangePlayersPositions()
-    {
-        ChangePlayersIndex();
-        ChangePlayersDecksControllers();
-        _inTurnPlayer = _players[_inTurnPlayerIndex];
-        _opponentPlayer = _players[_opponentPlayerIndex];
-        _electionsLoopState = false;
-    }
-    
-    private void ResetPlayersChangesByJockeyingForPosition()
-    {
-        _inTurnPlayer.ResetChangesByJockeyingForPosition();
-        _opponentPlayer.ResetChangesByJockeyingForPosition();
-    }
-    
-    private void ChangePlayersIndex()
-    {
-        if (_inTurnPlayerIndex == 0)
-        {
-            _inTurnPlayerIndex = 1;
-            _opponentPlayerIndex = 0;
-        }
-        else
-        {
-            _inTurnPlayerIndex = 0;
-            _opponentPlayerIndex = 1;
-        }
+        _gamePlayerManager.CheckOpponentLoss();
+        _gamePlayerManager.CheckPlayerInTurnLoss();
+        throw new EndOfElectionLoop();
     }
 }

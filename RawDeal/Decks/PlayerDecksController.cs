@@ -47,6 +47,16 @@ public class PlayerDecksController
     {
         return _playerDecks.Arsenal.Count == 0;
     }
+    
+    public bool CheckForEmptyHand()
+    {
+        return _playerDecks.Hand.Count == 0;
+    }
+    
+    public bool CheckForEmptyRingside()
+    {
+        return _playerDecks.Ringside.Count == 0;
+    }
 
     public List<IViewableCardInfo> CheckForPlayableCards()
     {
@@ -69,16 +79,9 @@ public class PlayerDecksController
 
     public virtual void DrawTurnCard()
     {
-        int lastCardOfTheArsenal = _playerDecks.Arsenal.Count - 1;
-        var arsenal = _playerDecks.Arsenal;
-        if (lastCardOfTheArsenal >= 0)
-        {
-            _playerDecks.Hand.Add(arsenal[lastCardOfTheArsenal]);
-            _playerDecks.Arsenal.RemoveAt(lastCardOfTheArsenal);
-        }
+        DrawCard();
     }
     
-    // TODO: Eliminar codigo duplicado agregar parametro para saber cuantas cartas robar quizas
     public void DrawCard()
     {
         int lastCardOfTheArsenal = _playerDecks.Arsenal.Count - 1;

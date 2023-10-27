@@ -5,44 +5,42 @@ namespace RawDeal.Superstars;
 
 public class StoneCold : Player
 {
-    private bool _abilityPermission;
     private int _timesTheAbilityWasUsed;
-    public StoneCold(SuperstarData superstarData) : base(superstarData)
-    {
-        SuperstarData = superstarData;
-    }
     
-    public override bool PlaySpecialAbility()
+    public StoneCold(SuperstarData superstarData) : base(superstarData) { }
+    
+    public override void PlaySpecialAbility()
     {
-        if (_timesTheAbilityWasUsed < 1 && DecksInfo.Arsenal.Count >= 0)
+        if (CanUseAbility())
         {
+            View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
+            View.SayThatPlayerDrawCards(SuperstarData.Name, 1);
             ExecuteAbilitySteps();
             _timesTheAbilityWasUsed++;
-            _abilityPermission = true;
         }
-        return true;
     }
-    public override bool VerifyAbilityUsability()
-    {
-        return _abilityPermission;
-    }
-    public override void ChangeAbilitySelectionVisibility()
-    {
-        if (DecksInfo.Arsenal.Count > 0)  
-        {
-            _timesTheAbilityWasUsed = 0;
-            _abilityPermission = false;
-        }
-        
-    }
-
+    
     private void ExecuteAbilitySteps()
     {
-        View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
-        View.SayThatPlayerDrawCards(SuperstarData.Name, 1);
         PlayerDecksController.DrawTurnCard();
         var importantPlayerData = BuildImportantPlayerData();
         var returnCardEffect = new ReturnCardToArsenalEffect(importantPlayerData, View);
         returnCardEffect.Apply();
+    }
+    
+    public override bool VerifyAbilityUsability()
+    {
+        return !CanUseAbility();
+    }
+    
+    public override void ResetAbility()
+    {
+        if (!PlayerDecksController.CheckForEmptyArsenal())  
+            _timesTheAbilityWasUsed = 0;
+    }
+    
+    private bool CanUseAbility()
+    {
+        return !PlayerDecksController.CheckForEmptyArsenal() && _timesTheAbilityWasUsed < 1;
     }
 }

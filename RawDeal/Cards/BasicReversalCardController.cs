@@ -5,16 +5,10 @@ using RawDealView.Formatters;
 
 namespace RawDeal.Cards;
 
-public class BasicReversalCardController : BasicCardController
+public class BasicReversalCardController : CardController
 {
     public BasicReversalCardController(ImportantPlayerData playerData, ImportantPlayerData opponentData,
-        IViewablePlayInfo selectedPlay, View view) : base(playerData, opponentData, selectedPlay, view)
-    {
-        View = view;
-        PlayerData = playerData;
-        OpponentData = opponentData;
-        SelectedPlay = selectedPlay;
-    }
+        IViewablePlayInfo selectedPlay, View view) : base(playerData, opponentData, selectedPlay, view) { }
     
     public override void ApplyEffect()
     {

@@ -6,14 +6,14 @@ using RawDeal.Reversals;
 
 namespace RawDeal.Cards;
 
-public class BasicCardController
+public class CardController
 {
-    protected View View;
-    protected IViewablePlayInfo SelectedPlay;
-    protected ImportantPlayerData PlayerData;
-    protected ImportantPlayerData OpponentData;
+    protected readonly View View;
+    protected readonly IViewablePlayInfo SelectedPlay;
+    protected readonly ImportantPlayerData PlayerData;
+    protected readonly ImportantPlayerData OpponentData;
     
-    public BasicCardController(ImportantPlayerData playerData, ImportantPlayerData opponentData, 
+    public CardController(ImportantPlayerData playerData, ImportantPlayerData opponentData, 
         IViewablePlayInfo selectedPlay, View view)
     {
         View = view;

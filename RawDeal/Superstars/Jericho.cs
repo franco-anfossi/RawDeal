@@ -5,51 +5,42 @@ namespace RawDeal.Superstars;
 
 public class Jericho : Player
 {
-    private bool _abilityPermission;
     private int _timesTheAbilityWasUsed;
-    public Jericho(SuperstarData superstarData) : base(superstarData)
-    {
-        SuperstarData = superstarData;
-    }
     
-    public override bool PlaySpecialAbility()
+    public Jericho(SuperstarData superstarData) : base(superstarData) { }
+    
+    public override void PlaySpecialAbility()
     {
-        if (DecksInfo.Hand.Count >= 1 && _timesTheAbilityWasUsed < 1)
+        if (CanUseAbility())
         {
             View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
-
             var importantPlayerData = BuildImportantPlayerData();
-            
-            var playerDiscardHandCardsEffect = 
-                new AskToDiscardHandCardsEffect(importantPlayerData, View, 1);
-            
-            var opponentDiscardHandCardsEffect = 
-                new AskToDiscardHandCardsEffect(OpponentData, View, 1);
-            
-            playerDiscardHandCardsEffect.Apply();
-            opponentDiscardHandCardsEffect.Apply();
-            
+            ApplyAbilityEffect(importantPlayerData);
             _timesTheAbilityWasUsed++;
-            _abilityPermission = true;
         }
-        return true;
     }
+    
+    private void ApplyAbilityEffect(ImportantPlayerData importantPlayerData)
+    {
+        var playerDiscardHandCardsEffect = new AskToDiscardHandCardsEffect(importantPlayerData, View, 1);
+        var opponentDiscardHandCardsEffect = new AskToDiscardHandCardsEffect(OpponentData, View, 1);
+        playerDiscardHandCardsEffect.Apply();
+        opponentDiscardHandCardsEffect.Apply();
+    }
+    
     public override bool VerifyAbilityUsability()
     {
-        if (DecksInfo.Hand.Count >= 1 && _timesTheAbilityWasUsed < 1)
-            _abilityPermission = false;
-        else
-            _abilityPermission = true;
-        
-        return _abilityPermission;
+        return !CanUseAbility();
     }
 
-    public override void ChangeAbilitySelectionVisibility()
+    public override void ResetAbility()
     {
-        if (DecksInfo.Hand.Count >= 1)
-        {
+        if (!PlayerDecksController.CheckForEmptyHand())
             _timesTheAbilityWasUsed = 0;
-            _abilityPermission = false;
-        }
+    }
+    
+    private bool CanUseAbility()
+    {
+        return !PlayerDecksController.CheckForEmptyHand() && _timesTheAbilityWasUsed < 1;
     }
 }

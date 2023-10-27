@@ -8,11 +8,9 @@ public class MustDiscardHandCardEffect : Effect
 {
     private readonly IViewableCardInfo _cardToDiscard;
     
-    public MustDiscardHandCardEffect(
-        ImportantPlayerData superstarData, View view, IViewableCardInfo cardToDiscard) : base(superstarData, view)
+    public MustDiscardHandCardEffect(ImportantPlayerData superstarData, 
+        View view, IViewableCardInfo cardToDiscard) : base(superstarData, view)
     {
-        View = view;
-        PlayerData = superstarData;
         _cardToDiscard = cardToDiscard;
     }
     

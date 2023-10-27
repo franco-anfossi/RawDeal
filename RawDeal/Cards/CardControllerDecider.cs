@@ -12,6 +12,7 @@ public class CardControllerDecider
         _playInfo = selectedPlay;
     }
     
+    // TODO: Refactor this method, to eliminate the need for the CardControllerTypes enum.
     public CardControllerTypes DecideCardController()
     {
         if (CheckForBasicHybridCardsNames())
@@ -44,6 +45,7 @@ public class CardControllerDecider
         return Regex.IsMatch(_playInfo.CardInfo.CardEffect, effectPattern);
     }
     
+    // TODO: Refactor this method, to eliminate functional programming.
     public CardControllerTypes DecideReversalCardController()
     {
         if (CheckForNoEffectReversalCard())

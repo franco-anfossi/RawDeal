@@ -8,11 +8,9 @@ public class DiscardArsenalCardsEffect : Effect
 {
     private readonly int _cardsToDiscard;
     
-    public DiscardArsenalCardsEffect(
-        ImportantPlayerData superstarData, View view, int cardsToDiscard) : base(superstarData, view)
+    public DiscardArsenalCardsEffect(ImportantPlayerData superstarData, 
+        View view, int cardsToDiscard) : base(superstarData, view)
     {
-        View = view;
-        PlayerData = superstarData;
         _cardsToDiscard = cardsToDiscard;
     }
 

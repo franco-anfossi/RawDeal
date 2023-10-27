@@ -11,30 +11,32 @@ public class MakeDamageEffect : Effect
     private readonly IViewablePlayInfo _selectedPlay;
     private readonly ImportantPlayerData _opponentData;
     
-    public MakeDamageEffect(
-        ImportantPlayerData superstarData, ImportantPlayerData opponentData, 
+    public MakeDamageEffect(ImportantPlayerData superstarData, ImportantPlayerData opponentData, 
         IViewablePlayInfo selectedPlay, View view) : base(superstarData, view)
     {
-        View = view;
-        PlayerData = superstarData;
         _opponentData = opponentData;
         _selectedPlay = selectedPlay;
     }
 
     public override void Apply()
     {
-        if (_selectedPlay.PlayedAs != "REVERSAL")
+        HandleNonReversalCardPlay();
+        MakeDamageToOpponent();
+        AddFortitudeToPlayer();
+    }
+    
+    private void HandleNonReversalCardPlay()
+    {
+        if (CheckIfCardIsNotReversal())
         {
             View.SayThatPlayerSuccessfullyPlayedACard();
             PlayerData.DecksController.PassCardFromHandToRingArea(_selectedPlay.CardInfo);
         }
-        MakeDamageToOpponent();
-        AddFortitudeToPlayer();
     }
 
     private void AddFortitudeToPlayer()
     {
-        if (_selectedPlay.CardInfo.Damage[0] != '#')
+        if (!CheckIfDamageIsUnknown())
         {
             int damageDone = Convert.ToInt32(_selectedPlay.CardInfo.Damage);
             PlayerData.SuperstarData.Fortitude += damageDone;
@@ -43,27 +45,39 @@ public class MakeDamageEffect : Effect
 
     private void MakeDamageToOpponent()
     {
-        int damageToAdd = 0;
-        if (_selectedPlay.CardInfo.Subtypes.Contains("Grapple"))
-        {
-           damageToAdd = PlayerData.ChangesByJockeyingForPosition.DamageAdded;
-        }
-        
-        int damageDone;
-        if (_selectedPlay.CardInfo.Damage[0] == '#')
-            damageDone = Convert.ToInt32(_selectedPlay.CardInfo.Damage[1..]) + damageToAdd;
-        else
-            damageDone = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd;
-        
+        int damageAdded = HandleDamageAddedByJockeyingForPosition();
+        int damageDone = HandleUnknownDamage() + damageAdded;
         damageDone = ReduceDamageIfMankind(damageDone);
+        
         if (damageDone > 0)
         {
             View.SayThatSuperstarWillTakeSomeDamage(_opponentData.Name, damageDone);
             ShowDamageDoneToOpponent(damageDone);
         }
+        
+        ResetChangesByJockeyingForPosition();
+    }
+    
+    private int HandleDamageAddedByJockeyingForPosition()
+    {
+        int damageAdded = 0;
+        if (CheckIfSelectedCardIsGrapple())
+            damageAdded = PlayerData.ChangesByJockeyingForPosition.DamageAdded;
+        
+        return damageAdded;
+    }
+    
+    private int HandleUnknownDamage()
+    {
+        var damageDone = Convert.ToInt32(
+            CheckIfDamageIsUnknown() ? _selectedPlay.CardInfo.Damage[1..] : _selectedPlay.CardInfo.Damage);
+        return damageDone;
+    }
+    
+    private void ResetChangesByJockeyingForPosition()
+    {
         PlayerData.ChangesByJockeyingForPosition.Reset();
         _opponentData.ChangesByJockeyingForPosition.Reset();
-        
     }
 
     private void ShowDamageDoneToOpponent(int totalDamageDone)
@@ -77,7 +91,7 @@ public class MakeDamageEffect : Effect
         if (!_opponentData.DecksController.CheckForEmptyArsenal())
             ShowCardsBecauseOfDamage(currentDamage, totalDamageDone);
         else
-            throw new NoArsenalCardsException();
+            throw new NoArsenalCardsException(PlayerData.Name);
     }
 
     private void ShowCardsBecauseOfDamage(int currentDamage, int totalDamageDone)
@@ -85,15 +99,19 @@ public class MakeDamageEffect : Effect
         IViewableCardInfo drawnCard = _opponentData.DecksController.DrawLastCardOfArsenal();
         string formattedDrawnCard = Formatter.CardToString(drawnCard);
         View.ShowCardOverturnByTakingDamage(formattedDrawnCard, currentDamage, totalDamageDone);
-        if (_selectedPlay.PlayedAs != "REVERSAL")
+        var damageCompleted = currentDamage == totalDamageDone;
+        HandleArsenalReversal(damageCompleted, drawnCard);
+        _opponentData.DecksController.PassCardToRingside(drawnCard);
+    }
+
+    private void HandleArsenalReversal(bool damageCompleted, IViewableCardInfo drawnCard)
+    {
+        if (CheckIfCardIsNotReversal())
         {
-            var damageCompleted = currentDamage == totalDamageDone;
             var reversalFromArsenal = new ReversalFromArsenalController(
                 PlayerData, _opponentData, _selectedPlay, drawnCard, damageCompleted, View);
             reversalFromArsenal.ReviewIfReversalPlayable();
         }
-        
-        _opponentData.DecksController.PassCardToRingside(drawnCard);
     }
     
     private int ReduceDamageIfMankind(int damageDone)
@@ -101,5 +119,20 @@ public class MakeDamageEffect : Effect
         if (_opponentData.Name == "MANKIND")
             damageDone--;
         return damageDone;
+    }
+
+    private bool CheckIfSelectedCardIsGrapple()
+    {
+        return _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
+    }
+    
+    private bool CheckIfCardIsNotReversal()
+    {
+        return _selectedPlay.PlayedAs != "REVERSAL";
+    }
+    
+    private bool CheckIfDamageIsUnknown()
+    {
+        return _selectedPlay.CardInfo.Damage[0] == '#';
     }
 }

@@ -10,9 +10,9 @@ public class SuperstarDeserializer
     private Player? _superstar;
     private SuperstarData? _superstarData;
     private readonly List<Player>? _allSuperstars = new();
-    private readonly string _jsonSuperstars = File.ReadAllText(_superstarsJsonPath); 
+    private readonly string _jsonSuperstars = File.ReadAllText(SuperstarsJsonPath); 
     private List<Dictionary<string, JsonElement>>? _deserializedSuperstars;
-    private static string _superstarsJsonPath = Path.Combine("data", "superstar.json");
+    private static readonly string SuperstarsJsonPath = Path.Combine("data", "superstar.json");
     
     public List<Player> DeserializeSuperstars()
     {
@@ -39,7 +39,7 @@ public class SuperstarDeserializer
         {
             "StoneCold" => new StoneCold(_superstarData!),
             "Undertaker" => new Undertaker(_superstarData!),
-            "HHH" => new HHH(_superstarData!),
+            "HHH" => new Hhh(_superstarData!),
             "Jericho" => new Jericho(_superstarData!),
             "Mankind" => new Mankind(_superstarData!),
             "TheRock" => new TheRock(_superstarData!),

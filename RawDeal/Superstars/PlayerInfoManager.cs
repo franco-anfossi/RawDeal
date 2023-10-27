@@ -1,6 +1,6 @@
 using RawDealView;
 
-namespace RawDeal;
+namespace RawDeal.Superstars;
 
 public class PlayerInfoManager
 {

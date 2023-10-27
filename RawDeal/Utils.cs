@@ -13,6 +13,11 @@ public static class Utils
     {
         (list[0], list[1]) = (list[1], list[0]);
     }
+    
+    public static void ChangePositionsOfTheDictionary<T>(Dictionary<int, T> dictionary)
+    {
+        (dictionary[0], dictionary[1]) = (dictionary[1], dictionary[0]);
+    }
 
     public static List<string> FormatDecksOfCards(List<IViewableCardInfo> deckOfCards)
     {

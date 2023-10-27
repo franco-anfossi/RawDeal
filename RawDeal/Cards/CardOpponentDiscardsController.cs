@@ -6,16 +6,10 @@ using RawDealView.Formatters;
 
 namespace RawDeal.Cards;
 
-public class CardOpponentDiscardsController : BasicCardController
+public class CardOpponentDiscardsController : CardController
 {
     public CardOpponentDiscardsController(ImportantPlayerData playerData, ImportantPlayerData opponentData, 
-        IViewablePlayInfo selectedPlay, View view) : base(playerData, opponentData, selectedPlay, view)
-    {
-        View = view;
-        SelectedPlay = selectedPlay;
-        PlayerData = playerData;
-        OpponentData = opponentData;
-    }
+        IViewablePlayInfo selectedPlay, View view) : base(playerData, opponentData, selectedPlay, view) { }
     
     public override void ApplyEffect()
     {
@@ -23,13 +17,16 @@ public class CardOpponentDiscardsController : BasicCardController
         {
             var effectPattern = @"When successfully played, opponent must discard (\d+) card(s?)";
             var match = Regex.Match(SelectedPlay.CardInfo.CardEffect, effectPattern);
-
-            int numberOfCardsToDiscard = Convert.ToInt32(match.Groups[1].Value);
             
             TryToReverse();
-
-            var effect = new AskToDiscardHandCardsEffect(OpponentData, View, numberOfCardsToDiscard);
-            effect.Apply();
+            DiscardCards(match);
         }
+    }
+    
+    private void DiscardCards(Match match)
+    {
+        int numberOfCardsToDiscard = Convert.ToInt32(match.Groups[1].Value);
+        var effect = new AskToDiscardHandCardsEffect(OpponentData, View, numberOfCardsToDiscard);
+        effect.Apply();
     }
 }

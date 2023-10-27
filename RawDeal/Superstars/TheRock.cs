@@ -6,19 +6,16 @@ namespace RawDeal.Superstars;
 public class TheRock : Player
 {
     private bool _abilityResponse;
-    public TheRock(SuperstarData superstarData) : base(superstarData)
-    {
-        SuperstarData = superstarData;
-    }
     
-    public override bool PlaySpecialAbility()
+    public TheRock(SuperstarData superstarData) : base(superstarData) { }
+    
+    public override void PlaySpecialAbility()
     {
-        if (DecksInfo.Ringside.Count != 0)
+        if (!PlayerDecksController.CheckForEmptyRingside())
         {
             _abilityResponse = View.DoesPlayerWantToUseHisAbility(SuperstarData.Name);
             ExecuteTheRockAbility();
         }
-        return true;
     }
 
     private void ExecuteTheRockAbility()

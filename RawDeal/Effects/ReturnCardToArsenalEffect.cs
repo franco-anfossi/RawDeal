@@ -5,11 +5,7 @@ namespace RawDeal.Effects;
 
 public class ReturnCardToArsenalEffect : Effect
 {
-    public ReturnCardToArsenalEffect(ImportantPlayerData superstarData, View view) : base(superstarData, view)
-    {
-        View = view;
-        PlayerData = superstarData;
-    }
+    public ReturnCardToArsenalEffect(ImportantPlayerData superstarData, View view) : base(superstarData, view) { }
     
     public override void Apply()
     {

@@ -53,10 +53,10 @@ public class DeckValidator
 
     private bool ValidateCardLogoEqualToSuperstarLogo()
     {
-        _logoSuperstarToReview = _deckToReview.PlayerDeckOwner.GetLogo();
+        _logoSuperstarToReview = _deckToReview.PlayerDeckOwner.CompareLogo();
         foreach (var superstar in _cardsSet.PossibleSuperstars)
         {
-            _logoOtherSuperstar = superstar.GetLogo();
+            _logoOtherSuperstar = superstar.CompareLogo();
             if (!ReviewDeckCardsByLogo())
             {
                 return false;

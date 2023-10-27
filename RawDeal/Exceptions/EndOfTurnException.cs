@@ -1,6 +1,3 @@
 namespace RawDeal.Exceptions;
 
-public class EndOfTurnException : ApplicationException
-{
-    
-}
+public class EndOfTurnException : ApplicationException { }

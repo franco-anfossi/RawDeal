@@ -1,7 +1,7 @@
 using RawDeal.Data_Structures;
 using RawDeal.Superstars;
 
-namespace RawDeal;
+namespace RawDeal.Decks;
 
 public class CardsSet
 {

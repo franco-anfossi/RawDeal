@@ -8,8 +8,6 @@ public class DrawCardsEffect : Effect
     private readonly int _cardsToDraw;
     public DrawCardsEffect(ImportantPlayerData superstarData, View view, int cardsToDraw) : base(superstarData, view)
     {
-        View = view;
-        PlayerData = superstarData;
         _cardsToDraw = cardsToDraw;
     }
 

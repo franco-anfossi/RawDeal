@@ -5,21 +5,10 @@ namespace RawDeal.Superstars;
 
 public class Mankind : Player
 {
-    public Mankind(SuperstarData superstarData) : base(superstarData)
-    {
-        SuperstarData = superstarData;
-    }
-    
-    public override PlayerDecksController BuildPlayerDecksController()
+    public Mankind(SuperstarData superstarData) : base(superstarData) { }
+
+    protected override void BuildPlayerDecksController()
     {
         PlayerDecksController = new MankindDecksController(DecksInfo, SuperstarData);
-        return PlayerDecksController;
     }
-    
-    public override bool PlaySpecialAbility()
-    {
-        return true;
-    }
-    
-    
 }

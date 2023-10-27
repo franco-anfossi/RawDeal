@@ -6,11 +6,11 @@ namespace RawDeal.Deserializers;
 public class CardDeserializer
 {
     private List<CardData>? _deserializedCards;
-    private static string _cardsJsonPath = Path.Combine("data", "cards.json");
+    private static readonly string CardsJsonPath = Path.Combine("data", "cards.json");
     
     public List<CardData> DeserializeCards()
     {
-        string jsonCardsArchive = File.ReadAllText(_cardsJsonPath);
+        string jsonCardsArchive = File.ReadAllText(CardsJsonPath);
         _deserializedCards = JsonSerializer.Deserialize<List<CardData>>(jsonCardsArchive)!;
 
         return _deserializedCards ?? throw new InvalidOperationException();

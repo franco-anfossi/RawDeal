@@ -2,7 +2,7 @@ using RawDeal.Data_Structures;
 using RawDealView;
 using RawDealView.Options;
 
-namespace RawDeal;
+namespace RawDeal.OptionsViewDeck;
 
 public class OptionsToViewDeck
 {

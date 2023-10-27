@@ -33,62 +33,59 @@ public class ReversalFromArsenalController
             var drawnCardPlayInfo = new PlayInfo(_drawnCard, _drawnCard.Types[0].ToUpper());
             var cardControllerDecider = new CardControllerDecider(drawnCardPlayInfo);
             var cardControllerType = cardControllerDecider.DecideReversalCardController();
-            if (cardControllerType == CardControllerTypes.BasicReversalCard && CheckIfItsCorrectBasicReversal())
-            {
-                ResetChangesByJockeyingForPosition();
-                _view.SayThatCardWasReversedByDeck(_opponentData.Name);
-                PlayStunValue();
-                _playerData.SuperstarData.Fortitude += Convert.ToInt32(_selectedPlay.CardInfo.Damage);
-                _opponentData.DecksController.PassCardToRingside(_drawnCard);
-                throw new EndOfTurnException();
-            }
-            if (cardControllerType == CardControllerTypes.LessThanEightCard && CheckIfCardMakesLessThanEight())
-            {
-                ResetChangesByJockeyingForPosition();
-                _view.SayThatCardWasReversedByDeck(_opponentData.Name);
-                PlayStunValue();
-                _playerData.SuperstarData.Fortitude += Convert.ToInt32(_selectedPlay.CardInfo.Damage);
-                _opponentData.DecksController.PassCardToRingside(_drawnCard);
-                throw new EndOfTurnException();
-            }
-            if (cardControllerType == CardControllerTypes.DoUnknownDamageCard && CheckIfCardMakesLessThanEight() && CheckIfSubtypeIsTheSame(drawnCardPlayInfo))
-            {
-                ResetChangesByJockeyingForPosition();
-                _view.SayThatCardWasReversedByDeck(_opponentData.Name);
-                PlayStunValue();
-                _playerData.SuperstarData.Fortitude += Convert.ToInt32(_selectedPlay.CardInfo.Damage);
-                _opponentData.DecksController.PassCardToRingside(_drawnCard);
-                throw new EndOfTurnException();
-            }
-            if (cardControllerType == CardControllerTypes.PlayerDrawCard)
-            {
-                ResetChangesByJockeyingForPosition();
-                _view.SayThatCardWasReversedByDeck(_opponentData.Name);
-                PlayStunValue();
-                _playerData.SuperstarData.Fortitude += Convert.ToInt32(_selectedPlay.CardInfo.Damage);
-                _opponentData.DecksController.PassCardToRingside(_drawnCard);
-                throw new EndOfTurnException();
-            }
-            if (cardControllerType == CardControllerTypes.CleanBreakReversal && CheckIfCardIsJockeyingForPosition())
-            {
-                ResetChangesByJockeyingForPosition();
-                _view.SayThatCardWasReversedByDeck(_opponentData.Name);
-                PlayStunValue();
-                _playerData.SuperstarData.Fortitude += Convert.ToInt32(_selectedPlay.CardInfo.Damage);
-                _opponentData.DecksController.PassCardToRingside(_drawnCard);
-                throw new EndOfTurnException();
-            }
-            if (cardControllerType == CardControllerTypes.JockeyingForPosition && CheckIfCardIsJockeyingForPosition())
-            {
-                ResetChangesByJockeyingForPosition();
-                _view.SayThatCardWasReversedByDeck(_opponentData.Name);
-                PlayStunValue();
-                _playerData.SuperstarData.Fortitude += Convert.ToInt32(_selectedPlay.CardInfo.Damage);
-                _opponentData.DecksController.PassCardToRingside(_drawnCard);
-                throw new EndOfTurnException();
-            }
+            ChooseArsenalReversalCard(cardControllerType, drawnCardPlayInfo);
         }
     }
+    
+    private bool CheckIfTheCardIsReversal()
+    {
+        return _drawnCard.Types.Contains("Reversal");
+    }
+    
+    private bool CheckIfFortitudeIsHighEnough()
+    {
+        int fortitudeToAdd = HandleFortitudeAddedByJockeyingForPosition();
+        var cardFortitude = Convert.ToInt32(_drawnCard.Fortitude);
+        return cardFortitude + fortitudeToAdd <= _opponentData.SuperstarData.Fortitude;
+    }
+    
+    private int HandleFortitudeAddedByJockeyingForPosition()
+    {
+        int fortitudeAdded = 0;
+        if (CheckIfSelectedCardIsGrapple())
+        {
+            fortitudeAdded = _opponentData.ChangesByJockeyingForPosition.FortitudeNeeded;
+        }
+        return fortitudeAdded;
+    }
+    
+    // TODO: Refactor this to eliminate functional programming from the method.
+    private void ChooseArsenalReversalCard(CardControllerTypes cardControllerType, IViewablePlayInfo drawnCardPlayInfo)
+    {
+        switch (cardControllerType)
+        {
+            case CardControllerTypes.PlayerDrawCard:
+            case CardControllerTypes.LessThanEightCard when CheckIfCardMakesLessThanEight():
+            case CardControllerTypes.BasicReversalCard when CheckIfItsCorrectBasicReversal():
+            case CardControllerTypes.CleanBreakReversal when CheckIfCardIsJockeyingForPosition():
+            case CardControllerTypes.JockeyingForPosition when CheckIfCardIsJockeyingForPosition():
+            case CardControllerTypes.DoUnknownDamageCard 
+                when CheckIfCardMakesLessThanEight() && CheckIfSubtypeIsTheSame(drawnCardPlayInfo):
+                ExecuteArsenalReversalAction();
+                break;
+        }
+    }
+    
+    private void ExecuteArsenalReversalAction()
+    {
+        ResetChangesByJockeyingForPosition();
+        _view.SayThatCardWasReversedByDeck(_opponentData.Name);
+        PlayStunValue();
+        _playerData.SuperstarData.Fortitude += Convert.ToInt32(_selectedPlay.CardInfo.Damage);
+        _opponentData.DecksController.PassCardToRingside(_drawnCard);
+        throw new EndOfTurnException();
+    }
+
     
     private bool CheckIfSubtypeIsTheSame(IViewablePlayInfo drawnCardPlayInfo)
     {
@@ -103,6 +100,7 @@ public class ReversalFromArsenalController
         _playerData.ChangesByJockeyingForPosition.Reset();
         _opponentData.ChangesByJockeyingForPosition.Reset();
     }
+    
     private void PlayStunValue()
     {
         var stunValueNumber = Convert.ToInt32(_selectedPlay.CardInfo.StunValue);
@@ -131,30 +129,23 @@ public class ReversalFromArsenalController
     
     private bool CheckIfCardMakesLessThanEight()
     {
-        int damageToAdd = 0;
-        if (_selectedPlay.CardInfo.Subtypes.Contains("Grapple"))
-        {
-            damageToAdd = _playerData.ChangesByJockeyingForPosition.DamageAdded;
-        }
+        int damageToAdd = HandleDamageAddedByJockeyingForPosition();
         var cardDamage = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd;
         return cardDamage <= 7;
     }
     
-    private bool CheckIfTheCardIsReversal()
+    private int HandleDamageAddedByJockeyingForPosition()
     {
-        return _drawnCard.Types.Contains("Reversal");
+        int damageAdded = 0;
+        if (CheckIfSelectedCardIsGrapple())
+            damageAdded = _playerData.ChangesByJockeyingForPosition.DamageAdded;
+        
+        return damageAdded;
     }
     
-    private bool CheckIfFortitudeIsHighEnough()
+    private bool CheckIfSelectedCardIsGrapple()
     {
-        int fortitudeToAdd = 0;
-        if (_selectedPlay.CardInfo.Subtypes.Contains("Grapple"))
-        {
-            fortitudeToAdd = _opponentData.ChangesByJockeyingForPosition.FortitudeNeeded;
-        }
-        var cardFortitude = Convert.ToInt32(_drawnCard.Fortitude);
-        
-        return cardFortitude + fortitudeToAdd <= _opponentData.SuperstarData.Fortitude;
+        return _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
     }
 
     private bool CheckIfCardIsJockeyingForPosition()

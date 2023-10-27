@@ -5,8 +5,8 @@ namespace RawDeal.Effects;
 
 public abstract class Effect
 {
-    protected View View;
-    protected ImportantPlayerData PlayerData;
+    protected readonly View View;
+    protected readonly ImportantPlayerData PlayerData;
     
     protected Effect(ImportantPlayerData superstarData, View view)
     {

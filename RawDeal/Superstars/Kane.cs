@@ -5,20 +5,14 @@ namespace RawDeal.Superstars;
 
 public class Kane : Player
 {
-    public Kane(SuperstarData superstarData) : base(superstarData)
-    {
-        SuperstarData = superstarData;
-    }
+    public Kane(SuperstarData superstarData) : base(superstarData) { }
     
-    public override bool PlaySpecialAbility()
+    public override void PlaySpecialAbility()
     {
         View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
-        var opponentDiscardArsenalCardsEffect = 
-            new DiscardArsenalCardsEffect(OpponentData, View, 1);
+        var opponentDiscardArsenalCardsEffect = new DiscardArsenalCardsEffect(OpponentData, View, 1);
         
         if (!OpponentData.DecksController.CheckForEmptyArsenal())
             opponentDiscardArsenalCardsEffect.Apply();
-
-        return true;
     }
 }

@@ -1,5 +1,6 @@
 using RawDeal.Data_Structures;
 using RawDeal.Decks;
+using RawDeal.OptionsViewDeck;
 using RawDealView;
 using RawDealView.Formatters;
 
@@ -13,24 +14,22 @@ public abstract class Player
     protected SuperstarData SuperstarData;
     protected ImportantPlayerData OpponentData;
     protected PlayerDecksController PlayerDecksController;
-    private ChangesByJockeyingForPosition _changesByJockeyingForPosition = new();
+    private readonly ChangesByJockeyingForPosition _changesByJockeyingForPosition = new();
 
     protected Player(SuperstarData superstarData)
     {
         SuperstarData = superstarData;
     }
 
-    public abstract bool PlaySpecialAbility();
+    public virtual void PlaySpecialAbility() { }
+    
+    public virtual void ResetAbility() { }
     
     public virtual bool VerifyAbilityUsability()
     {
         return true;
     }
-
-    public virtual void ChangeAbilitySelectionVisibility()
-    {
-    }
-
+    
     public void ShowOptionsToViewDecks()
     {
         var playerDecks = BuildFormattedDecks();
@@ -49,12 +48,12 @@ public abstract class Player
         OpponentData = opponent;
     }
     
-    public string GetLogo()
+    public string CompareLogo()
     {
         return SuperstarData.Logo;
     }
  
-    public int GetSuperstarValue()
+    public int CompareSuperstarValue()
     {
         return SuperstarData.SuperstarValue;
     }
@@ -63,11 +62,10 @@ public abstract class Player
     {
         DecksInfo = new DecksInfo(arsenalDeck);
     }
-    
-    public virtual PlayerDecksController BuildPlayerDecksController()
+
+    protected virtual void BuildPlayerDecksController()
     {
         PlayerDecksController = new PlayerDecksController(DecksInfo, SuperstarData);
-        return PlayerDecksController;
     }
     
     public PlayerInfo BuildPlayerInfo()
@@ -79,8 +77,9 @@ public abstract class Player
     
     public ImportantPlayerData BuildImportantPlayerData()
     {
+        BuildPlayerDecksController();
         return new ImportantPlayerData(SuperstarData, PlayerDecksController, _changesByJockeyingForPosition);
-    } 
+    }
 
     public object Clone()
     {
@@ -92,21 +91,6 @@ public abstract class Player
     public bool CompareNames(string opponentName)
     {
         return SuperstarData.Name == opponentName;
-    }
-
-    public void NotifyThatPlayerWon()
-    {
-        View.CongratulateWinner(SuperstarData.Name);
-    }
-    
-    public void SayPlayerTurnBegin()
-    {
-        View.SayThatATurnBegins(SuperstarData.Name);
-    }
-    
-    public void ResetChangesByJockeyingForPosition()
-    {
-        _changesByJockeyingForPosition.Reset();
     }
 }
     

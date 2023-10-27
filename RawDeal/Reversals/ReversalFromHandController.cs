@@ -7,10 +7,11 @@ namespace RawDeal.Reversals;
 
 public class ReversalFromHandController
 {
-    private View _view;
-    private IViewablePlayInfo _selectedPlay;
-    private ImportantPlayerData _playerData;
-    private ImportantPlayerData _opponentData;
+    private readonly View _view;
+    private readonly IViewablePlayInfo _selectedPlay;
+    private readonly ImportantPlayerData _playerData;
+    private readonly ImportantPlayerData _opponentData;
+    private CardController? _cardController;
 
     public ReversalFromHandController(ImportantPlayerData playerData, 
         ImportantPlayerData opponentData, IViewablePlayInfo selectedPlay, View view)
@@ -27,84 +28,79 @@ public class ReversalFromHandController
         var reversalPlaysInfo = CreatePlays(correctReversalCards);
         var formattedReversalPlays = FormatPlays(reversalPlaysInfo);
         var numReversalToPlay = _view.AskUserToSelectAReversal(_opponentData.Name, formattedReversalPlays);
+    
         if (numReversalToPlay != -1)
         {
             var selectedReversalPlay = reversalPlaysInfo[numReversalToPlay];
-            var formattedReversal = Formatter.PlayToString(selectedReversalPlay);
-            if (selectedReversalPlay.CardInfo.Damage == "#")
-            {
-                int damageToAdd = 0;
-                if (_selectedPlay.CardInfo.Subtypes.Contains("Grapple"))
-                {
-                    damageToAdd = _playerData.ChangesByJockeyingForPosition.DamageAdded;
-                }
-                
-                int damageValue = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd;
-                if (_opponentData.Name == "MANKIND")
-                    damageValue -= 1;
-
-                selectedReversalPlay.CardInfo.Damage = "#" + damageValue;
-            }
-            var cardControllerDecider = new CardControllerDecider(selectedReversalPlay);
-            var cardControllerType = cardControllerDecider.DecideReversalCardController();
-            _opponentData.ChangesByJockeyingForPosition.Reset();
-            _playerData.ChangesByJockeyingForPosition.Reset();
-            if (cardControllerType == (CardControllerTypes.BasicReversalCard))
-            {
-                var cardController = new BasicReversalCardController(_playerData, _opponentData, _selectedPlay, _view);
-                _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
-                _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
-                _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
-                cardController.ApplyEffect();
-            }
-            else if (cardControllerType == CardControllerTypes.LessThanEightCard)
-            {
-                var cardController = new DoDamageReversalController(
-                    _opponentData, _playerData, selectedReversalPlay, _view);
-                _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
-                _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
-                _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
-                cardController.ApplyEffect();
-            }
-            else if (cardControllerType == CardControllerTypes.DoUnknownDamageCard && CheckIfSubtypeIsTheSame(selectedReversalPlay))
-            {
-                var cardController = new DoDamageReversalController(_opponentData,
-                    _playerData, selectedReversalPlay, _view);
-                _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
-                _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
-                _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
-                cardController.ApplyEffect();
-            }
-            else if (cardControllerType == CardControllerTypes.PlayerDrawCard)
-            {
-                var cardController = new InterferenceReversalController(_opponentData,
-                    _playerData, selectedReversalPlay, _view);
-                _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
-                _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
-                _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
-                cardController.ApplyEffect();
-            }
-            else if (cardControllerType == CardControllerTypes.CleanBreakReversal)
-            {
-                var cardController = new CleanBreakReversalController(_opponentData,
-                    _playerData, selectedReversalPlay, _view);
-                _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
-                _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
-                _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
-                cardController.ApplyEffect();
-            }
-            else if (cardControllerType == CardControllerTypes.JockeyingForPosition)
-            {
-                var cardController = new JockeyingForPosition(_opponentData,
-                    _playerData, selectedReversalPlay, _view);
-                _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
-                _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
-                _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
-                cardController.ApplyEffect();
-            }
+            ProcessSelectedReversal(selectedReversalPlay);
         }
     }
 
+    private void ProcessSelectedReversal(IViewablePlayInfo selectedReversalPlay)
+    {
+        var formattedReversal = Formatter.PlayToString(selectedReversalPlay);
+        selectedReversalPlay = HandleSpecialReversalDamage(selectedReversalPlay);
+    
+        var cardControllerType = DetermineCardControllerType(selectedReversalPlay);
+        ResetChangesByJockeyingForPosition();
+        CreateCardController(cardControllerType, selectedReversalPlay);
+        ApplyReversalEffect(selectedReversalPlay, formattedReversal);
+    }
+
+    private CardControllerTypes DetermineCardControllerType(IViewablePlayInfo selectedReversalPlay)
+    {
+        var cardControllerDecider = new CardControllerDecider(selectedReversalPlay);
+        return cardControllerDecider.DecideReversalCardController();
+    }
+    
+    private IViewablePlayInfo HandleSpecialReversalDamage(IViewablePlayInfo selectedReversalPlay)
+    {
+        if (selectedReversalPlay.CardInfo.Damage == "#")
+        {
+            int damageToAdd = HandleDamageAddedByJockeyingForPosition();
+            int damageValue = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd;
+
+            if (_opponentData.Name == "MANKIND")
+                damageValue -= 1;
+
+            selectedReversalPlay.CardInfo.Damage = "#" + damageValue;
+        }
+
+        return selectedReversalPlay;
+    }
+    
+    // TODO: Refactor this to eliminate functional programming from the method.
+    private void CreateCardController(CardControllerTypes cardControllerType, IViewablePlayInfo selectedReversalPlay)
+    {
+        _cardController = cardControllerType switch
+        {
+            CardControllerTypes.BasicReversalCard => new BasicReversalCardController(_playerData, _opponentData,
+                _selectedPlay, _view),
+            CardControllerTypes.LessThanEightCard => new DoDamageReversalController(_opponentData, 
+                _playerData, selectedReversalPlay, _view),
+            CardControllerTypes.DoUnknownDamageCard when CheckIfSubtypeIsTheSame(selectedReversalPlay) =>
+                new DoDamageReversalController(_opponentData, _playerData, selectedReversalPlay, _view),
+            CardControllerTypes.PlayerDrawCard => new InterferenceReversalController(_opponentData, _playerData,
+                selectedReversalPlay, _view),
+            CardControllerTypes.CleanBreakReversal => new CleanBreakReversalController(_opponentData, _playerData,
+                selectedReversalPlay, _view),
+            CardControllerTypes.JockeyingForPosition => new JockeyingForPosition(_opponentData, _playerData,
+                selectedReversalPlay, _view),
+            _ => _cardController
+        };
+    }
+    
+    private void ApplyReversalEffect(IViewablePlayInfo selectedReversalPlay, string formattedReversal)
+    {
+        if (_cardController != null)
+        {
+            _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
+            _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
+            _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
+            _cardController.ApplyEffect();
+        }
+    }
+    
     private bool CheckIfSubtypeIsTheSame(IViewablePlayInfo selectedReversalPlay)
     {
         var reversalSubtype = selectedReversalPlay.CardInfo.Subtypes[0];
@@ -138,33 +134,42 @@ public class ReversalFromHandController
     private List<IViewableCardInfo> SearchForCorrectReversals()
     {
         var reversalCards = _opponentData.DecksController.SearchForReversalInHand();
-        if (_selectedPlay.PlayedAs == "MANEUVER") 
+
+        if (_selectedPlay.PlayedAs == "MANEUVER")
         {
-            var subtype = _selectedPlay.CardInfo.Subtypes[0];
-            var generalReversalCards = reversalCards.Where(card => card.Subtypes[0].Contains($"{subtype}") || card.Subtypes[0].Contains($"ReversalSpecial"));
-            var correctFortitudeReversalCards = CheckIfFortitudeIsHighEnough(generalReversalCards.ToList());
-            var correctReversalCards = FilterLessThanEightDamageEffectCards(correctFortitudeReversalCards);
-            var finalCorrectCards = FilterJockeyingForPosition(correctReversalCards);
-            return finalCorrectCards;
+            return SearchForManeuverReversals(reversalCards);
         }
-        var actionReversalCards = reversalCards.Where(card =>
-            card.Subtypes[0].Contains($"Action") || card.Title == "Jockeying for Position" || card.Title == "Clean Break");
+
+        return SearchForActionReversals(reversalCards);
+    }
+
+    private List<IViewableCardInfo> SearchForManeuverReversals(IEnumerable<IViewableCardInfo> reversalCards)
+    {
+        var subtype = _selectedPlay.CardInfo.Subtypes[0];
+        var generalReversalCards = reversalCards.Where(card => card.Subtypes[0].Contains($"{subtype}") || card.Subtypes[0].Contains($"ReversalSpecial"));
+
+        var correctFortitudeReversalCards = CheckIfFortitudeIsHighEnough(generalReversalCards.ToList());
+        var correctReversalCards = FilterLessThanEightDamageEffectCards(correctFortitudeReversalCards);
+
+        return FilterJockeyingForPosition(correctReversalCards);
+    }
+
+    private List<IViewableCardInfo> SearchForActionReversals(IEnumerable<IViewableCardInfo> reversalCards)
+    {
+        var actionReversalCards = reversalCards.Where(card => card.Subtypes[0].Contains($"Action") || card.Title == "Jockeying for Position" || card.Title == "Clean Break");
         var correctFortitudeCards = CheckIfFortitudeIsHighEnough(actionReversalCards.ToList());
         var correctCards = FilterLessThanEightDamageEffectCards(correctFortitudeCards);
+
         return FilterJockeyingForPosition(correctCards);
     }
+
     
     private List<IViewableCardInfo> CheckIfFortitudeIsHighEnough(List<IViewableCardInfo> filteredCards)
     {
         var cardsWithCorrectFortitude = new List<IViewableCardInfo>();
         foreach (var filteredCard in filteredCards)
         {
-            int fortitudeToAdd = 0;
-            if (_selectedPlay.CardInfo.Subtypes.Contains("Grapple"))
-            {
-                fortitudeToAdd = _opponentData.ChangesByJockeyingForPosition.FortitudeNeeded;
-            }
-            
+            int fortitudeToAdd = HandleFortitudeAddedByJockeyingForPosition();
             var cardFortitude = Convert.ToInt32(filteredCard.Fortitude);
             if (cardFortitude + fortitudeToAdd <= _opponentData.SuperstarData.Fortitude) 
                 cardsWithCorrectFortitude.Add(filteredCard);
@@ -173,13 +178,19 @@ public class ReversalFromHandController
         return cardsWithCorrectFortitude;
     }
     
+    private int HandleFortitudeAddedByJockeyingForPosition()
+    {
+        int fortitudeAdded = 0;
+        if (CheckIfSelectedCardIsGrapple())
+        {
+            fortitudeAdded = _opponentData.ChangesByJockeyingForPosition.FortitudeNeeded;
+        }
+        return fortitudeAdded;
+    }
+    
     private List<IViewableCardInfo> FilterLessThanEightDamageEffectCards(List<IViewableCardInfo> filteredCards)
     {
-        int damageToAdd = 0;
-        if (_selectedPlay.CardInfo.Subtypes.Contains("Grapple"))
-        {
-            damageToAdd = _playerData.ChangesByJockeyingForPosition.DamageAdded;
-        }
+        int damageToAdd = HandleDamageAddedByJockeyingForPosition();
         
         var cardDamage = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd;
         if (cardDamage > 7)
@@ -187,6 +198,15 @@ public class ReversalFromHandController
             filteredCards.RemoveAll(card => card.CardEffect.Contains("that does 7D or less."));
         }
         return filteredCards;
+    }
+    
+    private int HandleDamageAddedByJockeyingForPosition()
+    {
+        int damageAdded = 0;
+        if (CheckIfSelectedCardIsGrapple())
+            damageAdded = _playerData.ChangesByJockeyingForPosition.DamageAdded;
+        
+        return damageAdded;
     }
     
     private List<IViewableCardInfo> FilterJockeyingForPosition(List<IViewableCardInfo> filteredCards)
@@ -202,6 +222,17 @@ public class ReversalFromHandController
         }
 
         return filteredCards;
+    }
+    
+    private bool CheckIfSelectedCardIsGrapple()
+    {
+        return _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
+    }
+
+    private void ResetChangesByJockeyingForPosition()
+    {
+        _opponentData.ChangesByJockeyingForPosition.Reset();
+        _playerData.ChangesByJockeyingForPosition.Reset();
     }
 
 }

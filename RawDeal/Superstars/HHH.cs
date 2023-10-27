@@ -2,14 +2,7 @@ using RawDeal.Data_Structures;
 
 namespace RawDeal.Superstars;
 
-public class HHH : Player
+public class Hhh : Player
 {
-    public HHH(SuperstarData superstarData) : base(superstarData)
-    {
-        SuperstarData = superstarData;
-    }
-    public override bool PlaySpecialAbility()
-    {
-        return true;
-    }
+    public Hhh(SuperstarData superstarData) : base(superstarData) { }
 }
