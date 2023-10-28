@@ -1,11 +1,17 @@
-# RawDeal E2 - Franco Anfossi
+# RawDeal E3 - Franco Anfossi
 
-El programa funciona con exito y sin problemas que yo haya visto, ademas se logran pasar todos los tests sin hardcode.
+El programa en general funciona con exito y y se pasan casi todos los tests solo faltaron 9 de EffectsPart1
 
-Ademas he intentado utilizar la mayor cantidad de clean code que haya podido ver, ya que no se donde mas es posible aplicarlo, respete lo de la identacion, intente que todos los metodos sean menor a 10 lineas y que cada uno haga solo una cosa, tambien que los nombres de las variables y metodos sean lo mas descriptivas posibles y que sean sustantivos y verbos respectivamente. Tambien evité y reduje lo mas que pude la duplicacion de codigo.  
+Ademas he intentado utilizar la mayor cantidad de clean code que haya podido ver, ya que no se donde mas es posible aplicarlo, respete lo de la identacion, intente que todos los metodos sean menor a 10 lineas y que cada uno haga solo una cosa, tambien que los nombres de las variables y metodos sean lo mas descriptivas posibles y que sean sustantivos y verbos respectivamente. Tambien evité y reduje lo mas que pude la duplicacion de codigo. Ademas aplique los boundaries necesarios, que cada clase haga solo una cosa y que no hayan mas de 120 lineas por final.  
 
 Es importante que al correr el programa (`Program.cs`) todos los archivos esten en la que misma carpeta (en RawDeal).
 
+Esta parte esta desactualizada, ahora hay una gran cantidad de Data Structures y muchos archivos de effectos, constructores de cosas necesarias y tambien algunos de los archivos que estan abajo fueron divididos en mas de un archivo para que cada clase tenga una sola funcionalidad.
+
+Ademas se han agregado excepciones y algunas interfaces.
+
+
+Estos son los archivos que estaban en la E2, ahora hay muchos mas.
 Los archivos son los siguientes:
 - `Carta.cs`: Se encuenta la clase Carta que tiene los atributos necesarios para el json de las cartas. (En un futuro es probable que se haga abstracta).
 
