@@ -15,6 +15,6 @@ public class PlayExecutor
     public void ExecutePlay(string playerName, string formattedSelectedPlay, CardController cardController)
     {
         _view.SayThatPlayerIsTryingToPlayThisCard(playerName, formattedSelectedPlay);
-        cardController.ApplyEffect();
+        cardController.PlayCard();
     }
 }

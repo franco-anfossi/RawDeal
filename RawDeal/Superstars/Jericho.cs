@@ -22,8 +22,10 @@ public class Jericho : Player
     
     private void ApplyAbilityEffect(ImportantPlayerData importantPlayerData)
     {
-        var playerDiscardHandCardsEffect = new AskToDiscardHandCardsEffect(importantPlayerData, View, 1);
-        var opponentDiscardHandCardsEffect = new AskToDiscardHandCardsEffect(OpponentData, View, 1);
+        var playerDiscardHandCardsEffect = 
+            new AskToDiscardHandCardsEffect(importantPlayerData, importantPlayerData, View, 1);
+        var opponentDiscardHandCardsEffect = new 
+            AskToDiscardHandCardsEffect(OpponentData, OpponentData, View, 1);
         playerDiscardHandCardsEffect.Apply();
         opponentDiscardHandCardsEffect.Apply();
     }

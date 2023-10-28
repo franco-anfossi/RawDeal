@@ -1,5 +1,7 @@
 using RawDeal.Cards;
+using RawDeal.Cards.Builders;
 using RawDeal.Data_Structures;
+using RawDeal.Effects;
 using RawDealView;
 using RawDealView.Formatters;
 
@@ -11,7 +13,7 @@ public class ReversalFromHandController
     private readonly IViewablePlayInfo _selectedPlay;
     private readonly ImportantPlayerData _playerData;
     private readonly ImportantPlayerData _opponentData;
-    private CardController? _cardController;
+    private CardController _cardController;
 
     public ReversalFromHandController(ImportantPlayerData playerData, 
         ImportantPlayerData opponentData, IViewablePlayInfo selectedPlay, View view)
@@ -40,17 +42,18 @@ public class ReversalFromHandController
     {
         var formattedReversal = Formatter.PlayToString(selectedReversalPlay);
         selectedReversalPlay = HandleSpecialReversalDamage(selectedReversalPlay);
-    
-        var cardControllerType = DetermineCardControllerType(selectedReversalPlay);
+        
+        var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, selectedReversalPlay);
+        var conditions = conditionBuilder.BuildConditions();
+        
+        var effectBuilder = new ReversalEffectBuilder(_opponentData, 
+            _playerData, selectedReversalPlay, ReversalPlayedFrom.PlayedFromHand, _view);
+        var effects = effectBuilder.BuildEffects();
+        
+        _cardController = new CardController(effects, conditions);
         ResetChangesByJockeyingForPosition();
-        CreateCardController(cardControllerType, selectedReversalPlay);
-        ApplyReversalEffect(selectedReversalPlay, formattedReversal);
-    }
-
-    private CardControllerTypes DetermineCardControllerType(IViewablePlayInfo selectedReversalPlay)
-    {
-        var cardControllerDecider = new CardControllerDecider(selectedReversalPlay);
-        return cardControllerDecider.DecideReversalCardController();
+        if (_cardController.CheckConditions())
+            ApplyReversalEffect(selectedReversalPlay, formattedReversal);
     }
     
     private IViewablePlayInfo HandleSpecialReversalDamage(IViewablePlayInfo selectedReversalPlay)
@@ -69,45 +72,14 @@ public class ReversalFromHandController
         return selectedReversalPlay;
     }
     
-    // TODO: Refactor this to eliminate functional programming from the method.
-    private void CreateCardController(CardControllerTypes cardControllerType, IViewablePlayInfo selectedReversalPlay)
-    {
-        _cardController = cardControllerType switch
-        {
-            CardControllerTypes.BasicReversalCard => new BasicReversalCardController(_playerData, _opponentData,
-                _selectedPlay, _view),
-            CardControllerTypes.LessThanEightCard => new DoDamageReversalController(_opponentData, 
-                _playerData, selectedReversalPlay, _view),
-            CardControllerTypes.DoUnknownDamageCard when CheckIfSubtypeIsTheSame(selectedReversalPlay) =>
-                new DoDamageReversalController(_opponentData, _playerData, selectedReversalPlay, _view),
-            CardControllerTypes.PlayerDrawCard => new InterferenceReversalController(_opponentData, _playerData,
-                selectedReversalPlay, _view),
-            CardControllerTypes.CleanBreakReversal => new CleanBreakReversalController(_opponentData, _playerData,
-                selectedReversalPlay, _view),
-            CardControllerTypes.JockeyingForPosition => new JockeyingForPosition(_opponentData, _playerData,
-                selectedReversalPlay, _view),
-            _ => _cardController
-        };
-    }
-    
     private void ApplyReversalEffect(IViewablePlayInfo selectedReversalPlay, string formattedReversal)
     {
-        if (_cardController != null)
-        {
-            _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
-            _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
-            _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
-            _cardController.ApplyEffect();
-        }
+        _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
+        _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
+        _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
+        _cardController.PlayCard();
     }
     
-    private bool CheckIfSubtypeIsTheSame(IViewablePlayInfo selectedReversalPlay)
-    {
-        var reversalSubtype = selectedReversalPlay.CardInfo.Subtypes[0];
-        var firstCondition = _selectedPlay.CardInfo.Subtypes.Contains("Strike") && reversalSubtype.Contains("Strike");
-        var secondCondition = _selectedPlay.CardInfo.Subtypes.Contains("Grapple") && reversalSubtype.Contains("Grapple");
-        return firstCondition || secondCondition;
-    }
     private List<IViewablePlayInfo> CreatePlays(List<IViewableCardInfo> cardsToPlays)
     {
         var plays = new List<IViewablePlayInfo>();

@@ -20,15 +20,8 @@ public class CardControllerBuilder
 
     public CardController Build(IViewablePlayInfo notFormattedSelectedPlay)
     {
-        var cardControllerType = DecideCardController(notFormattedSelectedPlay);
-        var cardControllerFactory = new CardControllerFactory(_playerData, _opponentData, 
-            notFormattedSelectedPlay, cardControllerType, _view);
+        var cardControllerFactory = new GeneralCardControllerFactory(_playerData, _opponentData, 
+            notFormattedSelectedPlay, _view);
         return cardControllerFactory.BuildCardController();
-    }
-
-    private CardControllerTypes DecideCardController(IViewablePlayInfo notFormattedSelectedPlay)
-    {
-        var cardControllerDecider = new CardControllerDecider(notFormattedSelectedPlay);
-        return cardControllerDecider.DecideCardController();
     }
 }

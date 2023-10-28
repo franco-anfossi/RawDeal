@@ -25,7 +25,8 @@ public class Undertaker : Player
     private void DiscardTwoCardsFromHand()
     {
         var importantPlayerData = BuildImportantPlayerData();
-        var discardHandCardsEffect = new AskToDiscardHandCardsEffect(importantPlayerData, View, 2);
+        var discardHandCardsEffect = 
+            new AskToDiscardHandCardsEffect(importantPlayerData, importantPlayerData, View, 2);
         discardHandCardsEffect.Apply();
     }
 

@@ -20,18 +20,8 @@ public class MakeDamageEffect : Effect
 
     public override void Apply()
     {
-        HandleNonReversalCardPlay();
         MakeDamageToOpponent();
         AddFortitudeToPlayer();
-    }
-    
-    private void HandleNonReversalCardPlay()
-    {
-        if (CheckIfCardIsNotReversal())
-        {
-            View.SayThatPlayerSuccessfullyPlayedACard();
-            PlayerData.DecksController.PassCardFromHandToRingArea(_selectedPlay.CardInfo);
-        }
     }
 
     private void AddFortitudeToPlayer()
@@ -99,12 +89,16 @@ public class MakeDamageEffect : Effect
         IViewableCardInfo drawnCard = _opponentData.DecksController.DrawLastCardOfArsenal();
         string formattedDrawnCard = Formatter.CardToString(drawnCard);
         View.ShowCardOverturnByTakingDamage(formattedDrawnCard, currentDamage, totalDamageDone);
-        var damageCompleted = currentDamage == totalDamageDone;
+        var damageCompleted = StunValueCondition.DamageNotCompleted;
+        if (currentDamage == totalDamageDone)
+        {
+            damageCompleted = StunValueCondition.DamageCompleted;
+        }
         HandleArsenalReversal(damageCompleted, drawnCard);
         _opponentData.DecksController.PassCardToRingside(drawnCard);
     }
 
-    private void HandleArsenalReversal(bool damageCompleted, IViewableCardInfo drawnCard)
+    private void HandleArsenalReversal(StunValueCondition damageCompleted, IViewableCardInfo drawnCard)
     {
         if (CheckIfCardIsNotReversal())
         {

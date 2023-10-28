@@ -1,42 +1,30 @@
-using RawDealView;
-using RawDealView.Formatters;
-using RawDeal.Data_Structures;
+using RawDeal.Conditions;
 using RawDeal.Effects;
-using RawDeal.Reversals;
 
 namespace RawDeal.Cards;
 
 public class CardController
 {
-    protected readonly View View;
-    protected readonly IViewablePlayInfo SelectedPlay;
-    protected readonly ImportantPlayerData PlayerData;
-    protected readonly ImportantPlayerData OpponentData;
+    private readonly List<Condition> _conditions;
+    private readonly List<Effect> _effects;
     
-    public CardController(ImportantPlayerData playerData, ImportantPlayerData opponentData, 
-        IViewablePlayInfo selectedPlay, View view)
+    public CardController(List<Effect> effects, List<Condition> conditions)
     {
-        View = view;
-        SelectedPlay = selectedPlay;
-        PlayerData = playerData;
-        OpponentData = opponentData;
+        _effects = effects;
+        _conditions = conditions;
     }
     
-    public virtual void ApplyEffect()
+    public void PlayCard()
     {
-        TryToReverse();
-        MakeDamage();
-    }
+        if (!CheckConditions()) return;
+        foreach (var effect in _effects)
+        {
+            effect.Apply();
+        }
+    } 
     
-    protected void TryToReverse()
+    public bool CheckConditions()
     {
-        var reversalFromHand = new ReversalFromHandController(PlayerData, OpponentData, SelectedPlay, View);
-        reversalFromHand.SelectReversalFromHand();
-    }
-    
-    protected void MakeDamage()
-    {
-        var makeDamageEffect = new MakeDamageEffect(PlayerData, OpponentData, SelectedPlay, View);
-        makeDamageEffect.Apply();
+        return _conditions.All(condition => condition.Check());
     }
 }

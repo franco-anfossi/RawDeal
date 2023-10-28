@@ -6,10 +6,12 @@ namespace RawDeal.Effects;
 public class AskToDiscardHandCardsEffect : Effect
 {
     private readonly int _cardsToDiscard;
+    private readonly ImportantPlayerData _playerDeciderData;
     
-    public AskToDiscardHandCardsEffect(ImportantPlayerData superstarData, 
+    public AskToDiscardHandCardsEffect(ImportantPlayerData superstarData, ImportantPlayerData playerDeciderData, 
         View view, int cardsToDiscard) : base(superstarData, view)
     {
+        _playerDeciderData = playerDeciderData;
         _cardsToDiscard = cardsToDiscard;
     }
     
@@ -27,7 +29,7 @@ public class AskToDiscardHandCardsEffect : Effect
         var formattedCardData = PlayerData.DecksController.BuildFormattedDecks();
         var formattedHand = formattedCardData.Hand;
         int selectedCardIndex = View.AskPlayerToSelectACardToDiscard(formattedHand, 
-            PlayerData.Name, PlayerData.Name, cardsToDraw);
+            PlayerData.Name, _playerDeciderData.Name, cardsToDraw);
         return selectedCardIndex;
     }
     
