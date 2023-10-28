@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Conditions;
 using RawDeal.Effects;
 
@@ -5,10 +6,10 @@ namespace RawDeal.Cards;
 
 public class CardController
 {
-    private readonly List<Condition> _conditions;
-    private readonly List<Effect> _effects;
+    private readonly BoundaryList<Condition> _conditions;
+    private readonly BoundaryList<Effect> _effects;
     
-    public CardController(List<Effect> effects, List<Condition> conditions)
+    public CardController(BoundaryList<Effect> effects, BoundaryList<Condition> conditions)
     {
         _effects = effects;
         _conditions = conditions;

@@ -17,6 +17,7 @@ public class AskToDiscardHandCardsEffect : Effect
     
     public override void Apply()
     {
+        if (!PlayerData.DecksController.CheckForHandHigherThanANumber(_cardsToDiscard)) return;
         for (int cardsToDraw = _cardsToDiscard; cardsToDraw > 0; cardsToDraw--)
         {
             int selectedCardIndex = ChooseCardToDiscard(cardsToDraw);
@@ -28,7 +29,7 @@ public class AskToDiscardHandCardsEffect : Effect
     {
         var formattedCardData = PlayerData.DecksController.BuildFormattedDecks();
         var formattedHand = formattedCardData.Hand;
-        int selectedCardIndex = View.AskPlayerToSelectACardToDiscard(formattedHand, 
+        int selectedCardIndex = View.AskPlayerToSelectACardToDiscard(formattedHand.ToList(), 
             PlayerData.Name, _playerDeciderData.Name, cardsToDraw);
         return selectedCardIndex;
     }

@@ -16,7 +16,7 @@ public class CorrectSubtype : Condition
     public override bool Check()
     {
         var conditionOne = CheckMatchingSubtype("Strike") || CheckMatchingSubtype("Grapple");
-        var conditionTwo = CheckMatchingSubtype("Submission") || IsMatchingTypeAndSubtype("Action");
+        var conditionTwo = CheckMatchingSubtype("Submission") || CheckMatchingTypeAndSubtype("Action");
         return conditionOne || conditionTwo;
     }
 
@@ -25,7 +25,7 @@ public class CorrectSubtype : Condition
         return _selectedCard.CardInfo.Subtypes.Contains(subtype) && _selectedReversalCardSubtype.Contains(subtype);
     }
 
-    private bool IsMatchingTypeAndSubtype(string type)
+    private bool CheckMatchingTypeAndSubtype(string type)
     {
         return _selectedCard.PlayedAs == type.ToUpper() && _selectedReversalCardSubtype.Contains(type);
     }

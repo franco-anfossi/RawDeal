@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 using RawDeal.Decks;
 using RawDealView.Formatters;
@@ -6,13 +7,13 @@ namespace RawDeal.OptionsPlayCard;
 
 public class PlayableCardsManager
 {
-    private IViewableCardInfo? _playableCard;
-    private readonly List<IViewablePlayInfo> _possiblePlays;
+    private IViewableCardInfo _playableCard;
+    private readonly BoundaryList<IViewablePlayInfo> _possiblePlays;
     private readonly PlayerDecksController _playerDecksController;
     
     public PlayableCardsManager(ImportantPlayerData playerData)
     {
-        _possiblePlays = new List<IViewablePlayInfo>();
+        _possiblePlays = new BoundaryList<IViewablePlayInfo>();
         _playerDecksController = playerData.DecksController;
     }
 
@@ -23,10 +24,10 @@ public class PlayableCardsManager
         return new PossiblePlaysData(formattedPlays, _possiblePlays);
     } 
     
-    private List<string> FormatPlays()
+    private BoundaryList<string> FormatPlays()
     {
-        var formattedPlayablePlays = new List<string>();
-        foreach (var playablePlay in _possiblePlays)
+        var formattedPlayablePlays = new BoundaryList<string>();
+        foreach (IViewablePlayInfo playablePlay in _possiblePlays)
         {
             string formattedPlay = Formatter.PlayToString(playablePlay);
             formattedPlayablePlays.Add(formattedPlay);
@@ -38,7 +39,7 @@ public class PlayableCardsManager
     private void FindPlayablePlays()
     {
         var playableCards = _playerDecksController.CheckForPlayableCards();
-        foreach (var playableCard in playableCards)
+        foreach (IViewableCardInfo playableCard in playableCards)
         {
             _playableCard = playableCard;
             EvaluatePlayablePlays();
@@ -60,7 +61,7 @@ public class PlayableCardsManager
     {
         for (int typesIndex = 0; typesIndex < numberOfCardTypes; typesIndex++)
         {
-            string cardType = _playableCard!.Types[typesIndex].ToUpper();
+            string cardType = _playableCard.Types[typesIndex].ToUpper();
             var possiblePlayInfo = new PlayInfo(_playableCard, cardType);
             _possiblePlays.Add(possiblePlayInfo);
         }
@@ -68,16 +69,16 @@ public class PlayableCardsManager
 
     private bool CheckIfCardIsManeuver()
     {
-        return _playableCard!.Types.Contains("Maneuver");
+        return _playableCard.Types.Contains("Maneuver");
     }
     
     private bool CheckIfCardIsAction()
     {
-        return _playableCard!.Types.Contains("Action");
+        return _playableCard.Types.Contains("Action");
     }
     
     private bool CheckIfCardIsReversal()
     {
-        return _playableCard!.Types[0].Contains("Reversal");
+        return _playableCard.Types[0].Contains("Reversal");
     }
 }

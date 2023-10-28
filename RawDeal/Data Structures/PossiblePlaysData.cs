@@ -1,13 +1,14 @@
+using RawDeal.Boundaries;
 using RawDealView.Formatters;
 
 namespace RawDeal.Data_Structures;
 
 public class PossiblePlaysData
 {
-    public List<string> FormattedPlays { get; }
-    public List<IViewablePlayInfo> NotFormattedPlays { get; }
+    public BoundaryList<string> FormattedPlays { get; }
+    public BoundaryList<IViewablePlayInfo> NotFormattedPlays { get; }
     
-    public PossiblePlaysData(List<string> formattedPlays, List<IViewablePlayInfo> notFormattedPlays)
+    public PossiblePlaysData(BoundaryList<string> formattedPlays, BoundaryList<IViewablePlayInfo> notFormattedPlays)
     {
         NotFormattedPlays = notFormattedPlays;
         FormattedPlays = formattedPlays;

@@ -21,18 +21,18 @@ public class OptionsToViewDeck
     {
         var selectedDeckToView = _view.AskUserWhatSetOfCardsHeWantsToSee();
         if (selectedDeckToView == CardSet.Hand)
-            _view.ShowCards(_playerFormattedDecks.Hand);
+            _view.ShowCards(_playerFormattedDecks.Hand.ToList());
         
         else if (selectedDeckToView == CardSet.RingsidePile)
-            _view.ShowCards(_playerFormattedDecks.Ringside);
+            _view.ShowCards(_playerFormattedDecks.Ringside.ToList());
         
         else if (selectedDeckToView == CardSet.RingArea)
-            _view.ShowCards(_playerFormattedDecks.RingArea);
+            _view.ShowCards(_playerFormattedDecks.RingArea.ToList());
         
         else if (selectedDeckToView == CardSet.OpponentsRingsidePile)
-            _view.ShowCards(_opponentFormattedDecks.Ringside);
+            _view.ShowCards(_opponentFormattedDecks.Ringside.ToList());
         
         else if (selectedDeckToView == CardSet.OpponentsRingArea)
-            _view.ShowCards(_opponentFormattedDecks.RingArea);
+            _view.ShowCards(_opponentFormattedDecks.RingArea.ToList());
     }
 }

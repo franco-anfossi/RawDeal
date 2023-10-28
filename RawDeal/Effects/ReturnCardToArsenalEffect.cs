@@ -11,7 +11,8 @@ public class ReturnCardToArsenalEffect : Effect
     {
         var formattedCardData = PlayerData.DecksController.BuildFormattedDecks();
         var formattedHand = formattedCardData.Hand;
-        int selectedCardIndex = View.AskPlayerToReturnOneCardFromHisHandToHisArsenal(PlayerData.Name, formattedHand);
+        int selectedCardIndex = 
+            View.AskPlayerToReturnOneCardFromHisHandToHisArsenal(PlayerData.Name, formattedHand.ToList());
         PlayerData.DecksController.PassCardFromHandToTheBackOfTheArsenal(selectedCardIndex);
     }
 }

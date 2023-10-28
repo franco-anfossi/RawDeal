@@ -1,18 +1,28 @@
-using System.Text.Json;
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 
 namespace RawDeal.Deserializers;
 
 public class CardDeserializer
 {
-    private List<CardData>? _deserializedCards;
+    private readonly IJsonSerializer _jsonSerializer = new JsonSerializerBoundary();
     private static readonly string CardsJsonPath = Path.Combine("data", "cards.json");
     
-    public List<CardData> DeserializeCards()
+    public CardDeserializer()
+    {
+        SetupJsonSerializer();
+    }
+
+    private void SetupJsonSerializer()
+    {
+        _jsonSerializer.AddConverter(new BoundaryListConverter<CardData>());
+    }
+
+    public BoundaryList<CardData> DeserializeCards()
     {
         string jsonCardsArchive = File.ReadAllText(CardsJsonPath);
-        _deserializedCards = JsonSerializer.Deserialize<List<CardData>>(jsonCardsArchive)!;
-
-        return _deserializedCards ?? throw new InvalidOperationException();
+        var deserializedCards = _jsonSerializer.Deserialize<BoundaryList<CardData>>(jsonCardsArchive);
+        return deserializedCards ?? throw new InvalidOperationException();
     }
 }
+

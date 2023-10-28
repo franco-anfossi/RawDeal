@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using RawDealView.Formatters;
 
 namespace RawDeal.Data_Structures;

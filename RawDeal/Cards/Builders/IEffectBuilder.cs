@@ -1,8 +1,9 @@
+using RawDeal.Boundaries;
 using RawDeal.Effects;
 
 namespace RawDeal.Cards.Builders;
 
 public interface IEffectBuilder
 {
-    List<Effect> BuildEffects();
+    BoundaryList<Effect> BuildEffects();
 }

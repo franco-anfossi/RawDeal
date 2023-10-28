@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 using RawDealView.Formatters;
 
@@ -25,10 +26,10 @@ public class PlayerDecksController
         return _playerDecks;
     }
 
-    public List<IViewableCardInfo> SearchForReversalInHand()
+    public BoundaryList<IViewableCardInfo> SearchForReversalInHand()
     {
-        var cardsWithName = new List<IViewableCardInfo>();
-        foreach (var card in _playerDecks.Hand)
+        var cardsWithName = new BoundaryList<IViewableCardInfo>();
+        foreach (IViewableCardInfo card in _playerDecks.Hand)
         {
             var hasReversal = card.Types.Contains("Reversal");
             if (hasReversal)
@@ -53,15 +54,20 @@ public class PlayerDecksController
         return _playerDecks.Hand.Count == 0;
     }
     
+    public bool CheckForHandHigherThanANumber(int number)
+    {
+        return _playerDecks.Hand.Count >= number;
+    }
+    
     public bool CheckForEmptyRingside()
     {
         return _playerDecks.Ringside.Count == 0;
     }
 
-    public List<IViewableCardInfo> CheckForPlayableCards()
+    public BoundaryList<IViewableCardInfo> CheckForPlayableCards()
     {
-        var playableCards = new List<IViewableCardInfo>();
-        foreach (var card in _playerDecks.Hand)
+        var playableCards = new BoundaryList<IViewableCardInfo>();
+        foreach (IViewableCardInfo card in _playerDecks.Hand)
         {
             var cardFortitude = Convert.ToInt32(card.Fortitude);
             if (cardFortitude <= _playerData.Fortitude)

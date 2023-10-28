@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 using RawDealView;
 
@@ -12,14 +13,14 @@ public class PlaySelector
         _view = view;
     }
 
-    public PossiblePlaysData GetPlayablePlays(ImportantPlayerData playerData)
+    public PossiblePlaysData BuildPlayablePlays(ImportantPlayerData playerData)
     {
         var playableCardManager = new PlayableCardsManager(playerData);
         return playableCardManager.BuildPlayablePlays();
     }
 
-    public int GetSelectedPlay(List<string> formattedPlays)
+    public int SelectAPlay(BoundaryList<string> formattedPlays)
     {
-        return _view.AskUserToSelectAPlay(formattedPlays);
+        return _view.AskUserToSelectAPlay(formattedPlays.ToList());
     }
 }

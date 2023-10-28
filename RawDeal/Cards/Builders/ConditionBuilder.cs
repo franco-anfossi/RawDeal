@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Conditions;
 using RawDeal.Data_Structures;
 using RawDealView.Formatters;
@@ -9,7 +10,7 @@ public class ConditionBuilder
     private readonly IViewablePlayInfo _selectedPlay;
     private readonly IViewablePlayInfo _selectedReversal;
     private readonly ImportantPlayerData _playerData;
-    private readonly List<Condition> _conditions;
+    private readonly BoundaryList<Condition> _conditions;
     
     public ConditionBuilder(ImportantPlayerData playerData, 
         IViewablePlayInfo selectedPlay, IViewablePlayInfo selectedReversal)
@@ -17,10 +18,10 @@ public class ConditionBuilder
         _playerData = playerData;
         _selectedPlay = selectedPlay;
         _selectedReversal = selectedReversal;
-        _conditions = new List<Condition>();
+        _conditions = new BoundaryList<Condition>();
     }
     
-    public List<Condition> BuildConditions()
+    public BoundaryList<Condition> BuildConditions()
     {
         switch (_selectedReversal.CardInfo.Title)
         {

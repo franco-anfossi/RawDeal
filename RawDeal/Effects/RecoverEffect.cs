@@ -14,10 +14,17 @@ public class RecoverEffect : Effect
     
     public override void Apply()
     {
-        var playerName = PlayerData.Name;
+        for (int cardNum = _cardsToRecover; cardNum > 0; cardNum--)
+            RecoverCard(cardNum);
+    }
+
+    private void RecoverCard(int cardNum)
+    {
         var formattedDecks = PlayerData.DecksController.BuildFormattedDecks();
         var formattedRingside = formattedDecks.Ringside;
-        int selectedCardIndex = View.AskPlayerToSelectCardsToRecover(playerName, _cardsToRecover, formattedRingside);
+        int selectedCardIndex =
+            View.AskPlayerToSelectCardsToRecover(PlayerData.Name, cardNum, formattedRingside.ToList());
         PlayerData.DecksController.PassCardFromRingsideToTheBackOfTheArsenal(selectedCardIndex);
     }
+
 }

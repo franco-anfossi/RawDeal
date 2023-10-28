@@ -1,3 +1,5 @@
+using RawDeal.Boundaries;
+using RawDeal.Data_Structures;
 using RawDeal.Decks;
 using RawDeal.Exceptions;
 using RawDeal.Superstars;
@@ -18,7 +20,7 @@ public class GameDeckManager
         _cardsSet = cardsSet;
     }
     
-    public List<Player> SelectDeck( List<Player> players)
+    public BoundaryList<Player> SelectDeck(BoundaryList<Player> players)
     {
         for (int playerIndex = 0; playerIndex < 2; playerIndex++)
         {
@@ -36,7 +38,7 @@ public class GameDeckManager
         return Utils.OpenDeckArchive(deckPath);
     }
 
-    private void ValidateDeck(Deck deck, List<Player> players)
+    private void ValidateDeck(Deck deck, BoundaryList<Player> players)
     {
         var deckValidator = new DeckValidator(deck, _cardsSet);
         if (deckValidator.ValidateDeckRules())

@@ -1,7 +1,7 @@
+using RawDeal.Boundaries;
 using RawDeal.Cards;
 using RawDeal.Cards.Builders;
 using RawDeal.Data_Structures;
-using RawDeal.Effects;
 using RawDealView;
 using RawDealView.Formatters;
 
@@ -29,7 +29,8 @@ public class ReversalFromHandController
         var correctReversalCards = SearchForCorrectReversals();
         var reversalPlaysInfo = CreatePlays(correctReversalCards);
         var formattedReversalPlays = FormatPlays(reversalPlaysInfo);
-        var numReversalToPlay = _view.AskUserToSelectAReversal(_opponentData.Name, formattedReversalPlays);
+        var numReversalToPlay = 
+            _view.AskUserToSelectAReversal(_opponentData.Name, formattedReversalPlays.ToList());
     
         if (numReversalToPlay != -1)
         {
@@ -40,20 +41,33 @@ public class ReversalFromHandController
 
     private void ProcessSelectedReversal(IViewablePlayInfo selectedReversalPlay)
     {
-        var formattedReversal = Formatter.PlayToString(selectedReversalPlay);
+        var formattedReversal = FormatReversal(selectedReversalPlay);
         selectedReversalPlay = HandleSpecialReversalDamage(selectedReversalPlay);
         
-        var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, selectedReversalPlay);
+        BuildCardController(selectedReversalPlay);
+        ResetChangesByJockeyingForPosition();
+    
+        if (_cardController.CheckConditions())
+        {
+            ApplyReversalEffect(selectedReversalPlay, formattedReversal);
+        }
+    }
+
+    private string FormatReversal(IViewablePlayInfo reversalPlay)
+    {
+        return Formatter.PlayToString(reversalPlay);
+    }
+
+    private void BuildCardController(IViewablePlayInfo reversalPlay)
+    {
+        var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, reversalPlay);
         var conditions = conditionBuilder.BuildConditions();
         
         var effectBuilder = new ReversalEffectBuilder(_opponentData, 
-            _playerData, selectedReversalPlay, ReversalPlayedFrom.PlayedFromHand, _view);
+            _playerData, reversalPlay, ReversalPlayedFrom.PlayedFromHand, _view);
         var effects = effectBuilder.BuildEffects();
         
         _cardController = new CardController(effects, conditions);
-        ResetChangesByJockeyingForPosition();
-        if (_cardController.CheckConditions())
-            ApplyReversalEffect(selectedReversalPlay, formattedReversal);
     }
     
     private IViewablePlayInfo HandleSpecialReversalDamage(IViewablePlayInfo selectedReversalPlay)
@@ -80,9 +94,9 @@ public class ReversalFromHandController
         _cardController.PlayCard();
     }
     
-    private List<IViewablePlayInfo> CreatePlays(List<IViewableCardInfo> cardsToPlays)
+    private BoundaryList<IViewablePlayInfo> CreatePlays(BoundaryList<IViewableCardInfo> cardsToPlays)
     {
-        var plays = new List<IViewablePlayInfo>();
+        var plays = new BoundaryList<IViewablePlayInfo>();
         foreach (var card in cardsToPlays)
         {
             plays.Add(new PlayInfo(card, "REVERSAL"));
@@ -91,9 +105,9 @@ public class ReversalFromHandController
         return plays;
     }
     
-    private List<string> FormatPlays(List<IViewablePlayInfo> plays)
+    private BoundaryList<string> FormatPlays(BoundaryList<IViewablePlayInfo> plays)
     {
-        var formattedPlays = new List<string>();
+        var formattedPlays = new BoundaryList<string>();
         foreach (var play in plays)
         {
             var formattedPlay = Formatter.PlayToString(play);
@@ -103,7 +117,7 @@ public class ReversalFromHandController
         return formattedPlays;
     }
     
-    private List<IViewableCardInfo> SearchForCorrectReversals()
+    private BoundaryList<IViewableCardInfo> SearchForCorrectReversals()
     {
         var reversalCards = _opponentData.DecksController.SearchForReversalInHand();
 
@@ -115,31 +129,40 @@ public class ReversalFromHandController
         return SearchForActionReversals(reversalCards);
     }
 
-    private List<IViewableCardInfo> SearchForManeuverReversals(IEnumerable<IViewableCardInfo> reversalCards)
+    private BoundaryList<IViewableCardInfo> SearchForManeuverReversals(BoundaryList<IViewableCardInfo> reversalCards)
     {
         var subtype = _selectedPlay.CardInfo.Subtypes[0];
-        var generalReversalCards = reversalCards.Where(card => card.Subtypes[0].Contains($"{subtype}") || card.Subtypes[0].Contains($"ReversalSpecial"));
+        var generalReversalCards = reversalCards.Where(card => 
+            card.Subtypes[0].Contains($"{subtype}") || card.Subtypes[0].Contains($"ReversalSpecial"));
 
-        var correctFortitudeReversalCards = CheckIfFortitudeIsHighEnough(generalReversalCards.ToList());
-        var correctReversalCards = FilterLessThanEightDamageEffectCards(correctFortitudeReversalCards);
+        var correctFortitudeReversalCards = 
+            CheckIfFortitudeIsHighEnough(generalReversalCards.ToBoundaryList());
+        
+        var correctReversalCards = 
+            FilterLessThanEightDamageEffectCards(correctFortitudeReversalCards);
 
         return FilterJockeyingForPosition(correctReversalCards);
     }
 
-    private List<IViewableCardInfo> SearchForActionReversals(IEnumerable<IViewableCardInfo> reversalCards)
+    private BoundaryList<IViewableCardInfo> SearchForActionReversals(BoundaryList<IViewableCardInfo> reversalCards)
     {
-        var actionReversalCards = reversalCards.Where(card => card.Subtypes[0].Contains($"Action") || card.Title == "Jockeying for Position" || card.Title == "Clean Break");
-        var correctFortitudeCards = CheckIfFortitudeIsHighEnough(actionReversalCards.ToList());
+        var actionReversalCards = reversalCards.Where(card => 
+            card.Subtypes[0].Contains($"Action") || card.Title == "Jockeying for Position" || 
+            card.Title == "Clean Break");
+        
+        var correctFortitudeCards = 
+            CheckIfFortitudeIsHighEnough(actionReversalCards.ToBoundaryList());
+        
         var correctCards = FilterLessThanEightDamageEffectCards(correctFortitudeCards);
 
         return FilterJockeyingForPosition(correctCards);
     }
 
     
-    private List<IViewableCardInfo> CheckIfFortitudeIsHighEnough(List<IViewableCardInfo> filteredCards)
+    private BoundaryList<IViewableCardInfo> CheckIfFortitudeIsHighEnough(BoundaryList<IViewableCardInfo> filteredCards)
     {
-        var cardsWithCorrectFortitude = new List<IViewableCardInfo>();
-        foreach (var filteredCard in filteredCards)
+        var cardsWithCorrectFortitude = new BoundaryList<IViewableCardInfo>();
+        foreach (IViewableCardInfo filteredCard in filteredCards)
         {
             int fortitudeToAdd = HandleFortitudeAddedByJockeyingForPosition();
             var cardFortitude = Convert.ToInt32(filteredCard.Fortitude);
@@ -160,7 +183,8 @@ public class ReversalFromHandController
         return fortitudeAdded;
     }
     
-    private List<IViewableCardInfo> FilterLessThanEightDamageEffectCards(List<IViewableCardInfo> filteredCards)
+    private BoundaryList<IViewableCardInfo> FilterLessThanEightDamageEffectCards(
+        BoundaryList<IViewableCardInfo> filteredCards)
     {
         int damageToAdd = HandleDamageAddedByJockeyingForPosition();
         
@@ -181,16 +205,18 @@ public class ReversalFromHandController
         return damageAdded;
     }
     
-    private List<IViewableCardInfo> FilterJockeyingForPosition(List<IViewableCardInfo> filteredCards)
+    private BoundaryList<IViewableCardInfo> FilterJockeyingForPosition(BoundaryList<IViewableCardInfo> filteredCards)
     {
         var cardName = _selectedPlay.CardInfo.Title;
         if (cardName == "Jockeying for Position")
         {
-            filteredCards.RemoveAll(card => card.Title != "Jockeying for Position" && card.Title != "Clean Break" && card.Title != "No Chance in Hell");
+            filteredCards.RemoveAll(card => card.Title != "Jockeying for Position" && 
+                                            card.Title != "Clean Break" && card.Title != "No Chance in Hell");
         }
         else
         {
-            filteredCards.RemoveAll(card => card.Title == "Jockeying for Position" || card.Title == "Clean Break");
+            filteredCards.RemoveAll(card => card.Title == "Jockeying for Position" || 
+                                            card.Title == "Clean Break");
         }
 
         return filteredCards;

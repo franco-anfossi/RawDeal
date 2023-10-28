@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 using RawDealView;
 using RawDealView.Formatters;
@@ -21,8 +22,8 @@ public class OptionsToPlayCard
 
     public void StartElectionProcess()
     {
-        var possiblePlaysData = _playSelector.GetPlayablePlays(_playerData);
-        int selectedPlayNumber = _playSelector.GetSelectedPlay(possiblePlaysData.FormattedPlays);
+        var possiblePlaysData = _playSelector.BuildPlayablePlays(_playerData);
+        int selectedPlayNumber = _playSelector.SelectAPlay(possiblePlaysData.FormattedPlays);
 
         if (CheckIfHasPlayablePlays(possiblePlaysData.FormattedPlays) && CheckIfCardIsSelected(selectedPlayNumber))
             ExecuteSelectedPlay(possiblePlaysData, selectedPlayNumber);
@@ -36,7 +37,7 @@ public class OptionsToPlayCard
         _playExecutor.ExecutePlay(_playerData.Name, formattedSelectedPlay, cardController);
     }
 
-    private bool CheckIfHasPlayablePlays(List<string> formattedPlayablePlays)
+    private bool CheckIfHasPlayablePlays(BoundaryList<string> formattedPlayablePlays)
     {
         return formattedPlayablePlays.Count > 0;
     }

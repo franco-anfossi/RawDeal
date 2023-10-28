@@ -36,6 +36,7 @@ public class Undertaker : Player
         var drawCardFromRingsideEffect = new DrawFromRingsideEffect(importantPlayerData, View, 1);
         drawCardFromRingsideEffect.Apply();
     }
+    
     public override bool VerifyAbilityUsability()
     {
         return !CanUseAbility();

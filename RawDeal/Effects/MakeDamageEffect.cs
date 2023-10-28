@@ -35,9 +35,7 @@ public class MakeDamageEffect : Effect
 
     private void MakeDamageToOpponent()
     {
-        int damageAdded = HandleDamageAddedByJockeyingForPosition();
-        int damageDone = HandleUnknownDamage() + damageAdded;
-        damageDone = ReduceDamageIfMankind(damageDone);
+        int damageDone = CalculateTotalDamage();
         
         if (damageDone > 0)
         {
@@ -46,6 +44,13 @@ public class MakeDamageEffect : Effect
         }
         
         ResetChangesByJockeyingForPosition();
+    }
+    
+    private int CalculateTotalDamage()
+    {
+        int damageFromJockeying = HandleDamageAddedByJockeyingForPosition();
+        int initialDamage = HandleUnknownDamage() + damageFromJockeying;
+        return ReduceDamageIfMankind(initialDamage);
     }
     
     private int HandleDamageAddedByJockeyingForPosition()
@@ -86,18 +91,37 @@ public class MakeDamageEffect : Effect
 
     private void ShowCardsBecauseOfDamage(int currentDamage, int totalDamageDone)
     {
-        IViewableCardInfo drawnCard = _opponentData.DecksController.DrawLastCardOfArsenal();
-        string formattedDrawnCard = Formatter.CardToString(drawnCard);
-        View.ShowCardOverturnByTakingDamage(formattedDrawnCard, currentDamage, totalDamageDone);
-        var damageCompleted = StunValueCondition.DamageNotCompleted;
-        if (currentDamage == totalDamageDone)
-        {
-            damageCompleted = StunValueCondition.DamageCompleted;
-        }
+        IViewableCardInfo drawnCard = DrawLastCardOfArsenal();
+        DisplayDrawnCard(drawnCard, currentDamage, totalDamageDone);
+    
+        var damageCompleted = DetermineDamageCompletion(currentDamage, totalDamageDone);
         HandleArsenalReversal(damageCompleted, drawnCard);
-        _opponentData.DecksController.PassCardToRingside(drawnCard);
+    
+        PassCardToRingside(drawnCard);
     }
 
+    private IViewableCardInfo DrawLastCardOfArsenal()
+    {
+        return _opponentData.DecksController.DrawLastCardOfArsenal();
+    }
+
+    private void DisplayDrawnCard(IViewableCardInfo drawnCard, int currentDamage, int totalDamageDone)
+    {
+        string formattedDrawnCard = Formatter.CardToString(drawnCard);
+        View.ShowCardOverturnByTakingDamage(formattedDrawnCard, currentDamage, totalDamageDone);
+    }
+
+    private StunValueCondition DetermineDamageCompletion(int currentDamage, int totalDamageDone)
+    {
+        return currentDamage == totalDamageDone ? 
+            StunValueCondition.DamageCompleted : StunValueCondition.DamageNotCompleted;
+    }
+
+    private void PassCardToRingside(IViewableCardInfo drawnCard)
+    {
+        _opponentData.DecksController.PassCardToRingside(drawnCard);
+    }
+    
     private void HandleArsenalReversal(StunValueCondition damageCompleted, IViewableCardInfo drawnCard)
     {
         if (CheckIfCardIsNotReversal())

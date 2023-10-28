@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 using RawDeal.Superstars;
 using RawDealView.Formatters;
@@ -7,15 +8,15 @@ namespace RawDeal.Decks;
 public class Deck
 {
     private Player _playerDeckOwner;
-    private readonly List<IViewableCardInfo> _deckCards;
+    private readonly BoundaryList<IViewableCardInfo> _deckCards;
     private readonly CardsSet _cardsSet;
     
     public Player PlayerDeckOwner => _playerDeckOwner;
-    public List<IViewableCardInfo> DeckCards => _deckCards;
+    public BoundaryList<IViewableCardInfo> DeckCards => _deckCards;
     
     public Deck(string[] openedDeckFromArchive, CardsSet cardsSet)
     {
-        _deckCards = new List<IViewableCardInfo>();
+        _deckCards = new BoundaryList<IViewableCardInfo>();
         _cardsSet = cardsSet;
 
         AddEquivalentSuperstarToDeck(openedDeckFromArchive);
@@ -38,7 +39,7 @@ public class Deck
     private void AddEquivalentCardToDeck(string[] openDeckFromArchive)
     {
         foreach (var cardName in openDeckFromArchive)
-        foreach (var card in _cardsSet.PossibleCards)
+        foreach (CardData card in _cardsSet.PossibleCards)
         {
             if (card.CompareCardTitle(cardName))
             {

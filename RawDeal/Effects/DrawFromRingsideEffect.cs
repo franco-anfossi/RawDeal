@@ -19,8 +19,8 @@ public class DrawFromRingsideEffect : Effect
         {
             var formattedCardData = PlayerData.DecksController.BuildFormattedDecks();
             var formattedRingside = formattedCardData.Ringside;
-            int selectedCardIndex = 
-                View.AskPlayerToSelectCardsToPutInHisHand(PlayerData.Name, numCardsToDraw, formattedRingside);
+            int selectedCardIndex = View.AskPlayerToSelectCardsToPutInHisHand(
+                PlayerData.Name, numCardsToDraw, formattedRingside.ToList());
             PlayerData.DecksController.PassCardFromRingsideToHand(selectedCardIndex);
         }
     }

@@ -1,10 +1,13 @@
+using RawDeal.Boundaries;
+using RawDeal.Data_Structures;
+using RawDeal.Superstars;
 using RawDealView.Formatters;
 
 namespace RawDeal.Decks;
 
 public class DeckValidator
 {
-    private List<IViewableCardInfo> _equalCardsGroup = new();
+    private BoundaryList<IViewableCardInfo> _equalCardsGroup = new();
     private readonly Deck _deckToReview;
     private readonly CardsSet _cardsSet;
     private string _logoSuperstarToReview;
@@ -34,12 +37,10 @@ public class DeckValidator
         var cardGrouping = _deckToReview.DeckCards.GroupBy(card => card.Title);
         foreach (var cardGroupsWithSameName in cardGrouping)
         {
-            _equalCardsGroup = cardGroupsWithSameName.ToList();
+            _equalCardsGroup = cardGroupsWithSameName.ToBoundaryList();
             GetMaximumRepetitionsAllowed();
-            if (_equalCardsGroup.Count > _maxRepetitionsAllowed)
-            {
+            if (CheckMaxRepetitionsAllowed())
                 return false;
-            }
         }
         return true;
     }
@@ -54,13 +55,11 @@ public class DeckValidator
     private bool ValidateCardLogoEqualToSuperstarLogo()
     {
         _logoSuperstarToReview = _deckToReview.PlayerDeckOwner.CompareLogo();
-        foreach (var superstar in _cardsSet.PossibleSuperstars)
+        foreach (Player superstar in _cardsSet.PossibleSuperstars)
         {
             _logoOtherSuperstar = superstar.CompareLogo();
             if (!ReviewDeckCardsByLogo())
-            {
                 return false;
-            }
         }
         
         return true;
@@ -70,7 +69,7 @@ public class DeckValidator
     {
         if (_logoOtherSuperstar != _logoSuperstarToReview)
         {
-            if (_deckToReview.DeckCards.Any(c => c.Subtypes.Contains(_logoOtherSuperstar)))
+            if (CheckIfOtherSuperstarLogoInDeck())
                 return false;
         }
         return true;
@@ -92,6 +91,16 @@ public class DeckValidator
     {
         if (_equalCardsGroup.Any(c => c.Subtypes.Contains("SetUp"))) 
             _maxRepetitionsAllowed = 70;
+    }
+    
+    private bool CheckMaxRepetitionsAllowed()
+    {
+        return _equalCardsGroup.Count > _maxRepetitionsAllowed;
+    }
+
+    private bool CheckIfOtherSuperstarLogoInDeck()
+    {
+       return _deckToReview.DeckCards.Any(c => c.Subtypes.Contains(_logoOtherSuperstar));
     }
 }
 

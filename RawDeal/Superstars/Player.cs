@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 using RawDeal.Decks;
 using RawDeal.OptionsViewDeck;
@@ -58,7 +59,7 @@ public abstract class Player
         return SuperstarData.SuperstarValue;
     }
 
-    public void BuildDeckInfo(List<IViewableCardInfo> arsenalDeck)
+    public void BuildDeckInfo(BoundaryList<IViewableCardInfo> arsenalDeck)
     {
         DecksInfo = new DecksInfo(arsenalDeck);
     }

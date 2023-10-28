@@ -1,11 +1,13 @@
+using RawDeal.Boundaries;
+
 namespace RawDeal.Data_Structures;
 
 public class FormattedDecksInfo
 {
-    public readonly List<string> Hand;
-    public readonly List<string> Arsenal;
-    public readonly List<string> Ringside;
-    public readonly List<string> RingArea;
+    public readonly BoundaryList<string> Hand;
+    public readonly BoundaryList<string> Arsenal;
+    public readonly BoundaryList<string> Ringside;
+    public readonly BoundaryList<string> RingArea;
     
     public FormattedDecksInfo(DecksInfo decksInfo)
     {

@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 using RawDeal.Exceptions;
 using RawDeal.OptionsPlayCard;
@@ -12,11 +13,11 @@ public class GamePlayerManager
     private readonly View _view;
     private int _inTurnPlayerIndex;
     private int _opponentPlayerIndex;
-    private readonly List<Player> _players;
+    private readonly BoundaryList<Player> _players;
     private ImportantPlayerData _inTurnPlayerData;
     private ImportantPlayerData _opponentPlayerData;
     
-    public GamePlayerManager(List<Player> players, View view)
+    public GamePlayerManager(BoundaryList<Player> players, View view)
     {
         _view = view;
         _inTurnPlayerIndex = 0;
@@ -108,6 +109,7 @@ public class GamePlayerManager
     {
         _players[_inTurnPlayerIndex].PlaySpecialAbility();
     }
+    
     public void ResetPlayersChangesByJockeyingForPosition()
     {
         _inTurnPlayerData.ChangesByJockeyingForPosition.Reset();
@@ -124,6 +126,11 @@ public class GamePlayerManager
     {
         if (_inTurnPlayerData.DecksController.CheckForEmptyArsenal())
             GiveUp();
+    }
+    
+    public void GiveUp()
+    {
+        throw new EndOfPrincipalLoop(_opponentPlayerData.Name);
     }
     
     public void ChangePlayersPositions()
@@ -148,10 +155,5 @@ public class GamePlayerManager
         
         _inTurnPlayerData = newOpponentPlayerDecksController;
         _opponentPlayerData = newInTurnPlayerDecksController;
-    }
-
-    public void GiveUp()
-    {
-        throw new EndOfPrincipalLoop(_opponentPlayerData.Name);
     }
 }

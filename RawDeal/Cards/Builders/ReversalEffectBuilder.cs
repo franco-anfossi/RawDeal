@@ -1,3 +1,4 @@
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 using RawDeal.Effects;
 using RawDeal.Reversals;
@@ -6,13 +7,13 @@ using RawDealView.Formatters;
 
 namespace RawDeal.Cards.Builders;
 
-public class ReversalEffectBuilder
+public class ReversalEffectBuilder : IEffectBuilder
 {
     private readonly ReversalPlayedFrom _reversalFrom;
     private readonly ImportantPlayerData _superstarData;
     private readonly ImportantPlayerData _opponentData;
     private readonly IViewablePlayInfo _selectedPlay;
-    private readonly List<Effect> _effects;
+    private readonly BoundaryList<Effect> _effects;
     private readonly View _view;
     
     public ReversalEffectBuilder(ImportantPlayerData superstarData, ImportantPlayerData opponentData,
@@ -22,17 +23,17 @@ public class ReversalEffectBuilder
         _superstarData = superstarData;
         _opponentData = opponentData;
         _selectedPlay = selectedPlay;
-        _effects = new List<Effect>();
+        _effects = new BoundaryList<Effect>();
         _reversalFrom = reversalFrom;
     }
 
-    public List<Effect> BuildEffects()
+    public BoundaryList<Effect> BuildEffects()
     {
         return _reversalFrom != ReversalPlayedFrom.PlayedFromArsenal ? 
             BuildReversalsFromHand() : BuildReversalFromArsenal();
     }
 
-    private List<Effect> BuildReversalsFromHand()
+    private BoundaryList<Effect> BuildReversalsFromHand()
     {
         switch (_selectedPlay.CardInfo.Title)
         {
@@ -66,12 +67,12 @@ public class ReversalEffectBuilder
         }
     }
 
-    private List<Effect> BuildReversalFromArsenal()
+    private BoundaryList<Effect> BuildReversalFromArsenal()
     {
         return BasicReversalEffect();
     }
     
-    private List<Effect> BasicReversalEffect()
+    private BoundaryList<Effect> BasicReversalEffect()
     {
         _effects.Add(new BasicReversalEffect(_superstarData, _view));
         return _effects;

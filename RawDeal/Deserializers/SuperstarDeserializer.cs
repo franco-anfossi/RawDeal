@@ -1,4 +1,4 @@
-using System.Text.Json;
+using RawDeal.Boundaries;
 using RawDeal.Data_Structures;
 using RawDeal.Superstars;
 
@@ -6,45 +6,62 @@ namespace RawDeal.Deserializers;
 
 public class SuperstarDeserializer
 {
-    private string? _logoValue;
-    private Player? _superstar;
-    private SuperstarData? _superstarData;
-    private readonly List<Player>? _allSuperstars = new();
-    private readonly string _jsonSuperstars = File.ReadAllText(SuperstarsJsonPath); 
-    private List<Dictionary<string, JsonElement>>? _deserializedSuperstars;
+    private readonly IJsonSerializer _jsonSerializer = new JsonSerializerBoundary();
     private static readonly string SuperstarsJsonPath = Path.Combine("data", "superstar.json");
     
-    public List<Player> DeserializeSuperstars()
+    public SuperstarDeserializer()
     {
-        _deserializedSuperstars = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(_jsonSuperstars);
-        DeserializeEachSuperstar();
-        return _allSuperstars ?? throw new InvalidOperationException();
+        AddRequiredConverters();
     }
 
-    private void DeserializeEachSuperstar()
+    private void AddRequiredConverters()
     {
-        foreach (var item in _deserializedSuperstars!)
+        _jsonSerializer.AddConverter(new BoundaryListConverter<BoundaryDict<string, object>>());
+        _jsonSerializer.AddConverter(new BoundaryDictConverter<string, object>());
+    }
+
+    public BoundaryList<Player> DeserializeSuperstars()
+    {
+        var jsonSuperstars = File.ReadAllText(SuperstarsJsonPath);
+        var deserializedSuperstars = 
+            _jsonSerializer.Deserialize<BoundaryList<BoundaryDict<string, object>>>(jsonSuperstars);
+        return ConvertToSuperstars(deserializedSuperstars);
+    }
+
+    private BoundaryList<Player> ConvertToSuperstars(BoundaryList<BoundaryDict<string, object>> deserializedSuperstars)
+    {
+        var allSuperstars = new BoundaryList<Player>();
+
+        foreach (var item in deserializedSuperstars)
         {
-            _logoValue = item["Logo"].GetString();
-            string jsonSuperstars = JsonSerializer.Serialize(item);
-            _superstarData = JsonSerializer.Deserialize<SuperstarData>(jsonSuperstars);
-            InitializeSuperstarClass();
-            _allSuperstars!.Add(_superstar!);
+            var logoValue = item["Logo"].ToString();
+            var superstarData = ExtractSuperstarDataFromItem(item);
+            var superstar = CreateSuperstarInstance(logoValue, superstarData);
+            allSuperstars.Add(superstar);
         }
+
+        return allSuperstars;
     }
 
-    private void InitializeSuperstarClass()
+    private SuperstarData ExtractSuperstarDataFromItem(BoundaryDict<string, object> item)
     {
-        _superstar = _logoValue switch
+        string jsonItem = _jsonSerializer.Serialize(item);
+        return _jsonSerializer.Deserialize<SuperstarData>(jsonItem);
+    }
+
+    private Player CreateSuperstarInstance(string? logoValue, SuperstarData superstarData)
+    {
+        return logoValue switch
         {
-            "StoneCold" => new StoneCold(_superstarData!),
-            "Undertaker" => new Undertaker(_superstarData!),
-            "HHH" => new Hhh(_superstarData!),
-            "Jericho" => new Jericho(_superstarData!),
-            "Mankind" => new Mankind(_superstarData!),
-            "TheRock" => new TheRock(_superstarData!),
-            "Kane" => new Kane(_superstarData!),
+            "StoneCold" => new StoneCold(superstarData),
+            "Undertaker" => new Undertaker(superstarData),
+            "HHH" => new Hhh(superstarData),
+            "Jericho" => new Jericho(superstarData),
+            "Mankind" => new Mankind(superstarData),
+            "TheRock" => new TheRock(superstarData),
+            "Kane" => new Kane(superstarData),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 }
+

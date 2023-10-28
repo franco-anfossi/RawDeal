@@ -1,5 +1,6 @@
+using RawDeal.Boundaries;
+using RawDeal.Data_Structures;
 using RawDealView;
-using RawDeal.Decks;
 using RawDeal.Exceptions;
 using RawDeal.Superstars;
 using RawDealView.Options;
@@ -53,12 +54,12 @@ public class Game
         TryToRunPrincipalGameLoop();
     }
     
-    private List<Player> SelectDeck()
+    private BoundaryList<Player> SelectDeck()
     {
-        return _gameDeckManager.SelectDeck(new List<Player>());
+        return _gameDeckManager.SelectDeck(new BoundaryList<Player>());
     }
     
-    private void InitializeGamePlayerManager(List<Player> players)
+    private void InitializeGamePlayerManager(BoundaryList<Player> players)
     {
         _gamePlayerManager = new GamePlayerManager(players, _view);
     }

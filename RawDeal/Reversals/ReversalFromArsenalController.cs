@@ -1,7 +1,7 @@
+using RawDeal.Boundaries;
 using RawDeal.Cards;
 using RawDeal.Cards.Builders;
 using RawDeal.Data_Structures;
-using RawDeal.Effects;
 using RawDealView;
 using RawDealView.Formatters;
 
@@ -30,21 +30,16 @@ public class ReversalFromArsenalController
 
     public void ReviewIfReversalPlayable()
     {
-        if (CheckIfTheCardIsReversal() && CheckIfFortitudeIsHighEnough())
+        if (CheckIfPlayableReversal())
         {
-            var drawnCardPlayInfo = new PlayInfo(_drawnCard, _drawnCard.Types[0].ToUpper());
-            
-            var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, drawnCardPlayInfo);
-            var conditions = conditionBuilder.BuildConditions();
-            
-            var effectBuilder = new ReversalEffectBuilder(_opponentData, 
-                _playerData, _selectedPlay, ReversalPlayedFrom.PlayedFromArsenal, _view);
-            var effects = effectBuilder.BuildEffects();
-            
-            _cardController = new CardController(effects, conditions);
-            if (_cardController.CheckConditions())
+            if (CheckCardConditions())
                 ExecuteArsenalReversalAction();
         }
+    }
+
+    private bool CheckIfPlayableReversal()
+    {
+        return CheckIfTheCardIsReversal() && CheckIfFortitudeIsHighEnough();
     }
     
     private bool CheckIfTheCardIsReversal()
@@ -69,6 +64,36 @@ public class ReversalFromArsenalController
         return fortitudeAdded;
     }
     
+    private bool CheckIfSelectedCardIsGrapple()
+    {
+        return _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
+    }
+    
+    private bool CheckCardConditions()
+    {
+        var drawnCardPlayInfo = CreateDrawnCardPlayInfo();
+        BuildCardController(drawnCardPlayInfo);
+        
+        return _cardController.CheckConditions();
+    }
+
+    private IViewablePlayInfo CreateDrawnCardPlayInfo()
+    {
+        return new PlayInfo(_drawnCard, _drawnCard.Types[0].ToUpper());
+    }
+
+    private void BuildCardController(IViewablePlayInfo drawnCardPlayInfo)
+    {
+        var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, drawnCardPlayInfo);
+        var conditions = conditionBuilder.BuildConditions();
+        
+        var effectBuilder = new ReversalEffectBuilder(_opponentData, 
+            _playerData, _selectedPlay, ReversalPlayedFrom.PlayedFromArsenal, _view);
+        var effects = effectBuilder.BuildEffects();
+        
+        _cardController = new CardController(effects, conditions);
+    }
+    
     private void ExecuteArsenalReversalAction()
     {
         ResetChangesByJockeyingForPosition();
@@ -88,7 +113,7 @@ public class ReversalFromArsenalController
     private void PlayStunValue()
     {
         var stunValueNumber = Convert.ToInt32(_selectedPlay.CardInfo.StunValue);
-        if (_damageCompleted == StunValueCondition.DamageNotCompleted && stunValueNumber > 0)
+        if (CheckForExecutableStunValue(stunValueNumber))
         {
             var cardsToDraw = _view.AskHowManyCardsToDrawBecauseOfStunValue(_playerData.Name, stunValueNumber);
             for (int i = 0; i < cardsToDraw; i++)
@@ -99,8 +124,8 @@ public class ReversalFromArsenalController
         }
     }
     
-    private bool CheckIfSelectedCardIsGrapple()
+    private bool CheckForExecutableStunValue(int stunValueNumber)
     {
-        return _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
+        return _damageCompleted == StunValueCondition.DamageNotCompleted && stunValueNumber > 0;
     }
 }
