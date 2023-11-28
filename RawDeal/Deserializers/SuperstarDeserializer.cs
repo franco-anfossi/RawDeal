@@ -42,6 +42,7 @@ public class SuperstarDeserializer
 
         return allSuperstars;
     }
+    
 
     private SuperstarData ExtractSuperstarDataFromItem(BoundaryDict<string, object> item)
     {
@@ -59,8 +60,7 @@ public class SuperstarDeserializer
             "Jericho" => new Jericho(superstarData),
             "Mankind" => new Mankind(superstarData),
             "TheRock" => new TheRock(superstarData),
-            "Kane" => new Kane(superstarData),
-            _ => throw new ArgumentOutOfRangeException()
+            "Kane" => new Kane(superstarData)
         };
     }
 }

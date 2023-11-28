@@ -34,8 +34,13 @@ public class GamePlayerManager
     
     private void SelectFirstPlayer()
     {
-        if (!(_players[0].CompareSuperstarValue() >= _players[1].CompareSuperstarValue()))
+        if (!ChooseFirstPlayerBySuperstarValue())
             Utils.ChangePositionsOfTheList(_players);
+    }
+    
+    private bool ChooseFirstPlayerBySuperstarValue()
+    {
+        return _players[0].CompareSuperstarValue() >= _players[1].CompareSuperstarValue();
     }
     
     private void InitializePlayerVariables()

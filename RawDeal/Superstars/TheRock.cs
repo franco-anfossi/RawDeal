@@ -6,6 +6,7 @@ namespace RawDeal.Superstars;
 public class TheRock : Player
 {
     private bool _abilityResponse;
+    private const int CardsToRecover = 1;
     
     public TheRock(SuperstarData superstarData) : base(superstarData) { }
     
@@ -24,7 +25,7 @@ public class TheRock : Player
         {
             View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
             var importantPlayerData = BuildImportantPlayerData();
-            var recoverEffect = new RecoverEffect(importantPlayerData, View, 1);
+            var recoverEffect = new RecoverEffect(importantPlayerData, View, CardsToRecover);
             recoverEffect.Apply();
         }
     }

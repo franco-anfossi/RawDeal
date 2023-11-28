@@ -24,6 +24,16 @@ public class PlayableCardsManager
         return new PossiblePlaysData(formattedPlays, _possiblePlays);
     } 
     
+    private void FindPlayablePlays()
+    {
+        var playableCards = _playerDecksController.CheckForPlayableCards();
+        foreach (IViewableCardInfo playableCard in playableCards)
+        {
+            _playableCard = playableCard;
+            EvaluatePlayablePlays();
+        }
+    }
+    
     private BoundaryList<string> FormatPlays()
     {
         var formattedPlayablePlays = new BoundaryList<string>();
@@ -36,24 +46,20 @@ public class PlayableCardsManager
         return formattedPlayablePlays;
     }
     
-    private void FindPlayablePlays()
-    {
-        var playableCards = _playerDecksController.CheckForPlayableCards();
-        foreach (IViewableCardInfo playableCard in playableCards)
-        {
-            _playableCard = playableCard;
-            EvaluatePlayablePlays();
-        }
-    }
-    
     private void EvaluatePlayablePlays()
     {
         if (!CheckIfCardIsReversal())
         {
             if (CheckIfCardIsManeuver() && CheckIfCardIsAction())
-                SavePlayablePlay(2);
+            {
+                int numberOfCardTypesForPlays = 2;
+                SavePlayablePlay(numberOfCardTypesForPlays);
+            }
             else
-                SavePlayablePlay(1);
+            {
+                int numberOfCardTypesForPlays = 1;
+                SavePlayablePlay(numberOfCardTypesForPlays);
+            }
         }
     }
 

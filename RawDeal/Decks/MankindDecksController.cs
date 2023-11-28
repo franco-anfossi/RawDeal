@@ -23,7 +23,8 @@ public class MankindDecksController : PlayerDecksController
         
         _initialDraw = false;
     }
-
+    
+    // TODO: Refactor this 2 methods because duplicated code
     private void DrawTwoCards()
     {
         for (int iterator = 0; iterator < 2; iterator++)

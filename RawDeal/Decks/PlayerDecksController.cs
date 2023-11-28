@@ -121,6 +121,11 @@ public class PlayerDecksController
         PassCardToRingside(selectedCard);
         return selectedCard;
     }
+    
+    public void PassCardToRingside(IViewableCardInfo selectedCard)
+    {
+        _playerDecks.Ringside.Add(selectedCard);
+    }
 
     public IViewableCardInfo DrawLastCardOfArsenal()
     {
@@ -129,11 +134,6 @@ public class PlayerDecksController
         _playerDecks.Arsenal.RemoveAt(arsenalLength - 1);
 
         return selectedCard;
-    }
-    
-    public void PassCardToRingside(IViewableCardInfo selectedCard)
-    {
-        _playerDecks.Ringside.Add(selectedCard);
     }
     
     public void PassCardToRingArea(IViewableCardInfo selectedCard)

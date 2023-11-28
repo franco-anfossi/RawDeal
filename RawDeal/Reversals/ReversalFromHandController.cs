@@ -38,60 +38,15 @@ public class ReversalFromHandController
             ProcessSelectedReversal(selectedReversalPlay);
         }
     }
-
-    private void ProcessSelectedReversal(IViewablePlayInfo selectedReversalPlay)
-    {
-        var formattedReversal = FormatReversal(selectedReversalPlay);
-        selectedReversalPlay = HandleSpecialReversalDamage(selectedReversalPlay);
-        
-        BuildCardController(selectedReversalPlay);
-        ResetChangesByJockeyingForPosition();
     
-        if (_cardController.CheckConditions())
-        {
-            ApplyReversalEffect(selectedReversalPlay, formattedReversal);
-        }
-    }
-
-    private string FormatReversal(IViewablePlayInfo reversalPlay)
+    private BoundaryList<IViewableCardInfo> SearchForCorrectReversals()
     {
-        return Formatter.PlayToString(reversalPlay);
-    }
+        var reversalCards = _opponentData.DecksController.SearchForReversalInHand();
 
-    private void BuildCardController(IViewablePlayInfo reversalPlay)
-    {
-        var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, reversalPlay);
-        var conditions = conditionBuilder.BuildConditions();
-        
-        var effectBuilder = new ReversalEffectBuilder(_opponentData, 
-            _playerData, reversalPlay, ReversalPlayedFrom.PlayedFromHand, _view);
-        var effects = effectBuilder.BuildEffects();
-        
-        _cardController = new CardController(effects, conditions);
-    }
-    
-    private IViewablePlayInfo HandleSpecialReversalDamage(IViewablePlayInfo selectedReversalPlay)
-    {
-        if (selectedReversalPlay.CardInfo.Damage == "#")
-        {
-            int damageToAdd = HandleDamageAddedByJockeyingForPosition();
-            int damageValue = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd;
+        if (_selectedPlay.PlayedAs == "MANEUVER")
+            return SearchForManeuverReversals(reversalCards);
 
-            if (_opponentData.Name == "MANKIND")
-                damageValue -= 1;
-
-            selectedReversalPlay.CardInfo.Damage = "#" + damageValue;
-        }
-
-        return selectedReversalPlay;
-    }
-    
-    private void ApplyReversalEffect(IViewablePlayInfo selectedReversalPlay, string formattedReversal)
-    {
-        _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
-        _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
-        _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
-        _cardController.PlayCard();
+        return SearchForActionReversals(reversalCards);
     }
     
     private BoundaryList<IViewablePlayInfo> CreatePlays(BoundaryList<IViewableCardInfo> cardsToPlays)
@@ -116,24 +71,74 @@ public class ReversalFromHandController
 
         return formattedPlays;
     }
-    
-    private BoundaryList<IViewableCardInfo> SearchForCorrectReversals()
-    {
-        var reversalCards = _opponentData.DecksController.SearchForReversalInHand();
 
-        if (_selectedPlay.PlayedAs == "MANEUVER")
+    private void ProcessSelectedReversal(IViewablePlayInfo selectedReversalPlay)
+    {
+        var formattedReversal = FormatReversal(selectedReversalPlay);
+        selectedReversalPlay = HandleSpecialReversalDamage(selectedReversalPlay);
+        
+        BuildCardController(selectedReversalPlay);
+        ResetChangesByJockeyingForPosition();
+    
+        if (_cardController.CheckConditions())
         {
-            return SearchForManeuverReversals(reversalCards);
+            ApplyReversalEffect(selectedReversalPlay, formattedReversal);
+        }
+    }
+
+    private string FormatReversal(IViewablePlayInfo reversalPlay)
+    {
+        return Formatter.PlayToString(reversalPlay);
+    }
+    
+    private IViewablePlayInfo HandleSpecialReversalDamage(IViewablePlayInfo selectedReversalPlay)
+    {
+        // TODO: Encapsulate this into a method
+        if (selectedReversalPlay.CardInfo.Damage == "#")
+        {
+            int damageToAdd = HandleDamageAddedByJockeyingForPosition();
+            int damageValue = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd;
+
+            if (_opponentData.Name == "MANKIND")
+                damageValue -= 1;
+
+            selectedReversalPlay.CardInfo.Damage = "#" + damageValue;
         }
 
-        return SearchForActionReversals(reversalCards);
+        return selectedReversalPlay;
+    }
+
+    private void BuildCardController(IViewablePlayInfo reversalPlay)
+    {
+        var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, reversalPlay);
+        var conditions = conditionBuilder.BuildConditions();
+        
+        var effectBuilder = new ReversalEffectBuilder(_opponentData, 
+            _playerData, reversalPlay, ReversalPlayedFrom.PlayedFromHand, _view);
+        var effects = effectBuilder.BuildEffects();
+        
+        _cardController = new CardController(effects, conditions);
+    }
+    
+    private void ResetChangesByJockeyingForPosition()
+    {
+        _opponentData.ChangesByJockeyingForPosition.Reset();
+        _playerData.ChangesByJockeyingForPosition.Reset();
+    }
+    
+    private void ApplyReversalEffect(IViewablePlayInfo selectedReversalPlay, string formattedReversal)
+    {
+        _view.SayThatPlayerReversedTheCard(_opponentData.Name, formattedReversal);
+        _playerData.DecksController.PassCardFromHandToRingside(_selectedPlay.CardInfo);
+        _opponentData.DecksController.PassCardFromHandToRingArea(selectedReversalPlay.CardInfo);
+        _cardController.PlayCard();
     }
 
     private BoundaryList<IViewableCardInfo> SearchForManeuverReversals(BoundaryList<IViewableCardInfo> reversalCards)
     {
         var subtype = _selectedPlay.CardInfo.Subtypes[0];
         var generalReversalCards = reversalCards.Where(card => 
-            card.Subtypes[0].Contains($"{subtype}") || card.Subtypes[0].Contains($"ReversalSpecial"));
+            card.Subtypes[0].Contains($"{subtype}") || card.Subtypes[0].Contains($"ReversalSpecial")); // TODO: Encapsulate
 
         var correctFortitudeReversalCards = 
             CheckIfFortitudeIsHighEnough(generalReversalCards.ToBoundaryList());
@@ -148,7 +153,7 @@ public class ReversalFromHandController
     {
         var actionReversalCards = reversalCards.Where(card => 
             card.Subtypes[0].Contains($"Action") || card.Title == "Jockeying for Position" || 
-            card.Title == "Clean Break");
+            card.Title == "Clean Break"); // TODO: Encapsulate
         
         var correctFortitudeCards = 
             CheckIfFortitudeIsHighEnough(actionReversalCards.ToBoundaryList());
@@ -211,26 +216,19 @@ public class ReversalFromHandController
         if (cardName == "Jockeying for Position")
         {
             filteredCards.RemoveAll(card => card.Title != "Jockeying for Position" && 
-                                            card.Title != "Clean Break" && card.Title != "No Chance in Hell");
+                                            card.Title != "Clean Break" && card.Title != "No Chance in Hell"); // TODO: Encapsulate
         }
         else
         {
             filteredCards.RemoveAll(card => card.Title == "Jockeying for Position" || 
-                                            card.Title == "Clean Break");
+                                            card.Title == "Clean Break"); // TODO: Encapsulate
         }
 
         return filteredCards;
     }
-    
+
     private bool CheckIfSelectedCardIsGrapple()
     {
         return _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
     }
-
-    private void ResetChangesByJockeyingForPosition()
-    {
-        _opponentData.ChangesByJockeyingForPosition.Reset();
-        _playerData.ChangesByJockeyingForPosition.Reset();
-    }
-
 }

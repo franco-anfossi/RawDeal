@@ -37,7 +37,7 @@ public class Game
     {
         try
         {
-            TryToPlayGame();
+            StartMatch();
         }
         catch (InvalidDeckException)
         {
@@ -45,7 +45,7 @@ public class Game
         }
     }
 
-    private void TryToPlayGame()
+    private void StartMatch()
     {
         var players = SelectDeck();
         InitializeGamePlayerManager(players);
@@ -78,7 +78,8 @@ public class Game
 
     private void RunPrincipalGameLoop()
     {
-        while (true)
+        var continuePrincipalGameLoop = true;
+        while (continuePrincipalGameLoop)
         {
             _gamePlayerManager.SayThatSuperstarStartsTurn();
             _gamePlayerManager.PlaySpecialAbilityBeforeDrawingACard();
@@ -110,7 +111,7 @@ public class Game
             ManagePossibleOptions(firstOptionChoice);
         }
     }
-
+    
     private void ManagePossibleOptions(NextPlay firstOptionChoice)
     {
         if (firstOptionChoice == NextPlay.ShowCards)
@@ -121,11 +122,12 @@ public class Game
             
         else if (firstOptionChoice == NextPlay.UseAbility)
             _gamePlayerManager.SelectPlayAbilityOption();
-            
+        
+        // TODO: Make this else if only one method call
         else if (firstOptionChoice == NextPlay.EndTurn)
         {
             _gamePlayerManager.ResetPlayersChangesByJockeyingForPosition();
-            SelectEndTurnOption();
+            CheckEndTurnCondition();
         }
             
         else if (firstOptionChoice == NextPlay.GiveUp)
@@ -134,6 +136,7 @@ public class Game
     
     private void TryToSelectPlayCardOption()
     {
+        // TODO: Make only one catch
         try
         {
             _gamePlayerManager.SelectPlayCardOption();
@@ -144,11 +147,11 @@ public class Game
         }
         catch (EndOfTurnException)
         {
-            SelectEndTurnOption();
+            CheckEndTurnCondition();
         }
     }
     
-    private void SelectEndTurnOption()
+    private void CheckEndTurnCondition()
     {
         _gamePlayerManager.CheckOpponentLoss();
         _gamePlayerManager.CheckPlayerInTurnLoss();

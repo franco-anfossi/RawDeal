@@ -15,9 +15,9 @@ public class CorrectSubtype : Condition
     
     public override bool Check()
     {
-        var conditionOne = CheckMatchingSubtype("Strike") || CheckMatchingSubtype("Grapple");
-        var conditionTwo = CheckMatchingSubtype("Submission") || CheckMatchingTypeAndSubtype("Action");
-        return conditionOne || conditionTwo;
+        var isStrikeOrGrapple = CheckMatchingSubtype("Strike") || CheckMatchingSubtype("Grapple");
+        var isSubmissionOrAction = CheckMatchingSubtype("Submission") || CheckMatchingTypeAndSubtype("Action");
+        return isStrikeOrGrapple || isSubmissionOrAction;
     }
 
     private bool CheckMatchingSubtype(string subtype)

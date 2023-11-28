@@ -36,7 +36,15 @@ public class ReversalFromArsenalController
                 ExecuteArsenalReversalAction();
         }
     }
-
+    
+    private bool CheckCardConditions()
+    {
+        var drawnCardPlayInfo = CreateDrawnCardPlayInfo();
+        BuildCardController(drawnCardPlayInfo);
+        
+        return _cardController.CheckConditions();
+    }
+    
     private bool CheckIfPlayableReversal()
     {
         return CheckIfTheCardIsReversal() && CheckIfFortitudeIsHighEnough();
@@ -67,14 +75,6 @@ public class ReversalFromArsenalController
     private bool CheckIfSelectedCardIsGrapple()
     {
         return _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
-    }
-    
-    private bool CheckCardConditions()
-    {
-        var drawnCardPlayInfo = CreateDrawnCardPlayInfo();
-        BuildCardController(drawnCardPlayInfo);
-        
-        return _cardController.CheckConditions();
     }
 
     private IViewablePlayInfo CreateDrawnCardPlayInfo()

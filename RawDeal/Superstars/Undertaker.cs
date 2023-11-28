@@ -6,6 +6,10 @@ namespace RawDeal.Superstars;
 public class Undertaker : Player
 {
     private int _timesTheAbilityWasUsed;
+    private const int MaxTimesTheAbilityCanBeUsed = 1;
+    private const int MinCardsInHand = 2;
+    private const int CardsToDiscard = 2;
+    private const int CardsToDraw = 1;
     
     public Undertaker(SuperstarData superstarData) : base(superstarData) { }
     
@@ -22,25 +26,26 @@ public class Undertaker : Player
         }
     }
     
+    private bool CanUseAbility()
+        => _timesTheAbilityWasUsed < MaxTimesTheAbilityCanBeUsed && CheckForHandWithMoreThanOneCard();
+    
     private void DiscardTwoCardsFromHand()
     {
         var importantPlayerData = BuildImportantPlayerData();
         var discardHandCardsEffect = 
-            new AskToDiscardHandCardsEffect(importantPlayerData, importantPlayerData, View, 2);
+            new AskToDiscardHandCardsEffect(importantPlayerData, importantPlayerData, View, CardsToDiscard);
         discardHandCardsEffect.Apply();
     }
 
     private void DrawACardFromRingside()
     {
         var importantPlayerData = BuildImportantPlayerData();
-        var drawCardFromRingsideEffect = new DrawFromRingsideEffect(importantPlayerData, View, 1);
+        var drawCardFromRingsideEffect = new DrawFromRingsideEffect(importantPlayerData, View, CardsToDraw);
         drawCardFromRingsideEffect.Apply();
     }
     
     public override bool VerifyAbilityUsability()
-    {
-        return !CanUseAbility();
-    }
+        => !CanUseAbility();
     
     public override void ResetAbility()
     {
@@ -48,13 +53,6 @@ public class Undertaker : Player
             _timesTheAbilityWasUsed = 0;
     }
     
-    private bool CanUseAbility()
-    {
-        return _timesTheAbilityWasUsed < 1 && CheckForHandWithMoreThanOneCard();
-    }
-    
     private bool CheckForHandWithMoreThanOneCard()
-    {
-        return DecksInfo.Hand.Count >= 2;
-    }
+        => DecksInfo.Hand.Count >= MinCardsInHand;
 }

@@ -13,6 +13,7 @@ public class DeckValidator
     private string _logoSuperstarToReview;
     private string _logoOtherSuperstar;
     private int _maxRepetitionsAllowed;
+    private const int DeckLength = 60;
 
     public DeckValidator(Deck deck, CardsSet cardsSet)
     {
@@ -29,7 +30,7 @@ public class DeckValidator
     
     private bool ValidateDeckLength()
     {
-        return _deckToReview.DeckCards.Count == 60;
+        return _deckToReview.DeckCards.Count == DeckLength;
     }
 
     private bool ValidateCardRepetitions()

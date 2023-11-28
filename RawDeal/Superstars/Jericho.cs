@@ -6,6 +6,8 @@ namespace RawDeal.Superstars;
 public class Jericho : Player
 {
     private int _timesTheAbilityWasUsed;
+    private const int MaxTimesTheAbilityCanBeUsed = 1;
+    private const int CardsToDiscard = 1;
     
     public Jericho(SuperstarData superstarData) : base(superstarData) { }
     
@@ -23,10 +25,10 @@ public class Jericho : Player
     private void ApplyAbilityEffect(ImportantPlayerData importantPlayerData)
     {
         var playerDiscardHandCardsEffect = 
-            new AskToDiscardHandCardsEffect(importantPlayerData, importantPlayerData, View, 1);
+            new AskToDiscardHandCardsEffect(importantPlayerData, importantPlayerData, View, CardsToDiscard);
         
         var opponentDiscardHandCardsEffect = new 
-            AskToDiscardHandCardsEffect(OpponentData, OpponentData, View, 1);
+            AskToDiscardHandCardsEffect(OpponentData, OpponentData, View, CardsToDiscard);
         
         playerDiscardHandCardsEffect.Apply();
         opponentDiscardHandCardsEffect.Apply();
@@ -45,6 +47,6 @@ public class Jericho : Player
     
     private bool CanUseAbility()
     {
-        return !PlayerDecksController.CheckForEmptyHand() && _timesTheAbilityWasUsed < 1;
+        return !PlayerDecksController.CheckForEmptyHand() && _timesTheAbilityWasUsed < MaxTimesTheAbilityCanBeUsed;
     }
 }

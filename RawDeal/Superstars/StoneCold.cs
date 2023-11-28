@@ -6,6 +6,8 @@ namespace RawDeal.Superstars;
 public class StoneCold : Player
 {
     private int _timesTheAbilityWasUsed;
+    private const int CardsToDraw = 1;
+    private const int MaxTimesTheAbilityCanBeUsed = 1;
     
     public StoneCold(SuperstarData superstarData) : base(superstarData) { }
     
@@ -14,7 +16,7 @@ public class StoneCold : Player
         if (CanUseAbility())
         {
             View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
-            View.SayThatPlayerDrawCards(SuperstarData.Name, 1);
+            View.SayThatPlayerDrawCards(SuperstarData.Name, CardsToDraw);
             ExecuteAbilitySteps();
             _timesTheAbilityWasUsed++;
         }
@@ -29,18 +31,14 @@ public class StoneCold : Player
     }
     
     public override bool VerifyAbilityUsability()
-    {
-        return !CanUseAbility();
-    }
+        => !CanUseAbility();
+    
+    private bool CanUseAbility()
+        => !PlayerDecksController.CheckForEmptyArsenal() && _timesTheAbilityWasUsed < MaxTimesTheAbilityCanBeUsed;
     
     public override void ResetAbility()
     {
         if (!PlayerDecksController.CheckForEmptyArsenal())  
             _timesTheAbilityWasUsed = 0;
-    }
-    
-    private bool CanUseAbility()
-    {
-        return !PlayerDecksController.CheckForEmptyArsenal() && _timesTheAbilityWasUsed < 1;
     }
 }

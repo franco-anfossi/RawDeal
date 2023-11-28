@@ -26,6 +26,7 @@ public class GeneralEffectBuilder : IEffectBuilder
     
     public BoundaryList<Effect> BuildEffects()
     {
+        // TODO: CHANGE DIRECT NUMBERS TO VARIABLES
         switch (_selectedPlay.CardInfo.Title)
         {
             case "Chop" or "Arm Bar Takedown" or "Collar & Elbow Lockup":
