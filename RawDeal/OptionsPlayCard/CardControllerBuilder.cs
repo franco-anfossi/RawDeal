@@ -18,10 +18,10 @@ public class CardControllerBuilder
         _view = view;
     }
 
-    public CardController Build(IViewablePlayInfo notFormattedSelectedPlay)
+    public CardController Build(IViewablePlayInfo notFormattedSelectedPlay, LastCardUsed lastCardUsed)
     {
         var cardControllerFactory = new GeneralCardControllerFactory(_playerData, _opponentData, 
-            notFormattedSelectedPlay, _view);
+            notFormattedSelectedPlay, lastCardUsed, _view);
         return cardControllerFactory.BuildCardController();
     }
 }

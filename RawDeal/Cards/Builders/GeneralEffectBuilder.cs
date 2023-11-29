@@ -148,7 +148,6 @@ public class GeneralEffectBuilder : IEffectBuilder
                 return _effects;
                 
             case "Lionsault":
-                // TODO: Probably necessary to add condition
                 AddGeneralInitialEffects();
                 AddDiscardEffect(_opponentData, _opponentData, 1);
                 AddDamageEffect();

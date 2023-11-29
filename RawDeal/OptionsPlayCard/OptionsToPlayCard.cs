@@ -33,8 +33,10 @@ public class OptionsToPlayCard
     {
         string formattedSelectedPlay = possiblePlaysData.FormattedPlays[selectedPlayNumber];
         IViewablePlayInfo notFormattedSelectedPlay = possiblePlaysData.NotFormattedPlays[selectedPlayNumber];
-        var cardController = _cardControllerBuilder.Build(notFormattedSelectedPlay);
-        _playExecutor.ExecutePlay(_playerData.Name, formattedSelectedPlay, cardController);
+        var lastCardUsed = new LastCardUsed(notFormattedSelectedPlay);
+        var cardController = _cardControllerBuilder.Build(notFormattedSelectedPlay, lastCardUsed);
+        var selectedPlay = (notFormattedSelectedPlay, formattedSelectedPlay);
+        _playExecutor.ExecutePlay(_playerData.Name, selectedPlay, cardController);
     }
 
     private bool CheckIfHasPlayablePlays(BoundaryList<string> formattedPlayablePlays)

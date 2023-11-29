@@ -11,14 +11,16 @@ public class ConditionBuilder
     private readonly IViewablePlayInfo _selectedReversal;
     private readonly ImportantPlayerData _playerData;
     private readonly BoundaryList<Condition> _conditions;
+    private readonly LastCardUsed _lastCardUsed;
     
     public ConditionBuilder(ImportantPlayerData playerData, 
-        IViewablePlayInfo selectedPlay, IViewablePlayInfo selectedReversal)
+        IViewablePlayInfo selectedPlay, IViewablePlayInfo selectedReversal, LastCardUsed lastCardUsed)
     {
         _playerData = playerData;
         _selectedPlay = selectedPlay;
         _selectedReversal = selectedReversal;
         _conditions = new BoundaryList<Condition>();
+        _lastCardUsed = lastCardUsed;
     }
     
     public BoundaryList<Condition> BuildConditions()
@@ -44,6 +46,14 @@ public class ConditionBuilder
             
             case "Jockeying for Position":
                 _conditions.Add(new IsJockeyingForPosition(_selectedPlay));
+                return _conditions;
+            
+            case "Austin Elbow Smash":
+                _conditions.Add(new CheckDamageOfLastCard(_selectedPlay, _lastCardUsed, 5));
+                return _conditions;
+            
+            case "Lionsault":
+                _conditions.Add(new CheckDamageOfLastCard(_selectedPlay, _lastCardUsed, 4));
                 return _conditions;
             
             default:

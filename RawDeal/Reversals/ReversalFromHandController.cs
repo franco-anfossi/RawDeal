@@ -110,7 +110,9 @@ public class ReversalFromHandController
 
     private void BuildCardController(IViewablePlayInfo reversalPlay)
     {
-        var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, reversalPlay);
+        var lastCardUsed = new LastCardUsed(_selectedPlay);
+        
+        var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, reversalPlay, lastCardUsed);
         var conditions = conditionBuilder.BuildConditions();
         
         var effectBuilder = new ReversalEffectBuilder(_opponentData, 

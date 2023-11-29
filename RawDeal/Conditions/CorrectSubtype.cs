@@ -4,12 +4,11 @@ namespace RawDeal.Conditions;
 
 public class CorrectSubtype : Condition
 {
-    private readonly IViewablePlayInfo _selectedCard;
     private readonly string _selectedReversalCardSubtype;
     
-    public CorrectSubtype(IViewablePlayInfo selectedPlay, IViewablePlayInfo selectedReversalPlay)
+    public CorrectSubtype(IViewablePlayInfo selectedPlay, IViewablePlayInfo selectedReversalPlay) : base(selectedPlay)
     {
-        _selectedCard = selectedPlay;
+        SelectedPlay = selectedPlay;
         _selectedReversalCardSubtype = selectedReversalPlay.CardInfo.Subtypes[0];
     }
     
@@ -22,12 +21,12 @@ public class CorrectSubtype : Condition
 
     private bool CheckMatchingSubtype(string subtype)
     {
-        return _selectedCard.CardInfo.Subtypes.Contains(subtype) && _selectedReversalCardSubtype.Contains(subtype);
+        return SelectedPlay.CardInfo.Subtypes.Contains(subtype) && _selectedReversalCardSubtype.Contains(subtype);
     }
 
     private bool CheckMatchingTypeAndSubtype(string type)
     {
-        return _selectedCard.PlayedAs == type.ToUpper() && _selectedReversalCardSubtype.Contains(type);
+        return SelectedPlay.PlayedAs == type.ToUpper() && _selectedReversalCardSubtype.Contains(type);
     }
 
 }

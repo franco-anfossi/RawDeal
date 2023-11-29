@@ -4,15 +4,13 @@ namespace RawDeal.Conditions;
 
 public class IsJockeyingForPosition : Condition
 {
-    private readonly IViewablePlayInfo _selectedPlay;
-    
-    public IsJockeyingForPosition(IViewablePlayInfo selectedPlay)
+    public IsJockeyingForPosition(IViewablePlayInfo selectedPlay) : base(selectedPlay)
     {
-        _selectedPlay = selectedPlay;
+        SelectedPlay = selectedPlay;
     }
     
     public override bool Check()
     {
-        return _selectedPlay.CardInfo.Title == "Jockeying for Position";
+        return SelectedPlay.CardInfo.Title == "Jockeying for Position";
     }
 }

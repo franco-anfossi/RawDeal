@@ -84,7 +84,10 @@ public class ReversalFromArsenalController
 
     private void BuildCardController(IViewablePlayInfo drawnCardPlayInfo)
     {
-        var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, drawnCardPlayInfo);
+        var lastCardUsed = new LastCardUsed(_selectedPlay);
+        
+        var conditionBuilder = new ConditionBuilder(
+            _playerData, _selectedPlay, drawnCardPlayInfo, lastCardUsed);
         var conditions = conditionBuilder.BuildConditions();
         
         var effectBuilder = new ReversalEffectBuilder(_opponentData, 
