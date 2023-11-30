@@ -5,22 +5,20 @@ using RawDealView.Formatters;
 
 namespace RawDeal.Cards.Builders;
 
-public class ConditionBuilder
+public class ConditionBuilder : IConditionBuilder
 {
     private readonly IViewablePlayInfo _selectedPlay;
     private readonly IViewablePlayInfo _selectedReversal;
     private readonly ImportantPlayerData _playerData;
     private readonly BoundaryList<Condition> _conditions;
-    private readonly LastCardUsed _lastCardUsed;
     
     public ConditionBuilder(ImportantPlayerData playerData, 
-        IViewablePlayInfo selectedPlay, IViewablePlayInfo selectedReversal, LastCardUsed lastCardUsed)
+        IViewablePlayInfo selectedPlay, IViewablePlayInfo selectedReversal)
     {
         _playerData = playerData;
         _selectedPlay = selectedPlay;
         _selectedReversal = selectedReversal;
         _conditions = new BoundaryList<Condition>();
-        _lastCardUsed = lastCardUsed;
     }
     
     public BoundaryList<Condition> BuildConditions()
@@ -48,12 +46,8 @@ public class ConditionBuilder
                 _conditions.Add(new IsJockeyingForPosition(_selectedPlay));
                 return _conditions;
             
-            case "Austin Elbow Smash":
-                _conditions.Add(new CheckDamageOfLastCard(_selectedPlay, _lastCardUsed, 5));
-                return _conditions;
-            
-            case "Lionsault":
-                _conditions.Add(new CheckDamageOfLastCard(_selectedPlay, _lastCardUsed, 4));
+            case "Spit At Opponent":
+                _conditions.Add(new MinimumCardsNecessary(_selectedPlay, _playerData, 2));
                 return _conditions;
             
             default:

@@ -1,5 +1,4 @@
 using RawDeal.Boundaries;
-using RawDeal.Cards.Builders;
 using RawDeal.Data_Structures;
 using RawDealView;
 
@@ -14,9 +13,9 @@ public class PlaySelector
         _view = view;
     }
 
-    public PossiblePlaysData BuildPlayablePlays(ImportantPlayerData playerData)
+    public PossiblePlaysData BuildPlayablePlays(ImportantPlayerData playerData, LastCardUsed lastCardUsed)
     {
-        var playableCardManager = new PlayableCardsManager(playerData);
+        var playableCardManager = new PlayableCardsManager(playerData, lastCardUsed);
         return playableCardManager.BuildPlayablePlays();
     }
 

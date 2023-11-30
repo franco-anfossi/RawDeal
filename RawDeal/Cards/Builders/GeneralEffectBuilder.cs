@@ -120,7 +120,6 @@ public class GeneralEffectBuilder : IEffectBuilder
                 return _effects;
             
             case "Spit At Opponent":
-                // TODO: Add condition to check for more than 2 cards in hand
                 AddGeneralInitialEffects();
                 AddDiscardEffect(_superstarData, _superstarData, 1);
                 AddDiscardEffect(_opponentData, _opponentData, 4);

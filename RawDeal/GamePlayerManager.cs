@@ -16,6 +16,7 @@ public class GamePlayerManager
     private readonly BoundaryList<Player> _players;
     private ImportantPlayerData _inTurnPlayerData;
     private ImportantPlayerData _opponentPlayerData;
+    private LastCardUsed _lastCardUsed;
     
     public GamePlayerManager(BoundaryList<Player> players, View view)
     {
@@ -23,6 +24,7 @@ public class GamePlayerManager
         _inTurnPlayerIndex = 0;
         _opponentPlayerIndex = 1;
         _players = players;
+        _lastCardUsed = new LastCardUsed("0", "0", "NONE");
     }
     
     public void InitializeNecessaryPlayerVariables()
@@ -106,8 +108,8 @@ public class GamePlayerManager
         var inTurnPlayerInfo = _players[_inTurnPlayerIndex].BuildImportantPlayerData();
         var opponentPlayerInfo = _players[_opponentPlayerIndex].BuildImportantPlayerData();
         
-        var optionsToPlayCard = new OptionsToPlayCard(inTurnPlayerInfo, opponentPlayerInfo, _view);
-        optionsToPlayCard.StartElectionProcess();
+        var optionsToPlayCard = new OptionsToPlayCard(inTurnPlayerInfo, opponentPlayerInfo, _lastCardUsed, _view);
+        _lastCardUsed = optionsToPlayCard.StartElectionProcess();
     }
     
     public void SelectPlayAbilityOption()
@@ -155,6 +157,8 @@ public class GamePlayerManager
     
     private void ChangePlayersDataVariable()
     {
+        _lastCardUsed = new LastCardUsed("0", "0", "NONE");
+        
         var newInTurnPlayerDecksController = _inTurnPlayerData;
         var newOpponentPlayerDecksController = _opponentPlayerData;
         

@@ -17,11 +17,16 @@ public class AskToDiscardHandCardsEffect : Effect
     
     public override void Apply()
     {
-        if (!PlayerData.DecksController.CheckForHandHigherThanANumber(_cardsToDiscard)) return;
-        for (int cardsToDraw = _cardsToDiscard; cardsToDraw > 0; cardsToDraw--)
+        var playerDecks = PlayerData.DecksController.BuildDecks();
+        int numberOfCardsToDiscard = Math.Min(playerDecks.Hand.Count, _cardsToDiscard);
+        
+        int remainingCardsToDiscard = _cardsToDiscard;
+
+        for (int i = 0; i < numberOfCardsToDiscard; i++)
         {
-            int selectedCardIndex = ChooseCardToDiscard(cardsToDraw);
+            int selectedCardIndex = ChooseCardToDiscard(remainingCardsToDiscard);
             PassCardToRingside(selectedCardIndex);
+            remainingCardsToDiscard--;
         }
     }
     

@@ -4,19 +4,14 @@ namespace RawDeal.Data_Structures;
 
 public class LastCardUsed
 {
-    public IViewableCardInfo LastCard { get; set; }
     public string CardDamage { get; set; }
     public string CardFortitude { get; set; }
     public string UsedType { get; set; }
     
-    public LastCardUsed(IViewablePlayInfo lastPlay)
+    public LastCardUsed(string damage, string fortitude, string playedAs)
     {
-        LastCard = lastPlay.CardInfo;
-        CardDamage = lastPlay.CardInfo.Damage;
-        CardFortitude = lastPlay.CardInfo.Fortitude;
-        UsedType = lastPlay.PlayedAs;
+        CardDamage = damage;
+        CardFortitude = fortitude;
+        UsedType = playedAs;
     }
-    
-    
-    
 }

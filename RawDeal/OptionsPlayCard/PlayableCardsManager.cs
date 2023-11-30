@@ -1,4 +1,5 @@
 using RawDeal.Boundaries;
+using RawDeal.Cards.Builders;
 using RawDeal.Data_Structures;
 using RawDeal.Decks;
 using RawDealView.Formatters;
@@ -7,14 +8,18 @@ namespace RawDeal.OptionsPlayCard;
 
 public class PlayableCardsManager
 {
+    private readonly ImportantPlayerData _playerData;
     private IViewableCardInfo _playableCard;
     private readonly BoundaryList<IViewablePlayInfo> _possiblePlays;
     private readonly PlayerDecksController _playerDecksController;
+    private readonly LastCardUsed _lastCardUsed;
     
-    public PlayableCardsManager(ImportantPlayerData playerData)
+    public PlayableCardsManager(ImportantPlayerData playerData, LastCardUsed lastCardUsed)
     {
+        _playerData = playerData;
         _possiblePlays = new BoundaryList<IViewablePlayInfo>();
         _playerDecksController = playerData.DecksController;
+        _lastCardUsed = lastCardUsed;
     }
 
     public PossiblePlaysData BuildPlayablePlays()
@@ -32,6 +37,8 @@ public class PlayableCardsManager
             _playableCard = playableCard;
             EvaluatePlayablePlays();
         }
+        
+        FilterByPrecondition();
     }
     
     private BoundaryList<string> FormatPlays()
@@ -44,6 +51,20 @@ public class PlayableCardsManager
         }
 
         return formattedPlayablePlays;
+    }
+
+    private void FilterByPrecondition()
+    {
+        for (int i = 0; i < _possiblePlays.Count; i++)
+        {
+            var preconditionBuilder = new PreconditionBuilder(_possiblePlays[i], _lastCardUsed, _playerData);
+            var conditions = preconditionBuilder.BuildConditions();
+            if (!conditions.All(condition => condition.Check()))
+            {
+                _possiblePlays.RemoveAt(i);
+                i--;
+            }
+        }
     }
     
     private void EvaluatePlayablePlays()

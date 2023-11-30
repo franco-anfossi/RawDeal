@@ -1,4 +1,5 @@
 using RawDeal.Cards;
+using RawDeal.Data_Structures;
 using RawDealView;
 using RawDealView.Formatters;
 
@@ -13,11 +14,14 @@ public class PlayExecutor
         _view = view;
     }
 
-    public void ExecutePlay(string playerName, (IViewablePlayInfo, string) selectedPlay, CardController cardController)
+    public LastCardUsed ExecutePlay(string playerName, 
+        (IViewablePlayInfo, string) selectedPlay, CardController cardController)
     {
         var selectedPlayInfo = selectedPlay.Item1;
         var formattedSelectedPlay = selectedPlay.Item2;
         _view.SayThatPlayerIsTryingToPlayThisCard(playerName, formattedSelectedPlay);
         cardController.PlayCard();
+        return new LastCardUsed(
+            selectedPlayInfo.CardInfo.Damage, selectedPlayInfo.CardInfo.Fortitude, selectedPlayInfo.PlayedAs);
     }
 }
