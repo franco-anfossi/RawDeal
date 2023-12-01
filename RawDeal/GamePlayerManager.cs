@@ -16,7 +16,6 @@ public class GamePlayerManager
     private readonly BoundaryList<Player> _players;
     private ImportantPlayerData _inTurnPlayerData;
     private ImportantPlayerData _opponentPlayerData;
-    private LastCardUsed _lastCardUsed;
     
     public GamePlayerManager(BoundaryList<Player> players, View view)
     {
@@ -24,7 +23,6 @@ public class GamePlayerManager
         _inTurnPlayerIndex = 0;
         _opponentPlayerIndex = 1;
         _players = players;
-        _lastCardUsed = new LastCardUsed("0", "0", "NONE");
     }
     
     public void InitializeNecessaryPlayerVariables()
@@ -34,27 +32,27 @@ public class GamePlayerManager
         AddNecessarySuperstarAttributes();
     }
     
-    private void SelectFirstPlayer()
-    {
-        if (!ChooseFirstPlayerBySuperstarValue())
-            Utils.ChangePositionsOfTheList(_players);
-    }
-    
-    private bool ChooseFirstPlayerBySuperstarValue()
-    {
-        return _players[0].CompareSuperstarValue() >= _players[1].CompareSuperstarValue();
-    }
-    
     private void InitializePlayerVariables()
     {
         _inTurnPlayerData = _players[_inTurnPlayerIndex].BuildImportantPlayerData();
         _opponentPlayerData = _players[_opponentPlayerIndex].BuildImportantPlayerData();
     }
-    
+
     private void AddNecessarySuperstarAttributes()
     {
-        _players[_inTurnPlayerIndex].ApplyNecessaryAttributes(_view, _opponentPlayerData);
-        _players[_opponentPlayerIndex].ApplyNecessaryAttributes(_view, _inTurnPlayerData);
+        _players[_inTurnPlayerIndex].SaveNecessaryAttributes(_view, _opponentPlayerData);
+        _players[_opponentPlayerIndex].SaveNecessaryAttributes(_view, _inTurnPlayerData);
+    }
+    
+    private void SelectFirstPlayer()
+    {
+        if (!ChooseFirstPlayerBySuperstarValue())
+            Utils.ChangePositionsOfTheList(_players);
+    }
+
+    private bool ChooseFirstPlayerBySuperstarValue()
+    {
+        return _players[0].CompareSuperstarValue() >= _players[1].CompareSuperstarValue();
     }
     
     public void DrawInitialCards()
@@ -105,11 +103,8 @@ public class GamePlayerManager
     
     public void SelectPlayCardOption()
     {
-        var inTurnPlayerInfo = _players[_inTurnPlayerIndex].BuildImportantPlayerData();
-        var opponentPlayerInfo = _players[_opponentPlayerIndex].BuildImportantPlayerData();
-        
-        var optionsToPlayCard = new OptionsToPlayCard(inTurnPlayerInfo, opponentPlayerInfo, _lastCardUsed, _view);
-        _lastCardUsed = optionsToPlayCard.StartElectionProcess();
+        var optionsToPlayCard = new OptionsToPlayCard(_inTurnPlayerData, _opponentPlayerData, _view);
+        optionsToPlayCard.StartElectionProcess();
     }
     
     public void SelectPlayAbilityOption()
@@ -119,8 +114,11 @@ public class GamePlayerManager
     
     public void ResetPlayersChangesByJockeyingForPosition()
     {
-        _inTurnPlayerData.ChangesByJockeyingForPosition.Reset();
-        _opponentPlayerData.ChangesByJockeyingForPosition.Reset();
+        _inTurnPlayerData.BonusSet.ChangesByJockeyingForPosition.Reset();
+        _opponentPlayerData.BonusSet.ChangesByJockeyingForPosition.Reset();
+        
+        _inTurnPlayerData.BonusSet.ChangesByIrishWhip.Reset();
+        _opponentPlayerData.BonusSet.ChangesByIrishWhip.Reset();
     }
 
     public void CheckOpponentLoss()
@@ -157,12 +155,16 @@ public class GamePlayerManager
     
     private void ChangePlayersDataVariable()
     {
-        _lastCardUsed = new LastCardUsed("0", "0", "NONE");
-        
         var newInTurnPlayerDecksController = _inTurnPlayerData;
         var newOpponentPlayerDecksController = _opponentPlayerData;
         
         _inTurnPlayerData = newOpponentPlayerDecksController;
         _opponentPlayerData = newInTurnPlayerDecksController;
+    }
+    
+    public void ResetLastCardUsed()
+    {
+        _inTurnPlayerData.LastCardUsed = new LastCardUsed("0", "0", "NONE");
+        _opponentPlayerData.LastCardUsed = new LastCardUsed("0", "0", "NONE");
     }
 }

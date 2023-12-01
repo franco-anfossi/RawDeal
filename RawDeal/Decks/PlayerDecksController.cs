@@ -69,9 +69,7 @@ public class PlayerDecksController
         var playableCards = new BoundaryList<IViewableCardInfo>();
         foreach (IViewableCardInfo card in _playerDecks.Hand)
         {
-            var cardFortitude = Convert.ToInt32(card.Fortitude);
-            if (cardFortitude <= _playerData.Fortitude)
-                playableCards.Add(card);
+            playableCards.Add(card);
         }
 
         return playableCards;

@@ -12,14 +12,12 @@ public class PlayableCardsManager
     private IViewableCardInfo _playableCard;
     private readonly BoundaryList<IViewablePlayInfo> _possiblePlays;
     private readonly PlayerDecksController _playerDecksController;
-    private readonly LastCardUsed _lastCardUsed;
     
-    public PlayableCardsManager(ImportantPlayerData playerData, LastCardUsed lastCardUsed)
+    public PlayableCardsManager(ImportantPlayerData playerData)
     {
         _playerData = playerData;
         _possiblePlays = new BoundaryList<IViewablePlayInfo>();
         _playerDecksController = playerData.DecksController;
-        _lastCardUsed = lastCardUsed;
     }
 
     public PossiblePlaysData BuildPlayablePlays()
@@ -57,7 +55,7 @@ public class PlayableCardsManager
     {
         for (int i = 0; i < _possiblePlays.Count; i++)
         {
-            var preconditionBuilder = new PreconditionBuilder(_possiblePlays[i], _lastCardUsed, _playerData);
+            var preconditionBuilder = new PreconditionBuilder(_possiblePlays[i], _playerData);
             var conditions = preconditionBuilder.BuildConditions();
             if (!conditions.All(condition => condition.Check()))
             {
@@ -95,17 +93,11 @@ public class PlayableCardsManager
     }
 
     private bool CheckIfCardIsManeuver()
-    {
-        return _playableCard.Types.Contains("Maneuver");
-    }
+        => _playableCard.Types.Contains("Maneuver");
     
     private bool CheckIfCardIsAction()
-    {
-        return _playableCard.Types.Contains("Action");
-    }
+        => _playableCard.Types.Contains("Action");
     
     private bool CheckIfCardIsReversal()
-    {
-        return _playableCard.Types[0].Contains("Reversal");
-    }
+        => _playableCard.Types[0].Contains("Reversal");
 }

@@ -9,18 +9,14 @@ public class PlaySelector
     private readonly View _view;
 
     public PlaySelector(View view)
-    {
-        _view = view;
-    }
+        => _view = view;
 
-    public PossiblePlaysData BuildPlayablePlays(ImportantPlayerData playerData, LastCardUsed lastCardUsed)
+    public PossiblePlaysData BuildPlayablePlays(ImportantPlayerData playerData)
     {
-        var playableCardManager = new PlayableCardsManager(playerData, lastCardUsed);
+        var playableCardManager = new PlayableCardsManager(playerData);
         return playableCardManager.BuildPlayablePlays();
     }
 
     public int SelectAPlay(BoundaryList<string> formattedPlays)
-    {
-        return _view.AskUserToSelectAPlay(formattedPlays.ToList());
-    }
+        => _view.AskUserToSelectAPlay(formattedPlays.ToList());
 }

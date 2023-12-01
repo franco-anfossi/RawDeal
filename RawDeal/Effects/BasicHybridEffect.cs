@@ -19,13 +19,11 @@ public class BasicHybridEffect : Effect
     public override void Apply()
     {
         if (_selectedPlay.PlayedAs == "MANEUVER")
-        {
             ApplyManeuverEffect();
-        }
+        
         else if (_selectedPlay.PlayedAs == "ACTION")
-        {
             ApplyActionEffect();
-        }
+        
     }
 
     private void ApplyManeuverEffect()

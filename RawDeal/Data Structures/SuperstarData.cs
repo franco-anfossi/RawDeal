@@ -10,7 +10,5 @@ public class SuperstarData
     public int Fortitude { get; set; }
     
     public object Clone()
-    {
-        return MemberwiseClone();
-    }
+        => MemberwiseClone();
 }

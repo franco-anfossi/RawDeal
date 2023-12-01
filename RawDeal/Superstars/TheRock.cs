@@ -12,21 +12,24 @@ public class TheRock : Player
     
     public override void PlaySpecialAbility()
     {
-        if (!PlayerDecksController.CheckForEmptyRingside())
-        {
-            _abilityResponse = View.DoesPlayerWantToUseHisAbility(SuperstarData.Name);
-            ExecuteTheRockAbility();
-        }
+        if (!CheckForEmptyRingside())
+            AskForTheRockAbility();
     }
-
-    private void ExecuteTheRockAbility()
+    private bool CheckForEmptyRingside()
+        => PlayerDecksController.CheckForEmptyRingside();
+    
+    private void AskForTheRockAbility()
     {
+        _abilityResponse = View.DoesPlayerWantToUseHisAbility(SuperstarData.Name);
         if (_abilityResponse)
-        {
-            View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
-            var importantPlayerData = BuildImportantPlayerData();
-            var recoverEffect = new RecoverEffect(importantPlayerData, View, CardsToRecover);
-            recoverEffect.Apply();
-        }
+            ApplyAbilityEffects();
+    }
+    
+    private void ApplyAbilityEffects()
+    {
+        View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
+        var importantPlayerData = BuildImportantPlayerData();
+        var recoverEffect = new RecoverEffect(importantPlayerData, View, CardsToRecover);
+        recoverEffect.Apply();
     }
 }

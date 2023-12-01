@@ -8,14 +8,10 @@ public class BoundaryDict<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>
     private readonly Dictionary<TKey, TValue> _dictionary;
     
     public Dictionary<TKey, TValue> ToDictionary()
-    {
-        return new Dictionary<TKey, TValue>(_dictionary);
-    }
+        => new(_dictionary);
 
     public BoundaryDict(Dictionary<TKey, TValue> dictionary)
-    {
-        _dictionary = dictionary;
-    }
+        => _dictionary = dictionary;
     
     public TValue this[TKey key]
     {
@@ -24,12 +20,8 @@ public class BoundaryDict<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>
     }
 
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotImplementedException();
 
     IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+        => GetEnumerator();
 }

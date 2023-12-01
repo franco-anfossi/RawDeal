@@ -27,14 +27,19 @@ public class ReversalFromArsenalController
         _selectedPlay = selectedPlay;
         _damageCompleted = damageCompleted;
     }
+    
+    public bool CheckPreconditions()
+    {
+        var reversalPreconditionBuilder = new ReversalPreconditionBuilder(_selectedPlay, _opponentData);
+        var reversalPreconditions = reversalPreconditionBuilder.BuildConditions();
+
+        return reversalPreconditions.All(condition => condition.Check());
+    }
 
     public void ReviewIfReversalPlayable()
     {
-        if (CheckIfPlayableReversal())
-        {
-            if (CheckCardConditions())
-                ExecuteArsenalReversalAction();
-        }
+        if (CheckIfPlayableReversal() && CheckCardConditions())
+            ExecuteArsenalReversalAction();
     }
     
     private bool CheckCardConditions()
@@ -45,43 +50,9 @@ public class ReversalFromArsenalController
         return _cardController.CheckConditions();
     }
     
-    private bool CheckIfPlayableReversal()
-    {
-        return CheckIfTheCardIsReversal() && CheckIfFortitudeIsHighEnough();
-    }
-    
-    private bool CheckIfTheCardIsReversal()
-    {
-        return _drawnCard.Types.Contains("Reversal");
-    }
-    
-    private bool CheckIfFortitudeIsHighEnough()
-    {
-        int fortitudeToAdd = HandleFortitudeAddedByJockeyingForPosition();
-        var cardFortitude = Convert.ToInt32(_drawnCard.Fortitude);
-        return cardFortitude + fortitudeToAdd <= _opponentData.SuperstarData.Fortitude;
-    }
-    
-    private int HandleFortitudeAddedByJockeyingForPosition()
-    {
-        int fortitudeAdded = 0;
-        if (CheckIfSelectedCardIsGrapple())
-        {
-            fortitudeAdded = _opponentData.ChangesByJockeyingForPosition.FortitudeNeeded;
-        }
-        return fortitudeAdded;
-    }
-    
-    private bool CheckIfSelectedCardIsGrapple()
-    {
-        return _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
-    }
-
     private IViewablePlayInfo CreateDrawnCardPlayInfo()
-    {
-        return new PlayInfo(_drawnCard, _drawnCard.Types[0].ToUpper());
-    }
-
+        => new PlayInfo(_drawnCard, _drawnCard.Types[0].ToUpper());
+    
     private void BuildCardController(IViewablePlayInfo drawnCardPlayInfo)
     {
         var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, drawnCardPlayInfo);
@@ -94,9 +65,34 @@ public class ReversalFromArsenalController
         _cardController = new CardController(effects, conditions);
     }
     
+    private bool CheckIfPlayableReversal()
+        => CheckIfTheCardIsReversal() && CheckIfFortitudeIsHighEnough();
+
+    private bool CheckIfTheCardIsReversal()
+        => _drawnCard.Types.Contains("Reversal");
+    
+    private bool CheckIfFortitudeIsHighEnough()
+    {
+        int fortitudeToAdd = HandleFortitudeAddedByCards();
+        var cardFortitude = Convert.ToInt32(_drawnCard.Fortitude);
+        return cardFortitude + fortitudeToAdd <= _opponentData.SuperstarData.Fortitude;
+    }
+    
+    private int HandleFortitudeAddedByCards()
+    {
+        int fortitudeAdded = 0;
+        if (CheckIfSelectedCardIsGrapple())
+            fortitudeAdded = _opponentData.BonusSet.ChangesByJockeyingForPosition.FortitudeNeeded;
+        
+        return fortitudeAdded;
+    }
+    
+    private bool CheckIfSelectedCardIsGrapple()
+        => _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
+
     private void ExecuteArsenalReversalAction()
     {
-        ResetChangesByJockeyingForPosition();
+        ResetChangesByCards();
         _view.SayThatCardWasReversedByDeck(_opponentData.Name);
         PlayStunValue();
         _playerData.SuperstarData.Fortitude += Convert.ToInt32(_selectedPlay.CardInfo.Damage);
@@ -104,28 +100,31 @@ public class ReversalFromArsenalController
         _cardController.PlayCard();
     }
 
-    private void ResetChangesByJockeyingForPosition()
+    private void ResetChangesByCards()
     {
-        _playerData.ChangesByJockeyingForPosition.Reset();
-        _opponentData.ChangesByJockeyingForPosition.Reset();
+        _playerData.BonusSet.ChangesByJockeyingForPosition.Reset();
+        _opponentData.BonusSet.ChangesByJockeyingForPosition.Reset();
+        
+        _playerData.BonusSet.ChangesByIrishWhip.Reset();
+        _opponentData.BonusSet.ChangesByIrishWhip.Reset();
     }
     
     private void PlayStunValue()
     {
         var stunValueNumber = Convert.ToInt32(_selectedPlay.CardInfo.StunValue);
         if (CheckForExecutableStunValue(stunValueNumber))
-        {
-            var cardsToDraw = _view.AskHowManyCardsToDrawBecauseOfStunValue(_playerData.Name, stunValueNumber);
-            for (int i = 0; i < cardsToDraw; i++)
-            {
-                _playerData.DecksController.DrawCard();
-            }
-            _view.SayThatPlayerDrawCards(_playerData.Name, cardsToDraw);
-        }
+            DrawCardsBecauseOfStunValue(stunValueNumber);
     }
     
     private bool CheckForExecutableStunValue(int stunValueNumber)
+        => _damageCompleted == StunValueCondition.DamageNotCompleted && stunValueNumber > 0;
+    
+    private void DrawCardsBecauseOfStunValue(int stunValueNumber)
     {
-        return _damageCompleted == StunValueCondition.DamageNotCompleted && stunValueNumber > 0;
+        var cardsToDraw = _view.AskHowManyCardsToDrawBecauseOfStunValue(_playerData.Name, stunValueNumber);
+        for (int i = 0; i < cardsToDraw; i++)
+            _playerData.DecksController.DrawCard();
+            
+        _view.SayThatPlayerDrawCards(_playerData.Name, cardsToDraw);
     }
 }

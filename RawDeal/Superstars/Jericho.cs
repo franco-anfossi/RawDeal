@@ -14,39 +14,46 @@ public class Jericho : Player
     public override void PlaySpecialAbility()
     {
         if (CanUseAbility())
-        {
-            View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
-            var importantPlayerData = BuildImportantPlayerData();
-            ApplyAbilityEffect(importantPlayerData);
-            _timesTheAbilityWasUsed++;
-        }
+            ExecuteAbilitySteps();
+    }
+
+    private void ExecuteAbilitySteps()
+    {
+        View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
+        var importantPlayerData = BuildImportantPlayerData();
+        ApplyAbilityEffect(importantPlayerData);
+        _timesTheAbilityWasUsed++;
     }
     
     private void ApplyAbilityEffect(ImportantPlayerData importantPlayerData)
     {
-        var playerDiscardHandCardsEffect = 
-            new AskToDiscardHandCardsEffect(importantPlayerData, importantPlayerData, View, CardsToDiscard);
-        
-        var opponentDiscardHandCardsEffect = new 
-            AskToDiscardHandCardsEffect(OpponentData, OpponentData, View, CardsToDiscard);
+        var playerDiscardHandCardsEffect = BuildAbilityEffect(importantPlayerData);
+        var opponentDiscardHandCardsEffect = BuildAbilityEffect(OpponentData);
         
         playerDiscardHandCardsEffect.Apply();
         opponentDiscardHandCardsEffect.Apply();
     }
     
+    private Effect BuildAbilityEffect(ImportantPlayerData importantPlayerData)
+        => new AskToDiscardHandCardsEffect(importantPlayerData, importantPlayerData, View, CardsToDiscard);
+    
+    
     public override bool VerifyAbilityUsability()
-    {
-        return !CanUseAbility();
-    }
+        => !CanUseAbility();
 
+    private bool CanUseAbility()
+        => !CheckForEmptyHand() && DontUseMoreThanMaxTimes();
+    
+    private bool DontUseMoreThanMaxTimes()
+        => _timesTheAbilityWasUsed < MaxTimesTheAbilityCanBeUsed;
+    
     public override void ResetAbility()
     {
-        if (!PlayerDecksController.CheckForEmptyHand())
+        if (!CheckForEmptyHand())
             _timesTheAbilityWasUsed = 0;
     }
     
-    private bool CanUseAbility()
-    {
-        return !PlayerDecksController.CheckForEmptyHand() && _timesTheAbilityWasUsed < MaxTimesTheAbilityCanBeUsed;
-    }
+    private bool CheckForEmptyHand()
+        => PlayerDecksController.CheckForEmptyHand();
+
 }

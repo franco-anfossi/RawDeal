@@ -11,27 +11,22 @@ public class OptionsToPlayCard
     private readonly CardControllerBuilder _cardControllerBuilder;
     private readonly PlayExecutor _playExecutor;
     private readonly ImportantPlayerData _playerData;
-    private LastCardUsed _lastCardUsed;
 
-    public OptionsToPlayCard(ImportantPlayerData playerData, 
-        ImportantPlayerData opponentData, LastCardUsed lastCardUsed, View view)
+    public OptionsToPlayCard(ImportantPlayerData playerData, ImportantPlayerData opponentData, View view)
     {
         _playSelector = new PlaySelector(view);
         _cardControllerBuilder = new CardControllerBuilder(playerData, opponentData, view);
         _playExecutor = new PlayExecutor(view);
         _playerData = playerData;
-        _lastCardUsed = lastCardUsed;
     }
 
-    public LastCardUsed StartElectionProcess()
+    public void StartElectionProcess()
     {
-        var possiblePlaysData = _playSelector.BuildPlayablePlays(_playerData, _lastCardUsed);
+        var possiblePlaysData = _playSelector.BuildPlayablePlays(_playerData);
         int selectedPlayNumber = _playSelector.SelectAPlay(possiblePlaysData.FormattedPlays);
 
         if (CheckIfHasPlayablePlays(possiblePlaysData.FormattedPlays) && CheckIfCardIsSelected(selectedPlayNumber))
             ExecuteSelectedPlay(possiblePlaysData, selectedPlayNumber);
-        
-        return _lastCardUsed;
     }
     
     private void ExecuteSelectedPlay(PossiblePlaysData possiblePlaysData, int selectedPlayNumber)
@@ -39,17 +34,12 @@ public class OptionsToPlayCard
         string formattedSelectedPlay = possiblePlaysData.FormattedPlays[selectedPlayNumber];
         IViewablePlayInfo notFormattedSelectedPlay = possiblePlaysData.NotFormattedPlays[selectedPlayNumber];
         var cardController = _cardControllerBuilder.Build(notFormattedSelectedPlay);
-        var selectedPlay = (notFormattedSelectedPlay, formattedSelectedPlay);
-        _lastCardUsed = _playExecutor.ExecutePlay(_playerData.Name, selectedPlay, cardController);
+        _playExecutor.ExecutePlay(_playerData.Name, formattedSelectedPlay, cardController);
     }
 
     private bool CheckIfHasPlayablePlays(BoundaryList<string> formattedPlayablePlays)
-    {
-        return formattedPlayablePlays.Count > 0;
-    }
+        => formattedPlayablePlays.Count > 0;
 
     private bool CheckIfCardIsSelected(int selectedPlayNumber)
-    {
-        return selectedPlayNumber != -1;
-    }
+        => selectedPlayNumber != -1;
 }

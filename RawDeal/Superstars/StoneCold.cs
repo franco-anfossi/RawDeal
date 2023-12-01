@@ -14,19 +14,22 @@ public class StoneCold : Player
     public override void PlaySpecialAbility()
     {
         if (CanUseAbility())
-        {
-            View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
-            View.SayThatPlayerDrawCards(SuperstarData.Name, CardsToDraw);
             ExecuteAbilitySteps();
-            _timesTheAbilityWasUsed++;
-        }
     }
     
     private void ExecuteAbilitySteps()
     {
+        View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
+        View.SayThatPlayerDrawCards(SuperstarData.Name, CardsToDraw);
+        ApplyAbilityEffects();
+        _timesTheAbilityWasUsed++;
+    }
+    
+    private void ApplyAbilityEffects()
+    {
         PlayerDecksController.DrawTurnCard();
-        var importantPlayerData = BuildImportantPlayerData();
-        var returnCardEffect = new ReturnCardToArsenalEffect(importantPlayerData, View);
+        var playerData = BuildImportantPlayerData();
+        var returnCardEffect = new ReturnCardToArsenalEffect(playerData, View);
         returnCardEffect.Apply();
     }
     
@@ -34,11 +37,17 @@ public class StoneCold : Player
         => !CanUseAbility();
     
     private bool CanUseAbility()
-        => !PlayerDecksController.CheckForEmptyArsenal() && _timesTheAbilityWasUsed < MaxTimesTheAbilityCanBeUsed;
+        => !CheckForEmptyArsenal() && DontUseMoreThanMaxTimes();
+    
+    private bool DontUseMoreThanMaxTimes()
+        => _timesTheAbilityWasUsed < MaxTimesTheAbilityCanBeUsed;
     
     public override void ResetAbility()
     {
-        if (!PlayerDecksController.CheckForEmptyArsenal())  
+        if (!CheckForEmptyArsenal())  
             _timesTheAbilityWasUsed = 0;
     }
+    
+    private bool CheckForEmptyArsenal()
+        => PlayerDecksController.CheckForEmptyArsenal();
 }

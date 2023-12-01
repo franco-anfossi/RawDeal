@@ -47,7 +47,5 @@ public class MankindDecksController : PlayerDecksController
     }
     
     private bool VerifyConditionsToDrawTwoCards()
-    {
-        return _lastArsenalCardIndex >= 1 && _playerDecks.Arsenal.Count >= 1 && !_initialDraw;
-    }
+        => _lastArsenalCardIndex >= 1 && _playerDecks.Arsenal.Count >= 1 && !_initialDraw;
 }

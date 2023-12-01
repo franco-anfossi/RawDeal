@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using RawDealView.Formatters;
 
 namespace RawDeal.Data_Structures;
@@ -14,12 +13,8 @@ public class CardData : IViewableCardInfo
     public string CardEffect { get; set; }
     
     public bool CompareCardTitle(string otherCardTitle)
-    {
-        return Title == otherCardTitle;
-    }
+        => Title == otherCardTitle;
 
     public object Clone()
-    {
-        return MemberwiseClone();
-    }
+        => MemberwiseClone();
 }

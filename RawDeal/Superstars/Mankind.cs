@@ -8,7 +8,5 @@ public class Mankind : Player
     public Mankind(SuperstarData superstarData) : base(superstarData) { }
 
     protected override void BuildPlayerDecksController()
-    {
-        PlayerDecksController = new MankindDecksController(DecksInfo, SuperstarData);
-    }
+        => PlayerDecksController = new MankindDecksController(DecksInfo, SuperstarData);
 }

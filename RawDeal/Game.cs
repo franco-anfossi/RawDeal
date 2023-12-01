@@ -55,20 +55,16 @@ public class Game
     }
     
     private BoundaryList<Player> SelectDeck()
-    {
-        return _gameDeckManager.SelectDeck(new BoundaryList<Player>());
-    }
+        => _gameDeckManager.SelectDeck(new BoundaryList<Player>());
     
     private void InitializeGamePlayerManager(BoundaryList<Player> players)
-    {
-        _gamePlayerManager = new GamePlayerManager(players, _view);
-    }
+        => _gamePlayerManager = new GamePlayerManager(players, _view);
     
     private void TryToRunPrincipalGameLoop()
     {
         try
         {
-            RunPrincipalGameLoop();
+            StartPrincipalGameLoop();
         }
         catch (EndOfPrincipalLoop winnerName)
         {
@@ -76,40 +72,53 @@ public class Game
         }
     }
 
-    private void RunPrincipalGameLoop()
+    private void StartPrincipalGameLoop()
     {
         var continuePrincipalGameLoop = true;
         while (continuePrincipalGameLoop)
-        {
-            _gamePlayerManager.SayThatSuperstarStartsTurn();
-            _gamePlayerManager.PlaySpecialAbilityBeforeDrawingACard();
-            _gamePlayerManager.DrawCard();
-            _gamePlayerManager.ResetAbility();
-            TryToRunGameElectionsLoop();
-        }
+            ExecutePrincipalGameLoopMethods();
+    }
+    
+    private void ExecutePrincipalGameLoopMethods()
+    {
+        _gamePlayerManager.SayThatSuperstarStartsTurn();
+        _gamePlayerManager.PlaySpecialAbilityBeforeDrawingACard();
+        _gamePlayerManager.DrawCard();
+        _gamePlayerManager.ResetAbility();
+        TryToRunGameElectionsLoop();
     }
 
     private void TryToRunGameElectionsLoop()
     {
         try
         {
-            RunGameElectionsLoop();
+            StartGameElectionsLoop();
         }
         catch (EndOfElectionLoop)
         {
-            _gamePlayerManager.ChangePlayersPositions();
+            EndOfElectionLoop();
         }
     }
-
-    private void RunGameElectionsLoop()
+    
+    private void StartGameElectionsLoop()
     {
-        while (true)
-        {
-            var playerInfoManager = _gamePlayerManager.UpdatePlayersInfo();
-            playerInfoManager.ShowPlayerInfo();
-            NextPlay firstOptionChoice = _gamePlayerManager.ShowAppropriateOptionsSelector();
-            ManagePossibleOptions(firstOptionChoice);
-        }
+        var continueElectionsLoop = true;
+        while (continueElectionsLoop) 
+            ExecuteGameElectionsLoopMethods();
+    }
+    
+    private void EndOfElectionLoop()
+    {
+        _gamePlayerManager.ChangePlayersPositions();
+        _gamePlayerManager.ResetLastCardUsed();
+    }
+
+    private void ExecuteGameElectionsLoopMethods()
+    {
+        var playerInfoManager = _gamePlayerManager.UpdatePlayersInfo();
+        playerInfoManager.ShowPlayerInfo();
+        NextPlay firstOptionChoice = _gamePlayerManager.ShowAppropriateOptionsSelector();
+        ManagePossibleOptions(firstOptionChoice);
     }
     
     private void ManagePossibleOptions(NextPlay firstOptionChoice)
@@ -123,12 +132,8 @@ public class Game
         else if (firstOptionChoice == NextPlay.UseAbility)
             _gamePlayerManager.SelectPlayAbilityOption();
         
-        // TODO: Make this else if only one method call
         else if (firstOptionChoice == NextPlay.EndTurn)
-        {
-            _gamePlayerManager.ResetPlayersChangesByJockeyingForPosition();
-            CheckEndTurnCondition();
-        }
+            SelectEndTurnOption();
             
         else if (firstOptionChoice == NextPlay.GiveUp)
             _gamePlayerManager.GiveUp();
@@ -136,21 +141,30 @@ public class Game
     
     private void TryToSelectPlayCardOption()
     {
-        // TODO: Make only one catch
         try
         {
             _gamePlayerManager.SelectPlayCardOption();
         }
-        catch (NoArsenalCardsException winnerName)
+        catch (OptionPlayCardException exception)
         {
-            throw new EndOfPrincipalLoop(winnerName.Message);
-        }
-        catch (EndOfTurnException)
-        {
-            CheckEndTurnCondition();
+            HandleOptionPlayCardException(exception.Message);
         }
     }
     
+    private void SelectEndTurnOption()
+    {
+        _gamePlayerManager.ResetPlayersChangesByJockeyingForPosition();
+        CheckEndTurnCondition();
+    }
+    
+    private void HandleOptionPlayCardException(string message)
+    {
+        if (message == "End of turn")
+            CheckEndTurnCondition();
+        else
+            throw new EndOfPrincipalLoop(message);
+    }
+
     private void CheckEndTurnCondition()
     {
         _gamePlayerManager.CheckOpponentLoss();

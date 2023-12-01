@@ -22,8 +22,8 @@ public class JockeyingForPositionEffect : Effect
         var selectedEffect = View.AskUserToSelectAnEffectForJockeyForPosition(PlayerData.Name);
 
         if (selectedEffect == SelectedEffect.NextGrappleIsPlus4D)
-            PlayerData.ChangesByJockeyingForPosition.DamageAdded = 4;
+            PlayerData.BonusSet.ChangesByJockeyingForPosition.DamageAdded = 4;
         else
-            _opponentData.ChangesByJockeyingForPosition.FortitudeNeeded = 8;
+            _opponentData.BonusSet.ChangesByJockeyingForPosition.FortitudeNeeded = 8;
     }
 }

@@ -15,8 +15,6 @@ public class BoundaryDictConverter<TKey, TValue> : JsonConverter<BoundaryDict<TK
     }
 
     public override void Write(Utf8JsonWriter writer, BoundaryDict<TKey, TValue> value, JsonSerializerOptions options)
-    {
-        JsonSerializer.Serialize(writer, value.ToDictionary(), options); 
-    }
+        => JsonSerializer.Serialize(writer, value.ToDictionary(), options); 
 }
 

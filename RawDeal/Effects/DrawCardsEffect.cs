@@ -15,8 +15,6 @@ public class DrawCardsEffect : Effect
     {
         View.SayThatPlayerDrawCards(PlayerData.Name, _cardsToDraw);
         for (int numCardsToDraw = _cardsToDraw; numCardsToDraw > 0; numCardsToDraw--)
-        {
             PlayerData.DecksController.DrawCard();
-        }
     }
 }

@@ -41,24 +41,34 @@ public class ReversalEffectBuilder : IEffectBuilder
                 _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
                 _effects.Add(new UnknownDamageEffect(_superstarData, _selectedPlay, _view));
                 return BasicReversalEffect();
+            
             case "Elbow to the Face":
                 _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
                 return BasicReversalEffect();
+            
             case "Manager Interferes":
                 _effects.Add(new DrawCardsEffect(_superstarData, _view, 1));
                 _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
                 return BasicReversalEffect();
+            
             case "Chyna Interferes":
                 _effects.Add(new DrawCardsEffect(_superstarData, _view, 2));
                 _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
                 return BasicReversalEffect();
+            
             case "Clean Break":
                 _effects.Add(new AskToDiscardHandCardsEffect(
                     _opponentData, _opponentData, _view, 4));
                 _effects.Add(new DrawCardsEffect(_superstarData, _view, 1));
                 return BasicReversalEffect();
+            
             case "Jockeying for Position":
                 _effects.Add(new JockeyingForPositionEffect(_superstarData, _opponentData, _view));
+                BasicReversalEffect();
+                return _effects;
+            
+            case "Irish Whip":
+                _effects.Add(new IrishWhipEffect(_superstarData, _view));
                 BasicReversalEffect();
                 return _effects;
             
@@ -68,9 +78,7 @@ public class ReversalEffectBuilder : IEffectBuilder
     }
 
     private BoundaryList<Effect> BuildReversalFromArsenal()
-    {
-        return BasicReversalEffect();
-    }
+        => BasicReversalEffect();
     
     private BoundaryList<Effect> BasicReversalEffect()
     {

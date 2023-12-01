@@ -95,13 +95,9 @@ public class DeckValidator
     }
     
     private bool CheckMaxRepetitionsAllowed()
-    {
-        return _equalCardsGroup.Count > _maxRepetitionsAllowed;
-    }
+        => _equalCardsGroup.Count > _maxRepetitionsAllowed;
 
     private bool CheckIfOtherSuperstarLogoInDeck()
-    {
-       return _deckToReview.DeckCards.Any(c => c.Subtypes.Contains(_logoOtherSuperstar));
-    }
+        => _deckToReview.DeckCards.Any(c => c.Subtypes.Contains(_logoOtherSuperstar));
 }
 

@@ -1,5 +1,7 @@
+using RawDeal.Boundaries;
 using RawDeal.Cards.Builders;
 using RawDeal.Data_Structures;
+using RawDeal.Effects;
 using RawDealView;
 using RawDealView.Formatters;
 
@@ -25,9 +27,18 @@ public class GeneralCardControllerFactory
     {
         var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, _selectedPlay);
         var conditions = conditionBuilder.BuildConditions();
-        
-        var effectBuilder = new GeneralEffectBuilder(_playerData, _opponentData, _selectedPlay, _view);
-        var effects = effectBuilder.BuildEffects();
+        // TODO: Encapsulate this in a factory
+        var effects = new BoundaryList<Effect>();
+        if (_selectedPlay.PlayedAs == "MANEUVER")
+        {
+            var effectBuilder = new ManeuverEffectBuilder(_playerData, _opponentData, _selectedPlay, _view);
+            effects = effectBuilder.BuildEffects();
+        }
+        else if (_selectedPlay.PlayedAs == "ACTION")
+        {
+            var effectBuilder = new ActionEffectBuilder(_playerData, _opponentData, _selectedPlay, _view);
+            effects = effectBuilder.BuildEffects();
+        }
 
         return new CardController(effects, conditions);
     }

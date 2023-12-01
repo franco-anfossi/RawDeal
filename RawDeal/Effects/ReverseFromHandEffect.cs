@@ -20,6 +20,7 @@ public class ReverseFromHandEffect : Effect
     public override void Apply()
     {
         var reversalFromHand = new ReversalFromHandController(PlayerData, _opponentData, _selectedPlay, View);
-        reversalFromHand.SelectReversalFromHand();
+        if (reversalFromHand.CheckPreconditions())
+            reversalFromHand.SelectReversalFromHand();
     }
 }

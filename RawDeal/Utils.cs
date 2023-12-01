@@ -26,4 +26,19 @@ public static class Utils
 
         return formattedCardData;
     }
+    
+    public static BoundaryList<string> FormatPlays(BoundaryList<IViewablePlayInfo> plays)
+    {
+        var formattedPlays = new BoundaryList<string>();
+        foreach (var play in plays)
+        {
+            var formattedPlay = FormatSpecificPlay(play);
+            formattedPlays.Add(formattedPlay);
+        }
+
+        return formattedPlays;
+    }
+    
+    public static string FormatSpecificPlay(IViewablePlayInfo reversalPlay)
+        => Formatter.PlayToString(reversalPlay);
 }

@@ -6,7 +6,7 @@ using RawDealView.Formatters;
 
 namespace RawDeal.Cards.Builders;
 
-public class GeneralEffectBuilder : IEffectBuilder
+public class ManeuverEffectBuilder : IEffectBuilder
 {
     private readonly ImportantPlayerData _superstarData;
     private readonly ImportantPlayerData _opponentData;
@@ -14,7 +14,7 @@ public class GeneralEffectBuilder : IEffectBuilder
     private readonly BoundaryList<Effect> _effects;
     private readonly View _view;
     
-    public GeneralEffectBuilder (ImportantPlayerData superstarData, ImportantPlayerData opponentData,
+    public ManeuverEffectBuilder (ImportantPlayerData superstarData, ImportantPlayerData opponentData,
         IViewablePlayInfo selectedPlay, View view)
     {
         _view = view;
@@ -26,49 +26,43 @@ public class GeneralEffectBuilder : IEffectBuilder
     
     public BoundaryList<Effect> BuildEffects()
     {
-        // TODO: CHANGE DIRECT NUMBERS TO VARIABLES
+        int numberOfCardsToMakeTheEffect;
         switch (_selectedPlay.CardInfo.Title)
         {
-            case "Chop" or "Arm Bar Takedown" or "Collar & Elbow Lockup":
-                // TODO: Probably necessary to add condition
-                _effects.Add(new ReverseFromHandEffect(_superstarData, _opponentData, _selectedPlay, _view));
-                _effects.Add(new BasicHybridEffect(_superstarData, _opponentData, _selectedPlay, _view));
-                return _effects;
-            
-            case "Jockeying for Position":
-                AddGeneralInitialEffects();
-                _effects.Add(new JockeyingForPositionEffect(_superstarData, _opponentData, _view));
-                return _effects;
-            
             case "Head Butt" or "Arm Drag" or "Arm Bar":
+                numberOfCardsToMakeTheEffect = 1;
                 AddGeneralInitialEffects();
-                AddDiscardEffect(_superstarData, _superstarData, 1);
+                AddDiscardEffect(_superstarData, _superstarData, numberOfCardsToMakeTheEffect);
                 AddDamageEffect();
                 return _effects;
             
             case "Pump Handle Slam":
+                numberOfCardsToMakeTheEffect = 2;
                 AddGeneralInitialEffects();
-                AddDiscardEffect(_opponentData, _opponentData, 2);
+                AddDiscardEffect(_opponentData, _opponentData, numberOfCardsToMakeTheEffect);
                 AddDamageEffect();
                 return _effects;
             
             case "Bear Hug" or "Choke Hold" or "Ankle Lock" or "Spinning Heel Kick" or "Figure Four Leg Lock" or 
                 "Samoan Drop" or "Boston Crab" or "Power Slam" or "Torture Rack":
+                numberOfCardsToMakeTheEffect = 1;
                 AddGeneralInitialEffects();
-                AddDiscardEffect(_opponentData, _opponentData, 1);
+                AddDiscardEffect(_opponentData, _opponentData, numberOfCardsToMakeTheEffect);
                 AddDamageEffect();
                 return _effects;
             
             case "Bulldog":
+                numberOfCardsToMakeTheEffect = 1;
                 AddGeneralInitialEffects();
-                AddDiscardEffect(_superstarData, _superstarData, 1);
-                AddDiscardEffect(_opponentData, _superstarData, 1);
+                AddDiscardEffect(_superstarData, _superstarData, numberOfCardsToMakeTheEffect);
+                AddDiscardEffect(_opponentData, _superstarData, numberOfCardsToMakeTheEffect);
                 AddDamageEffect();
                 return _effects;
             
             case "Headlock Takedown" or "Standing Side Headlock":
+                numberOfCardsToMakeTheEffect = 1;
                 AddGeneralInitialEffects();
-                _effects.Add(new DrawCardsEffect(_opponentData, _view, 1));
+                _effects.Add(new DrawCardsEffect(_opponentData, _view, numberOfCardsToMakeTheEffect));
                 AddDamageEffect();
                 return _effects;
             
@@ -79,88 +73,58 @@ public class GeneralEffectBuilder : IEffectBuilder
                 return _effects;
             
             case "Double Leg Takedown" or "Reverse DDT":
+                numberOfCardsToMakeTheEffect = 1;
                 AddGeneralInitialEffects();
-                _effects.Add(new AskToDrawEffect(_superstarData, _view, 1));
-                AddDamageEffect();
-                return _effects;
-            
-            case "Undertaker’s Tombstone Piledriver":
-                // TODO: Probably necessary to add condition
-                _effects.Add(new ReverseFromHandEffect(_superstarData, _opponentData, _selectedPlay, _view));
-                // TODO: Correct this part to be more general and more applicable to this card with "conditions"
-                _effects.Add(new BasicHybridEffect(_superstarData, _opponentData, _selectedPlay, _view));
-                return _effects;
-            
-            case "Offer Handshake":
-                AddGeneralInitialEffects();
-                _effects.Add(new AskToDrawEffect(_superstarData, _view, 3));
-                AddDiscardEffect(_superstarData, _superstarData, 1);
+                _effects.Add(new AskToDrawEffect(_superstarData, _view, numberOfCardsToMakeTheEffect));
                 AddDamageEffect();
                 return _effects;
             
             case "Press Slam" or "DDT":
+                numberOfCardsToMakeTheEffect = 2;
                 AddGeneralInitialEffects();
                 _effects.Add(new MakeCollateralDamageEffect(_superstarData, _opponentData, _view));
-                AddDiscardEffect(_opponentData, _opponentData, 2);
+                AddDiscardEffect(_opponentData, _opponentData, numberOfCardsToMakeTheEffect);
                 AddDamageEffect();
                 return _effects;
             
             case "Fisherman's Suplex":
+                numberOfCardsToMakeTheEffect = 1;
                 AddGeneralInitialEffects();
                 _effects.Add(new MakeCollateralDamageEffect(_superstarData, _opponentData, _view));
-                _effects.Add(new AskToDrawEffect(_superstarData, _view, 1));
+                _effects.Add(new AskToDrawEffect(_superstarData, _view, numberOfCardsToMakeTheEffect));
                 AddDamageEffect();
                 return _effects;
             
             case "Guillotine Stretch":
+                numberOfCardsToMakeTheEffect = 1;
                 AddGeneralInitialEffects();
-                AddDiscardEffect(_opponentData, _opponentData, 1);
-                _effects.Add(new AskToDrawEffect(_superstarData, _view, 1));
-                AddDamageEffect();
-                return _effects;
-            
-            case "Spit At Opponent":
-                AddGeneralInitialEffects();
-                AddDiscardEffect(_superstarData, _superstarData, 1);
-                AddDiscardEffect(_opponentData, _opponentData, 4);
+                AddDiscardEffect(_opponentData, _opponentData, numberOfCardsToMakeTheEffect);
+                _effects.Add(new AskToDrawEffect(_superstarData, _view, numberOfCardsToMakeTheEffect));
                 AddDamageEffect();
                 return _effects;
             
             case "Chicken Wing":
+                numberOfCardsToMakeTheEffect = 2;
                 AddGeneralInitialEffects();
-                _effects.Add(new RecoverEffect(_superstarData, _view, 2));
-                AddDamageEffect();
-                return _effects;
-            
-            case "Puppies! Puppies!":
-                AddGeneralInitialEffects();
-                _effects.Add(new RecoverEffect(_superstarData, _view, 5));
-                _effects.Add(new DrawCardsEffect(_superstarData, _view, 2));
-                AddDamageEffect();
-                return _effects;
-            
-            case  "Recovery":
-                AddGeneralInitialEffects();
-                _effects.Add(new RecoverEffect(_superstarData, _view, 2));
-                _effects.Add(new DrawCardsEffect(_superstarData, _view, 1));
+                _effects.Add(new RecoverEffect(_superstarData, _view, numberOfCardsToMakeTheEffect));
                 AddDamageEffect();
                 return _effects;
                 
             case "Lionsault":
+                numberOfCardsToMakeTheEffect = 1;
                 AddGeneralInitialEffects();
-                AddDiscardEffect(_opponentData, _opponentData, 1);
+                AddDiscardEffect(_opponentData, _opponentData, numberOfCardsToMakeTheEffect);
                 AddDamageEffect();
                 return _effects;
             
             case "Tree of Woe":
-                // TODO: Probably necessary to add condition
+                numberOfCardsToMakeTheEffect = 2;
                 AddGeneralInitialEffects();
-                AddDiscardEffect(_opponentData, _opponentData, 2);
+                AddDiscardEffect(_opponentData, _opponentData, numberOfCardsToMakeTheEffect);
                 AddDamageEffect();
                 return _effects;
             
             case "Austin Elbow Smash":
-                // TODO: Probably necessary to add conditions
                 AddGeneralInitialEffects();
                 AddDamageEffect();
                 return _effects;
@@ -179,12 +143,8 @@ public class GeneralEffectBuilder : IEffectBuilder
     }
     
     private void AddDamageEffect()
-    {
-        _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
-    }
+        => _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
 
     private void AddDiscardEffect(ImportantPlayerData superstarData, ImportantPlayerData deciderData, int numOfCards)
-    {
-        _effects.Add(new AskToDiscardHandCardsEffect(superstarData, deciderData, _view, numOfCards));
-    }
+        => _effects.Add(new AskToDiscardHandCardsEffect(superstarData, deciderData, _view, numOfCards));
 }

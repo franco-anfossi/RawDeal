@@ -10,9 +10,7 @@ public class SuperstarDeserializer
     private static readonly string SuperstarsJsonPath = Path.Combine("data", "superstar.json");
     
     public SuperstarDeserializer()
-    {
-        AddRequiredConverters();
-    }
+        => AddRequiredConverters();
 
     private void AddRequiredConverters()
     {

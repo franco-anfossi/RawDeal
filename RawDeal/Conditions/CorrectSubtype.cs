@@ -7,10 +7,7 @@ public class CorrectSubtype : Condition
     private readonly string _selectedReversalCardSubtype;
     
     public CorrectSubtype(IViewablePlayInfo selectedPlay, IViewablePlayInfo selectedReversalPlay) : base(selectedPlay)
-    {
-        SelectedPlay = selectedPlay;
-        _selectedReversalCardSubtype = selectedReversalPlay.CardInfo.Subtypes[0];
-    }
+        => _selectedReversalCardSubtype = selectedReversalPlay.CardInfo.Subtypes[0];
     
     public override bool Check()
     {
@@ -20,13 +17,9 @@ public class CorrectSubtype : Condition
     }
 
     private bool CheckMatchingSubtype(string subtype)
-    {
-        return SelectedPlay.CardInfo.Subtypes.Contains(subtype) && _selectedReversalCardSubtype.Contains(subtype);
-    }
+        => SelectedPlay.CardInfo.Subtypes.Contains(subtype) && _selectedReversalCardSubtype.Contains(subtype);
 
     private bool CheckMatchingTypeAndSubtype(string type)
-    {
-        return SelectedPlay.PlayedAs == type.ToUpper() && _selectedReversalCardSubtype.Contains(type);
-    }
+        => SelectedPlay.PlayedAs == type.ToUpper() && _selectedReversalCardSubtype.Contains(type);
 
 }

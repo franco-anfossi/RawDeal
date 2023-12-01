@@ -16,18 +16,16 @@ public class Undertaker : Player
     public override void PlaySpecialAbility()
     {
         if (CanUseAbility())
-        {
-            View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
-            
-            DiscardTwoCardsFromHand();
-            DrawACardFromRingside();
-            
-            _timesTheAbilityWasUsed++;
-        }
+            ExecuteAbilitySteps();
     }
     
-    private bool CanUseAbility()
-        => _timesTheAbilityWasUsed < MaxTimesTheAbilityCanBeUsed && CheckForHandWithMoreThanOneCard();
+    private void ExecuteAbilitySteps()
+    {
+        View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
+        DiscardTwoCardsFromHand();
+        DrawACardFromRingside();
+        _timesTheAbilityWasUsed++;
+    }
     
     private void DiscardTwoCardsFromHand()
     {
@@ -47,12 +45,18 @@ public class Undertaker : Player
     public override bool VerifyAbilityUsability()
         => !CanUseAbility();
     
+    private bool CanUseAbility()
+        => DontUseMoreThanMaxTimes() && CheckForHandWithMoreThanMinCard();
+    
+    private bool DontUseMoreThanMaxTimes()
+        => _timesTheAbilityWasUsed < MaxTimesTheAbilityCanBeUsed;
+    
     public override void ResetAbility()
     {
-        if (CheckForHandWithMoreThanOneCard())
+        if (CheckForHandWithMoreThanMinCard())
             _timesTheAbilityWasUsed = 0;
     }
     
-    private bool CheckForHandWithMoreThanOneCard()
+    private bool CheckForHandWithMoreThanMinCard()
         => DecksInfo.Hand.Count >= MinCardsInHand;
 }

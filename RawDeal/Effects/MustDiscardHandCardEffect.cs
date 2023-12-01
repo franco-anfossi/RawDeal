@@ -16,6 +16,7 @@ public class MustDiscardHandCardEffect : Effect
     
     public override void Apply()
     {
+        View.SayThatPlayerSuccessfullyPlayedACard();
         View.SayThatPlayerMustDiscardThisCard(PlayerData.Name, _cardToDiscard.Title);
         PlayerData.DecksController.PassCardFromHandToRingside(_cardToDiscard);
         PlayerData.DecksController.DrawCard();

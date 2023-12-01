@@ -8,9 +8,7 @@ public class AskToDrawEffect : Effect
     private readonly int _maxCardsToDraw;
     
     public AskToDrawEffect(ImportantPlayerData superstarData, View view, int maxCardsToDraw) : base(superstarData, view)
-    {
-        _maxCardsToDraw = maxCardsToDraw;
-    }
+        => _maxCardsToDraw = maxCardsToDraw;
 
     public override void Apply()
     {

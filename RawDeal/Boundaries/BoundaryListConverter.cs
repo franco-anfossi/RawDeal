@@ -14,7 +14,5 @@ public class BoundaryListConverter<T> : JsonConverter<BoundaryList<T>>
     }
 
     public override void Write(Utf8JsonWriter writer, BoundaryList<T> value, JsonSerializerOptions options)
-    {
-        JsonSerializer.Serialize(writer, value.ToList(), options);
-    }
+        => JsonSerializer.Serialize(writer, value.ToList(), options);
 }

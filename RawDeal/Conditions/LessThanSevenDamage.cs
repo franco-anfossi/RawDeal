@@ -8,15 +8,14 @@ public class LessThanSevenDamage : Condition
     private readonly ImportantPlayerData _playerData;
     
     public LessThanSevenDamage(ImportantPlayerData playerData, IViewablePlayInfo selectedPlay) : base(selectedPlay)
-    {
-       _playerData = playerData;
-       SelectedPlay = selectedPlay;
-    }
+        => _playerData = playerData;
 
     public override bool Check()
     {
         int damageToAdd = HandleDamageAddedByJockeyingForPosition();
-        var cardDamage = Convert.ToInt32(SelectedPlay.CardInfo.Damage) + damageToAdd;
+        damageToAdd += HandleDamageAddedByIrishWhip();
+        int damageReduction = _playerData.BonusSet.MankindBonusDamageChange.MankindOpponentDamageChange;
+        var cardDamage = Convert.ToInt32(SelectedPlay.CardInfo.Damage) + damageToAdd - damageReduction;
         return cardDamage <= 7;
     }
     
@@ -24,14 +23,24 @@ public class LessThanSevenDamage : Condition
     {
         int damageAdded = 0;
         if (CheckIfSelectedCardIsGrapple())
-            damageAdded = _playerData.ChangesByJockeyingForPosition.DamageAdded;
+            damageAdded = _playerData.BonusSet.ChangesByJockeyingForPosition.DamageAdded;
+        
+        return damageAdded;
+    }
+    
+    private int HandleDamageAddedByIrishWhip()
+    {
+        int damageAdded = 0;
+        if (CheckIfSelectedCardIsStrike())
+            damageAdded = _playerData.BonusSet.ChangesByIrishWhip.DamageAdded;
         
         return damageAdded;
     }
     
     private bool CheckIfSelectedCardIsGrapple()
-    {
-        return SelectedPlay.CardInfo.Subtypes.Contains("Grapple");
-    }
+        => SelectedPlay.CardInfo.Subtypes.Contains("Grapple");
+    
+    private bool CheckIfSelectedCardIsStrike()
+        => SelectedPlay.CardInfo.Subtypes.Contains("Strike");
     
 }

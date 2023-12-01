@@ -30,9 +30,7 @@ public class Deck
         foreach (var superstar in _cardsSet.PossibleSuperstars)
         {
             if (superstar.CompareNames(deckSuperstarName))
-            {
                 _playerDeckOwner = (Player)superstar.Clone();
-            }
         }
     }
 
@@ -55,7 +53,5 @@ public class Deck
     }
     
     private void InitializeDeckSuperstarAttributes()
-    {
-        _playerDeckOwner.BuildDeckInfo(_deckCards);
-    }
+        => _playerDeckOwner.BuildDeckInfo(_deckCards);
 }

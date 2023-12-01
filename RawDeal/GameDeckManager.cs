@@ -23,13 +23,16 @@ public class GameDeckManager
     public BoundaryList<Player> SelectDeck(BoundaryList<Player> players)
     {
         for (int playerIndex = 0; playerIndex < 2; playerIndex++)
-        {
-            string[] openedDeckFromArchive = OpenDeckFromSelectedArchive();
-            var newDeck = new Deck(openedDeckFromArchive, _cardsSet);
-            ValidateDeck(newDeck, players);
-        }
+            CreateDeckFromArchive(players);
 
         return players;
+    }
+    
+    private void CreateDeckFromArchive(BoundaryList<Player> players)
+    {
+        string[] openedDeckFromArchive = OpenDeckFromSelectedArchive();
+        var newDeck = new Deck(openedDeckFromArchive, _cardsSet);
+        ValidateDeck(newDeck, players);
     }
 
     private string[] OpenDeckFromSelectedArchive()

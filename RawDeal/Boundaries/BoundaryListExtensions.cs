@@ -8,9 +8,8 @@ public static class BoundaryListExtensions
     {
         var boundaryList = new BoundaryList<T>();
         foreach (var item in source)
-        {
             boundaryList.Add(item);
-        }
+        
         return boundaryList;
     }
 }

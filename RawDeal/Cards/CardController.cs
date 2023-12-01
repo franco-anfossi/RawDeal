@@ -19,13 +19,9 @@ public class CardController
     {
         if (!CheckConditions()) return;
         foreach (var effect in _effects)
-        {
             effect.Apply();
-        }
     } 
     
     public bool CheckConditions()
-    {
-        return _conditions.All(condition => condition.Check());
-    }
+        => _conditions.All(condition => condition.Check());
 }

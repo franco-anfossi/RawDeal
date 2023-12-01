@@ -8,9 +8,7 @@ public class RecoverEffect : Effect
     private readonly int _cardsToRecover;
     
     public RecoverEffect(ImportantPlayerData superstarData, View view, int cardsToRecover) : base(superstarData, view)
-    {
-        _cardsToRecover = cardsToRecover;
-    }
+        => _cardsToRecover = cardsToRecover;
     
     public override void Apply()
     {

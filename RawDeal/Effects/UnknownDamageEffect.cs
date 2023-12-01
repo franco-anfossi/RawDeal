@@ -15,7 +15,5 @@ public class UnknownDamageEffect : Effect
     }
 
     public override void Apply()
-    {
-        _selectedPlay.CardInfo.Damage = "#";
-    }
+        => _selectedPlay.CardInfo.Damage = "#";
 }

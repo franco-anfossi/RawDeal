@@ -14,7 +14,10 @@ public class Kane : Player
         View.SayThatPlayerIsGoingToUseHisAbility(SuperstarData.Name, SuperstarData.SuperstarAbility);
         var opponentDiscardArsenalCardsEffect = new DiscardArsenalCardsEffect(OpponentData, View, CardsToDiscard);
         
-        if (!OpponentData.DecksController.CheckForEmptyArsenal())
+        if (!CheckForEmptyArsenal())
             opponentDiscardArsenalCardsEffect.Apply();
     }
+    
+    private bool CheckForEmptyArsenal()
+        => OpponentData.DecksController.CheckForEmptyArsenal();
 }

@@ -16,7 +16,5 @@ public class PlayerInfoManager
     }
     
     public void ShowPlayerInfo()
-    {
-        _view.ShowGameInfo(_inTurnPlayerInfo, _opponentPlayerInfo);
-    }
+        => _view.ShowGameInfo(_inTurnPlayerInfo, _opponentPlayerInfo);
 }

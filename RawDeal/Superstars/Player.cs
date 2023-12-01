@@ -15,7 +15,7 @@ public abstract class Player
     protected SuperstarData SuperstarData;
     protected ImportantPlayerData OpponentData;
     protected PlayerDecksController PlayerDecksController;
-    private readonly ChangesByJockeyingForPosition _changesByJockeyingForPosition = new();
+    private readonly BonusSet _bonusSet = new();
 
     protected Player(SuperstarData superstarData)
     {
@@ -27,9 +27,7 @@ public abstract class Player
     public virtual void ResetAbility() { }
     
     public virtual bool VerifyAbilityUsability()
-    {
-        return true;
-    }
+        => true;
     
     public void ShowOptionsToViewDecks()
     {
@@ -43,43 +41,46 @@ public abstract class Player
     {
         return PlayerDecksController.BuildFormattedDecks();
     }
-    public void ApplyNecessaryAttributes(View view, ImportantPlayerData opponent)
+    
+    public void SaveNecessaryAttributes(View view, ImportantPlayerData opponent)
     {
         View = view;
         OpponentData = opponent;
+        AddMankindBonusIfNecessary();
+    }
+    
+    private void AddMankindBonusIfNecessary()
+    {
+        if (OpponentData.SuperstarData.Name == "MANKIND")
+            _bonusSet.MankindBonusDamageChange.MankindOpponentDamageChange = 1;
+        
+        if (SuperstarData.Name == "MANKIND")
+            _bonusSet.MankindBonusDamageChange.MankindPlayerDamageChange = 1;
     }
     
     public string CompareLogo()
-    {
-        return SuperstarData.Logo;
-    }
+        => SuperstarData.Logo;
  
     public int CompareSuperstarValue()
-    {
-        return SuperstarData.SuperstarValue;
-    }
+        => SuperstarData.SuperstarValue;
 
     public void BuildDeckInfo(BoundaryList<IViewableCardInfo> arsenalDeck)
-    {
-        DecksInfo = new DecksInfo(arsenalDeck);
-    }
+        => DecksInfo = new DecksInfo(arsenalDeck);
 
-    protected virtual void BuildPlayerDecksController()
+    public ImportantPlayerData BuildImportantPlayerData()
     {
-        PlayerDecksController = new PlayerDecksController(DecksInfo, SuperstarData);
+        BuildPlayerDecksController();
+        return new ImportantPlayerData(SuperstarData, PlayerDecksController, _bonusSet);
     }
+    
+    protected virtual void BuildPlayerDecksController()
+        => PlayerDecksController = new PlayerDecksController(DecksInfo, SuperstarData);
     
     public PlayerInfo BuildPlayerInfo()
     {
         var (handCount, arsenalCount) = PlayerDecksController.ShowUpdatedDeckCounts();
         _playerInfo = new PlayerInfo(SuperstarData.Name, SuperstarData.Fortitude, handCount, arsenalCount);
         return _playerInfo;
-    }
-    
-    public ImportantPlayerData BuildImportantPlayerData()
-    {
-        BuildPlayerDecksController();
-        return new ImportantPlayerData(SuperstarData, PlayerDecksController, _changesByJockeyingForPosition);
     }
 
     public object Clone()

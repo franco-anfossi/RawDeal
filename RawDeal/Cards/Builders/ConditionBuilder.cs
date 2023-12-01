@@ -39,15 +39,20 @@ public class ConditionBuilder : IConditionBuilder
                 return _conditions;
             
             case "Clean Break":
-                _conditions.Add(new IsJockeyingForPosition(_selectedPlay));
-                return _conditions;
-            
-            case "Jockeying for Position":
-                _conditions.Add(new IsJockeyingForPosition(_selectedPlay));
+                _conditions.Add(new SpecificReversible(_selectedPlay, "Jockeying for Position"));
                 return _conditions;
             
             case "Spit At Opponent":
                 _conditions.Add(new MinimumCardsNecessary(_selectedPlay, _playerData, 2));
+                return _conditions;
+            
+            case "Belly to Belly Suplex" or "Vertical Suplex" or "Belly to Back Suplex" or 
+                "Drop Kick" or "Double Arm DDT" or "Jockeying for Position" or "Irish Whip":
+                _conditions.Add(new SpecificReversible(_selectedPlay, _selectedReversal.CardInfo.Title));
+                return _conditions;
+            
+            case "Ensugiri":
+                _conditions.Add(new SpecificReversible(_selectedPlay, "Kick"));
                 return _conditions;
             
             default:

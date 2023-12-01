@@ -9,14 +9,10 @@ public class CardDeserializer
     private static readonly string CardsJsonPath = Path.Combine("data", "cards.json");
     
     public CardDeserializer()
-    {
-        SetupJsonSerializer();
-    }
+        => SetupJsonSerializer();
 
     private void SetupJsonSerializer()
-    {
-        _jsonSerializer.AddConverter(new BoundaryListConverter<CardData>());
-    }
+        => _jsonSerializer.AddConverter(new BoundaryListConverter<CardData>());
 
     public BoundaryList<CardData> DeserializeCards()
     {
