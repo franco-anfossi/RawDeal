@@ -10,5 +10,8 @@ public class SpecificReversible : Condition
         => _reversalPlayTitle = reversalPlayTitle;
 
     public override bool Check()
-        => SelectedPlay.CardInfo.Title == _reversalPlayTitle;
+    {
+        var cardTitle = SelectedPlay.CardInfo.Title;
+        return cardTitle == _reversalPlayTitle;
+    }
 }

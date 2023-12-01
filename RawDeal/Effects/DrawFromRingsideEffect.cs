@@ -16,12 +16,15 @@ public class DrawFromRingsideEffect : Effect
     public override void Apply()
     {
         for (int numCardsToDraw = _cardsToDraw; numCardsToDraw > 0; numCardsToDraw--)
-        {
-            var formattedCardData = PlayerData.DecksController.BuildFormattedDecks();
-            var formattedRingside = formattedCardData.Ringside;
-            int selectedCardIndex = View.AskPlayerToSelectCardsToPutInHisHand(
-                PlayerData.Name, numCardsToDraw, formattedRingside.ToList());
-            PlayerData.DecksController.PassCardFromRingsideToHand(selectedCardIndex);
-        }
+            DrawCard(numCardsToDraw);
+    }
+
+    private void DrawCard(int numCardsToDraw)
+    {
+        var formattedCardData = PlayerData.DecksController.BuildFormattedDecks();
+        var formattedRingside = formattedCardData.Ringside;
+        int selectedCardIndex = View.AskPlayerToSelectCardsToPutInHisHand(
+            PlayerData.Name, numCardsToDraw, formattedRingside.ToList());
+        PlayerData.DecksController.PassCardFromRingsideToHand(selectedCardIndex);
     }
 }

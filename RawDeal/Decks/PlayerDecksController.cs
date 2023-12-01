@@ -16,61 +16,49 @@ public class PlayerDecksController
     }
     public FormattedDecksInfo BuildFormattedDecks()
     {
-
         var formattedDecks = new FormattedDecksInfo(_playerDecks);
         return formattedDecks;
     }
     
     public DecksInfo BuildDecks()
-    {
-        return _playerDecks;
-    }
+        => _playerDecks;
 
     public BoundaryList<IViewableCardInfo> SearchForReversalInHand()
     {
-        var cardsWithName = new BoundaryList<IViewableCardInfo>();
+        var reversalCards = new BoundaryList<IViewableCardInfo>();
         foreach (IViewableCardInfo card in _playerDecks.Hand)
-        {
-            var hasReversal = card.Types.Contains("Reversal");
-            if (hasReversal)
-                cardsWithName.Add(card);
-        }
+            reversalCards = AddCardIfIsReversal(reversalCards, card);
 
-        return cardsWithName;
+        return reversalCards;
+    }
+    
+    private BoundaryList<IViewableCardInfo> AddCardIfIsReversal(
+        BoundaryList<IViewableCardInfo> reversalCards, IViewableCardInfo card)
+    {
+        var hasReversal = card.Types.Contains("Reversal");
+        if (hasReversal)
+            reversalCards.Add(card);
+        
+        return reversalCards;
     }
     
     public (int, int) ShowUpdatedDeckCounts()
-    {
-        return (_playerDecks.Hand.Count, _playerDecks.Arsenal.Count);
-    }
+        => (_playerDecks.Hand.Count, _playerDecks.Arsenal.Count);
     
     public bool CheckForEmptyArsenal()
-    {
-        return _playerDecks.Arsenal.Count == 0;
-    }
+        => _playerDecks.Arsenal.Count == 0;
     
     public bool CheckForEmptyHand()
-    {
-        return _playerDecks.Hand.Count == 0;
-    }
-    
-    public bool CheckForHandHigherThanANumber(int number)
-    {
-        return _playerDecks.Hand.Count >= number;
-    }
+        => _playerDecks.Hand.Count == 0;
     
     public bool CheckForEmptyRingside()
-    {
-        return _playerDecks.Ringside.Count == 0;
-    }
+        => _playerDecks.Ringside.Count == 0;
 
     public BoundaryList<IViewableCardInfo> CheckForPlayableCards()
     {
         var playableCards = new BoundaryList<IViewableCardInfo>();
         foreach (IViewableCardInfo card in _playerDecks.Hand)
-        {
             playableCards.Add(card);
-        }
 
         return playableCards;
     }
@@ -82,19 +70,19 @@ public class PlayerDecksController
     }
 
     public virtual void DrawTurnCard()
-    {
-        DrawCard();
-    }
+        => DrawCard();
     
     public void DrawCard()
     {
         int lastCardOfTheArsenal = _playerDecks.Arsenal.Count - 1;
-        var arsenal = _playerDecks.Arsenal;
         if (lastCardOfTheArsenal >= 0)
-        {
-            _playerDecks.Hand.Add(arsenal[lastCardOfTheArsenal]);
-            _playerDecks.Arsenal.RemoveAt(lastCardOfTheArsenal);
-        }
+            PassCardFromArsenalToHand(lastCardOfTheArsenal);
+    }
+
+    protected void PassCardFromArsenalToHand(int lastCardOfTheArsenal)
+    {
+        _playerDecks.Hand.Add(_playerDecks.Arsenal[lastCardOfTheArsenal]);
+        _playerDecks.Arsenal.RemoveAt(lastCardOfTheArsenal);
     }
     
     public void PassCardFromRingsideToTheBackOfTheArsenal(int cardIndex)
@@ -121,9 +109,7 @@ public class PlayerDecksController
     }
     
     public void PassCardToRingside(IViewableCardInfo selectedCard)
-    {
-        _playerDecks.Ringside.Add(selectedCard);
-    }
+        => _playerDecks.Ringside.Add(selectedCard);
 
     public IViewableCardInfo DrawLastCardOfArsenal()
     {
@@ -132,11 +118,6 @@ public class PlayerDecksController
         _playerDecks.Arsenal.RemoveAt(arsenalLength - 1);
 
         return selectedCard;
-    }
-    
-    public void PassCardToRingArea(IViewableCardInfo selectedCard)
-    {
-        _playerDecks.RingArea.Add(selectedCard);
     }
     
     public void PassCardFromHandToRingArea(IViewableCardInfo selectedCard)

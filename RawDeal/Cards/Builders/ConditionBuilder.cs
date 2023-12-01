@@ -23,6 +23,7 @@ public class ConditionBuilder : IConditionBuilder
     
     public BoundaryList<Condition> BuildConditions()
     {
+        string specificReversibleTitle;
         switch (_selectedReversal.CardInfo.Title)
         {
             case "Step Aside" or "Escape Move" or "Break the Hold" or "No Chance in Hell":
@@ -39,11 +40,13 @@ public class ConditionBuilder : IConditionBuilder
                 return _conditions;
             
             case "Clean Break":
-                _conditions.Add(new SpecificReversible(_selectedPlay, "Jockeying for Position"));
+                specificReversibleTitle = "Jockeying for Position";
+                _conditions.Add(new SpecificReversible(_selectedPlay, specificReversibleTitle));
                 return _conditions;
             
             case "Spit At Opponent":
-                _conditions.Add(new MinimumCardsNecessary(_selectedPlay, _playerData, 2));
+                var minimumCardsNecessary = 2;
+                _conditions.Add(new MinimumCardsNecessary(_selectedPlay, _playerData, minimumCardsNecessary));
                 return _conditions;
             
             case "Belly to Belly Suplex" or "Vertical Suplex" or "Belly to Back Suplex" or 
@@ -52,7 +55,8 @@ public class ConditionBuilder : IConditionBuilder
                 return _conditions;
             
             case "Ensugiri":
-                _conditions.Add(new SpecificReversible(_selectedPlay, "Kick"));
+                specificReversibleTitle = "Kick";
+                _conditions.Add(new SpecificReversible(_selectedPlay, specificReversibleTitle));
                 return _conditions;
             
             default:

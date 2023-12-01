@@ -12,27 +12,25 @@ public class LessThanSevenDamage : Condition
 
     public override bool Check()
     {
-        int damageToAdd = HandleDamageAddedByJockeyingForPosition();
-        damageToAdd += HandleDamageAddedByIrishWhip();
-        int damageReduction = _playerData.BonusSet.MankindBonusDamageChange.MankindOpponentDamageChange;
-        var cardDamage = Convert.ToInt32(SelectedPlay.CardInfo.Damage) + damageToAdd - damageReduction;
+        int damageChanges = HandleDamageAddedByEffects() - HandleDamageReducedByEffects();
+        var cardDamage = Convert.ToInt32(SelectedPlay.CardInfo.Damage) + damageChanges;
         return cardDamage <= 7;
     }
     
-    private int HandleDamageAddedByJockeyingForPosition()
+    private int HandleDamageReducedByEffects()
+    {
+        int damageReduced = _playerData.BonusSet.MankindBonusDamageChange.MankindOpponentDamageChange;
+        return damageReduced;
+    }
+    
+    private int HandleDamageAddedByEffects()
     {
         int damageAdded = 0;
         if (CheckIfSelectedCardIsGrapple())
-            damageAdded = _playerData.BonusSet.ChangesByJockeyingForPosition.DamageAdded;
+            damageAdded += _playerData.BonusSet.ChangesByJockeyingForPosition.DamageAdded;
         
-        return damageAdded;
-    }
-    
-    private int HandleDamageAddedByIrishWhip()
-    {
-        int damageAdded = 0;
         if (CheckIfSelectedCardIsStrike())
-            damageAdded = _playerData.BonusSet.ChangesByIrishWhip.DamageAdded;
+            damageAdded += _playerData.BonusSet.ChangesByIrishWhip.DamageAdded;
         
         return damageAdded;
     }

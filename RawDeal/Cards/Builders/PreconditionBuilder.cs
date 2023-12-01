@@ -20,22 +20,28 @@ public class PreconditionBuilder : IConditionBuilder
     
     public BoundaryList<Condition> BuildConditions()
     {
-        int cardFortitude = Convert.ToInt32(_selectedPlay.CardInfo.Fortitude);
+        int damageToCompare;
+        string lastCardType;
         switch (_selectedPlay.CardInfo.Title)
         {
             case "Austin Elbow Smash":
-                _conditions.Add(new MinimumFortitude(_selectedPlay, _playerData, cardFortitude));
-                _conditions.Add(new DamageOfLastCard(_playerData, _selectedPlay, 5));
+                damageToCompare = 5;
+                lastCardType = "MANEUVER";
+                MinimumFortitudeCondition();
+                _conditions.Add(new DamageOfLastCard(_playerData, _selectedPlay, damageToCompare, lastCardType));
                 return _conditions;
             
             case "Lionsault":
-                _conditions.Add(new MinimumFortitude(_selectedPlay, _playerData, cardFortitude));
-                _conditions.Add(new DamageOfLastCard(_playerData, _selectedPlay, 4));
+                damageToCompare = 4;
+                lastCardType = "MANEUVER";
+                MinimumFortitudeCondition();
+                _conditions.Add(new DamageOfLastCard(_playerData, _selectedPlay, damageToCompare, lastCardType));
                 return _conditions;
             
             case "Spit At Opponent":
-                _conditions.Add(new MinimumFortitude(_selectedPlay, _playerData, cardFortitude));
-                _conditions.Add(new MinimumCardsNecessary(_selectedPlay, _playerData, 2));
+                int minimumCardsNecessary = 2;
+                MinimumFortitudeCondition();
+                _conditions.Add(new MinimumCardsNecessary(_selectedPlay, _playerData, minimumCardsNecessary));
                 return _conditions;
             
             case "Undertaker's Tombstone Piledriver":
@@ -43,11 +49,11 @@ public class PreconditionBuilder : IConditionBuilder
                 return _conditions;
             
             default:
-                _conditions.Add(new MinimumFortitude(_selectedPlay, _playerData, cardFortitude));
+                MinimumFortitudeCondition();
                 return _conditions;
         }
     }
-
+    
     private void SelectTombstoneCondition()
     {
         int cardFortitude = Convert.ToInt32(_selectedPlay.CardInfo.Fortitude);
@@ -57,5 +63,11 @@ public class PreconditionBuilder : IConditionBuilder
         
         else if (_selectedPlay.PlayedAs == "ACTION")
             _conditions.Add(new MinimumFortitude(_selectedPlay, _playerData, cardFortitude - 30));
+    }
+    
+    private void MinimumFortitudeCondition()
+    {
+        int cardFortitude = Convert.ToInt32(_selectedPlay.CardInfo.Fortitude);
+        _conditions.Add(new MinimumFortitude(_selectedPlay, _playerData, cardFortitude));
     }
 }

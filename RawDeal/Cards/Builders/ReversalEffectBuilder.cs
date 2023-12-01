@@ -38,22 +38,22 @@ public class ReversalEffectBuilder : IEffectBuilder
         switch (_selectedPlay.CardInfo.Title)
         {
             case "Rolling Takedown" or "Knee to the Gut":
-                _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
+                MakeDamageEffect();
                 _effects.Add(new UnknownDamageEffect(_superstarData, _selectedPlay, _view));
                 return BasicReversalEffect();
             
             case "Elbow to the Face":
-                _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
+                MakeDamageEffect();
                 return BasicReversalEffect();
             
             case "Manager Interferes":
                 _effects.Add(new DrawCardsEffect(_superstarData, _view, 1));
-                _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
+                MakeDamageEffect();
                 return BasicReversalEffect();
             
             case "Chyna Interferes":
                 _effects.Add(new DrawCardsEffect(_superstarData, _view, 2));
-                _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
+                MakeDamageEffect();
                 return BasicReversalEffect();
             
             case "Clean Break":
@@ -64,13 +64,11 @@ public class ReversalEffectBuilder : IEffectBuilder
             
             case "Jockeying for Position":
                 _effects.Add(new JockeyingForPositionEffect(_superstarData, _opponentData, _view));
-                BasicReversalEffect();
-                return _effects;
+                return BasicReversalEffect();
             
             case "Irish Whip":
                 _effects.Add(new IrishWhipEffect(_superstarData, _view));
-                BasicReversalEffect();
-                return _effects;
+                return BasicReversalEffect();
             
             default:
                 return BasicReversalEffect();
@@ -85,4 +83,7 @@ public class ReversalEffectBuilder : IEffectBuilder
         _effects.Add(new BasicReversalEffect(_superstarData, _view));
         return _effects;
     }
+    
+    private void MakeDamageEffect()
+        => _effects.Add(new MakeDamageEffect(_superstarData, _opponentData, _selectedPlay, _view));
 }

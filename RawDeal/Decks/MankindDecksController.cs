@@ -24,26 +24,18 @@ public class MankindDecksController : PlayerDecksController
         _initialDraw = false;
     }
     
-    // TODO: Refactor this 2 methods because duplicated code
     private void DrawTwoCards()
     {
         for (int iterator = 0; iterator < 2; iterator++)
-        { 
-            _playerDecks.Hand.Add(_playerDecks.Arsenal[_lastArsenalCardIndex - iterator]); 
-            _playerDecks.Arsenal.RemoveAt(_lastArsenalCardIndex - iterator); 
-        }
+            PassCardFromArsenalToHand(_lastArsenalCardIndex--);
     }
     public override void DrawTurnCard()
     {
         _lastArsenalCardIndex = _playerDecks.Arsenal.Count - 1;
-        var arsenal = _playerDecks.Arsenal;
         if (VerifyConditionsToDrawTwoCards())
             DrawTwoCards();
         else
-        {
-            _playerDecks.Hand.Add(arsenal[_lastArsenalCardIndex]); 
-            _playerDecks.Arsenal.RemoveAt(_lastArsenalCardIndex);
-        }
+            PassCardFromArsenalToHand(_lastArsenalCardIndex);
     }
     
     private bool VerifyConditionsToDrawTwoCards()

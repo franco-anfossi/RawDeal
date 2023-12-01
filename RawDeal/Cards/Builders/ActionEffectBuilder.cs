@@ -27,6 +27,10 @@ public class ActionEffectBuilder : IEffectBuilder
     public BoundaryList<Effect> BuildEffects()
     {
         // TODO: CHANGE DIRECT NUMBERS TO VARIABLES
+        int numCardsToDiscard;
+        int numCardsToDraw;
+        int numCardsToRecover;
+        
         switch (_selectedPlay.CardInfo.Title)
         {
             case "Chop" or "Arm Bar Takedown" or "Collar & Elbow Lockup" or "Undertaker's Tombstone Piledriver":
@@ -42,30 +46,38 @@ public class ActionEffectBuilder : IEffectBuilder
                 return _effects;
             
             case "Offer Handshake":
+                numCardsToDraw = 3;
+                numCardsToDiscard = 1;
                 AddGeneralInitialEffects();
-                _effects.Add(new AskToDrawEffect(_superstarData, _view, 3));
-                AddDiscardEffect(_superstarData, _superstarData, 1);
+                _effects.Add(new AskToDrawEffect(_superstarData, _view, numCardsToDraw));
+                AddDiscardEffect(_superstarData, _superstarData, numCardsToDiscard);
                 AddDamageEffect();
                 return _effects;
             
             case "Spit At Opponent":
+                numCardsToDiscard = 1;
                 AddGeneralInitialEffects();
-                AddDiscardEffect(_superstarData, _superstarData, 1);
-                AddDiscardEffect(_opponentData, _opponentData, 4);
+                AddDiscardEffect(_superstarData, _superstarData, numCardsToDiscard);
+                numCardsToDiscard = 4;
+                AddDiscardEffect(_opponentData, _opponentData, numCardsToDiscard);
                 AddDamageEffect();
                 return _effects;
             
             case "Puppies! Puppies!":
+                numCardsToDraw = 2;
+                numCardsToRecover = 5;
                 AddGeneralInitialEffects();
-                _effects.Add(new RecoverEffect(_superstarData, _view, 5));
-                _effects.Add(new DrawCardsEffect(_superstarData, _view, 2));
+                _effects.Add(new RecoverEffect(_superstarData, _view, numCardsToRecover));
+                _effects.Add(new DrawCardsEffect(_superstarData, _view, numCardsToDraw));
                 AddDamageEffect();
                 return _effects;
             
             case  "Recovery":
+                numCardsToRecover = 2;
+                numCardsToDraw = 1;
                 AddGeneralInitialEffects();
-                _effects.Add(new RecoverEffect(_superstarData, _view, 2));
-                _effects.Add(new DrawCardsEffect(_superstarData, _view, 1));
+                _effects.Add(new RecoverEffect(_superstarData, _view, numCardsToRecover));
+                _effects.Add(new DrawCardsEffect(_superstarData, _view, numCardsToDraw));
                 AddDamageEffect();
                 return _effects;
             

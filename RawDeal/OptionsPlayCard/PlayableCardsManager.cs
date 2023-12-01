@@ -53,14 +53,14 @@ public class PlayableCardsManager
 
     private void FilterByPrecondition()
     {
-        for (int i = 0; i < _possiblePlays.Count; i++)
+        for (int index = 0; index < _possiblePlays.Count; index++)
         {
-            var preconditionBuilder = new PreconditionBuilder(_possiblePlays[i], _playerData);
+            var preconditionBuilder = new PreconditionBuilder(_possiblePlays[index], _playerData);
             var conditions = preconditionBuilder.BuildConditions();
             if (!conditions.All(condition => condition.Check()))
             {
-                _possiblePlays.RemoveAt(i);
-                i--;
+                _possiblePlays.RemoveAt(index);
+                index--;
             }
         }
     }
@@ -91,7 +91,7 @@ public class PlayableCardsManager
             _possiblePlays.Add(possiblePlayInfo);
         }
     }
-
+    
     private bool CheckIfCardIsManeuver()
         => _playableCard.Types.Contains("Maneuver");
     

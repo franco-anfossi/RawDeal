@@ -16,5 +16,8 @@ public class MinimumFortitude : Condition
     }
 
     public override bool Check()
-        => _playerData.SuperstarData.Fortitude >= _minimumFortitude;
+    {
+        var playerFortitude = _playerData.SuperstarData.Fortitude;
+        return playerFortitude >= _minimumFortitude;
+    }
 }

@@ -41,7 +41,6 @@ public class SuperstarDeserializer
         return allSuperstars;
     }
     
-
     private SuperstarData ExtractSuperstarDataFromItem(BoundaryDict<string, object> item)
     {
         string jsonItem = _jsonSerializer.Serialize(item);

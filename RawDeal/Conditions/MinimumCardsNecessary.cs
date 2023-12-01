@@ -18,5 +18,8 @@ public class MinimumCardsNecessary : Condition
     }
 
     public override bool Check()
-        => _playerHand.Count >= _numberOfCardsToHave;
+    {
+        var numberOfCardsInHand = _playerHand.Count;
+        return numberOfCardsInHand >= _numberOfCardsToHave;
+    }
 }

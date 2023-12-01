@@ -18,10 +18,13 @@ public class DiscardArsenalCardsEffect : Effect
     {
         View.SayThatSuperstarWillTakeSomeDamage(PlayerData.Name, _cardsToDiscard);
         for (int currentDamage = 1; currentDamage <= _cardsToDiscard; currentDamage++)
-        {
-            IViewableCardInfo selectedCard = PlayerData.DecksController.PassCardFromArsenalToRingside();
-            string formattedCardData = Formatter.CardToString(selectedCard);
-            View.ShowCardOverturnByTakingDamage(formattedCardData, currentDamage, _cardsToDiscard);
-        }
+            DiscardCard(currentDamage);
+    }
+
+    private void DiscardCard(int currentDamage)
+    {
+        IViewableCardInfo selectedCard = PlayerData.DecksController.PassCardFromArsenalToRingside();
+        string formattedCardData = Formatter.CardToString(selectedCard);
+        View.ShowCardOverturnByTakingDamage(formattedCardData, currentDamage, _cardsToDiscard);
     }
 }

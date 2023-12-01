@@ -23,11 +23,13 @@ public class AskToDiscardHandCardsEffect : Effect
         int remainingCardsToDiscard = _cardsToDiscard;
 
         for (int i = 0; i < numberOfCardsToDiscard; i++)
-        {
-            int selectedCardIndex = ChooseCardToDiscard(remainingCardsToDiscard);
-            PassCardToRingside(selectedCardIndex);
-            remainingCardsToDiscard--;
-        }
+            StartDiscardSteps(remainingCardsToDiscard--);
+    }
+    
+    private void StartDiscardSteps(int remainingCardsToDiscard)
+    {
+        int selectedCardIndex = ChooseCardToDiscard(remainingCardsToDiscard);
+        PassCardToRingside(selectedCardIndex);
     }
     
     private int ChooseCardToDiscard(int cardsToDraw)

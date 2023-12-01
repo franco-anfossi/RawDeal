@@ -73,12 +73,12 @@ public class ReversalFromArsenalController
     
     private bool CheckIfFortitudeIsHighEnough()
     {
-        int fortitudeToAdd = HandleFortitudeAddedByCards();
+        int fortitudeToAdd = HandleFortitudeAddedByEffects();
         var cardFortitude = Convert.ToInt32(_drawnCard.Fortitude);
         return cardFortitude + fortitudeToAdd <= _opponentData.SuperstarData.Fortitude;
     }
     
-    private int HandleFortitudeAddedByCards()
+    private int HandleFortitudeAddedByEffects()
     {
         int fortitudeAdded = 0;
         if (CheckIfSelectedCardIsGrapple())

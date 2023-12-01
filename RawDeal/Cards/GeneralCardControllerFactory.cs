@@ -27,19 +27,26 @@ public class GeneralCardControllerFactory
     {
         var conditionBuilder = new ConditionBuilder(_playerData, _selectedPlay, _selectedPlay);
         var conditions = conditionBuilder.BuildConditions();
-        // TODO: Encapsulate this in a factory
+
         var effects = new BoundaryList<Effect>();
         if (_selectedPlay.PlayedAs == "MANEUVER")
-        {
-            var effectBuilder = new ManeuverEffectBuilder(_playerData, _opponentData, _selectedPlay, _view);
-            effects = effectBuilder.BuildEffects();
-        }
+            effects = ExecuteManeuverEffectBuilder();
+        
         else if (_selectedPlay.PlayedAs == "ACTION")
-        {
-            var effectBuilder = new ActionEffectBuilder(_playerData, _opponentData, _selectedPlay, _view);
-            effects = effectBuilder.BuildEffects();
-        }
-
+            effects = ExecuteActionEffectBuilder();
+        
         return new CardController(effects, conditions);
+    }
+
+    private BoundaryList<Effect> ExecuteManeuverEffectBuilder()
+    {
+        var effectBuilder = new ManeuverEffectBuilder(_playerData, _opponentData, _selectedPlay, _view);
+        return effectBuilder.BuildEffects();
+    }
+
+    private BoundaryList<Effect> ExecuteActionEffectBuilder()
+    {
+        var effectBuilder = new ActionEffectBuilder(_playerData, _opponentData, _selectedPlay, _view);
+        return effectBuilder.BuildEffects();
     }
 }

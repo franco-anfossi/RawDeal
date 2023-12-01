@@ -4,7 +4,7 @@ namespace RawDeal.Conditions;
 
 public abstract class Condition
 {
-    protected IViewablePlayInfo SelectedPlay;
+    protected readonly IViewablePlayInfo SelectedPlay;
 
     protected Condition(IViewablePlayInfo selectedPlay)
         => SelectedPlay = selectedPlay;

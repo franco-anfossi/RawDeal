@@ -29,23 +29,8 @@ public class DeckValidator
     }
     
     private bool ValidateDeckLength()
-    {
-        return _deckToReview.DeckCards.Count == DeckLength;
-    }
+        => _deckToReview.DeckCards.Count == DeckLength;
 
-    private bool ValidateCardRepetitions()
-    {
-        var cardGrouping = _deckToReview.DeckCards.GroupBy(card => card.Title);
-        foreach (var cardGroupsWithSameName in cardGrouping)
-        {
-            _equalCardsGroup = cardGroupsWithSameName.ToBoundaryList();
-            GetMaximumRepetitionsAllowed();
-            if (CheckMaxRepetitionsAllowed())
-                return false;
-        }
-        return true;
-    }
-    
     private bool ValidateIfCardsAreOnlyHeelOrFace()
     {
         bool heelExists = _deckToReview.DeckCards.Any(c => c.Subtypes.Contains("Heel"));
@@ -65,7 +50,7 @@ public class DeckValidator
         
         return true;
     }
-
+    
     private bool ReviewDeckCardsByLogo()
     {
         if (_logoOtherSuperstar != _logoSuperstarToReview)
@@ -75,6 +60,23 @@ public class DeckValidator
         }
         return true;
     }
+    
+    private bool CheckIfOtherSuperstarLogoInDeck()
+        => _deckToReview.DeckCards.Any(c => c.Subtypes.Contains(_logoOtherSuperstar));
+
+    private bool ValidateCardRepetitions()
+    {
+        var cardGrouping = _deckToReview.DeckCards.GroupBy(card => card.Title);
+        foreach (var cardGroupsWithSameName in cardGrouping)
+        {
+            _equalCardsGroup = cardGroupsWithSameName.ToBoundaryList();
+            GetMaximumRepetitionsAllowed();
+            if (CheckMaxRepetitionsAllowed())
+                return false;
+        }
+        return true;
+    }
+
     private void GetMaximumRepetitionsAllowed()
     {
         _maxRepetitionsAllowed = 3;
@@ -96,8 +98,5 @@ public class DeckValidator
     
     private bool CheckMaxRepetitionsAllowed()
         => _equalCardsGroup.Count > _maxRepetitionsAllowed;
-
-    private bool CheckIfOtherSuperstarLogoInDeck()
-        => _deckToReview.DeckCards.Any(c => c.Subtypes.Contains(_logoOtherSuperstar));
 }
 

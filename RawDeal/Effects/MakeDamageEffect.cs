@@ -42,8 +42,9 @@ public class MakeDamageEffect : Effect
             View.SayThatSuperstarWillTakeSomeDamage(_opponentData.Name, damageDone);
             ShowDamageDoneToOpponent(damageDone);
         }
+        
         UpdateLastCardUsed(damageDone);
-        ResetChangesByJockeyingForPosition();
+        ResetBonuses();
     }
     
     private void UpdateLastCardUsed(int damageDone)
@@ -57,28 +58,35 @@ public class MakeDamageEffect : Effect
     
     private int CalculateTotalDamage()
     {
-        int damageFromJockeying = HandleDamageAddedByJockeyingForPosition();
-        int damageFromIrishWhip = HandleDamageAddedByIrishWhip();
-        int initialDamage = HandleUnknownDamage() + damageFromJockeying + damageFromIrishWhip;
-        return ReduceDamageIfMankind(initialDamage);
+        int damageChanges = HandleDamageAddedByEffects() - HandleDamageReductionByEffects();
+        int totalDamage = HandleUnknownDamage() + damageChanges;
+        return totalDamage;
     }
     
-    private int HandleDamageAddedByJockeyingForPosition()
+    private int HandleDamageAddedByEffects()
     {
         int damageAdded = 0;
         if (CheckIfSelectedCardIsGrapple())
-            damageAdded = PlayerData.BonusSet.ChangesByJockeyingForPosition.DamageAdded;
+            damageAdded += PlayerData.BonusSet.ChangesByJockeyingForPosition.DamageAdded;
+        
+        if (CheckIfSelectedCardIsStrike())
+            damageAdded += PlayerData.BonusSet.ChangesByIrishWhip.DamageAdded;
         
         return damageAdded;
     }
     
-    private int HandleDamageAddedByIrishWhip()
+    
+    private bool CheckIfSelectedCardIsGrapple()
+        => _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
+    
+    private bool CheckIfSelectedCardIsStrike()
+        => _selectedPlay.CardInfo.Subtypes.Contains("Strike");
+
+    
+    private int HandleDamageReductionByEffects()
     {
-        int damageAdded = 0;
-        if (CheckIfSelectedCardIsStrike())
-            damageAdded = PlayerData.BonusSet.ChangesByIrishWhip.DamageAdded;
-        
-        return damageAdded;
+        int damageReduction = _opponentData.BonusSet.MankindBonusDamageChange.MankindPlayerDamageChange;
+        return damageReduction;
     }
     
     private int HandleUnknownDamage()
@@ -88,7 +96,7 @@ public class MakeDamageEffect : Effect
         return damageDone;
     }
     
-    private void ResetChangesByJockeyingForPosition()
+    private void ResetBonuses()
     {
         PlayerData.BonusSet.ChangesByJockeyingForPosition.Reset();
         _opponentData.BonusSet.ChangesByJockeyingForPosition.Reset();
@@ -151,18 +159,6 @@ public class MakeDamageEffect : Effect
                 reversalFromArsenal.ReviewIfReversalPlayable();
         }
     }
-    
-    private int ReduceDamageIfMankind(int damageDone)
-    {
-        damageDone -= _opponentData.BonusSet.MankindBonusDamageChange.MankindPlayerDamageChange;
-        return damageDone;
-    }
-
-    private bool CheckIfSelectedCardIsGrapple()
-        => _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
-    
-    private bool CheckIfSelectedCardIsStrike()
-        => _selectedPlay.CardInfo.Subtypes.Contains("Strike");
     
     private bool CheckIfCardIsNotReversal()
         => _selectedPlay.PlayedAs != "REVERSAL";

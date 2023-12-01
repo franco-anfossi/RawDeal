@@ -19,10 +19,18 @@ public class Deck
         _deckCards = new BoundaryList<IViewableCardInfo>();
         _cardsSet = cardsSet;
 
+        CreateDeck(openedDeckFromArchive);
+    }
+
+    private void CreateDeck(string[] openedDeckFromArchive)
+    {
         AddEquivalentSuperstarToDeck(openedDeckFromArchive);
         AddEquivalentCardToDeck(openedDeckFromArchive);
         InitializeDeckSuperstarAttributes();
     }
+    
+    private void InitializeDeckSuperstarAttributes()
+        => _playerDeckOwner.BuildDeckInfo(_deckCards);
 
     private void AddEquivalentSuperstarToDeck(string[] openDeckFromArchive)
     {
@@ -33,25 +41,31 @@ public class Deck
                 _playerDeckOwner = (Player)superstar.Clone();
         }
     }
-
-    private void AddEquivalentCardToDeck(string[] openDeckFromArchive)
+    
+    private void AddEquivalentCardToDeck(String[] openDeckFromArchive) 
     {
         foreach (var cardName in openDeckFromArchive)
-        foreach (CardData card in _cardsSet.PossibleCards)
+            AddCardToDeckIfMatchFound(cardName);
+    }
+
+    private void AddCardToDeckIfMatchFound(String cardName) 
+    {
+        foreach (var card in _cardsSet.PossibleCards)
         {
             if (card.CompareCardTitle(cardName))
-            {
-                CardData cardDataCopy = CopyBaseCard(card);
-                _deckCards.Add(cardDataCopy);
-            }
+                AddCardToDeck(card);
         }
     }
+
+    private void AddCardToDeck(CardData card) 
+    {
+        CardData cardDataCopy = CopyBaseCard(card);
+        _deckCards.Add(cardDataCopy);
+    }
+    
     private CardData CopyBaseCard(CardData cardData)
     {
         CardData cardDataCopy = (CardData)cardData.Clone();
         return cardDataCopy;
     }
-    
-    private void InitializeDeckSuperstarAttributes()
-        => _playerDeckOwner.BuildDeckInfo(_deckCards);
 }

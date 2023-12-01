@@ -27,10 +27,7 @@ public class MakeCollateralDamageEffect : Effect
         if (!PlayerData.DecksController.CheckForEmptyArsenal())
             ShowCardsBecauseOfDamage();
         else
-        {
-            View.SayThatPlayerLostDueToSelfDamage(PlayerData.Name);
-            throw new NoArsenalCardsException(_opponentData.Name);
-        }
+            PlayerLostDueToSelfDamage();
     }
 
     private void ShowCardsBecauseOfDamage()
@@ -39,5 +36,11 @@ public class MakeCollateralDamageEffect : Effect
         string formattedDrawnCard = Formatter.CardToString(drawnCard);
         View.ShowCardOverturnByTakingDamage(formattedDrawnCard, 1, 1);
         PlayerData.DecksController.PassCardToRingside(drawnCard);
+    }
+    
+    private void PlayerLostDueToSelfDamage()
+    {
+        View.SayThatPlayerLostDueToSelfDamage(PlayerData.Name);
+        throw new NoArsenalCardsException(_opponentData.Name);
     }
 }

@@ -6,7 +6,7 @@ using RawDealView;
 using RawDealView.Formatters;
 
 namespace RawDeal.Reversals;
-// TODO: ELIMINATE COMMENTS
+
 public class ReversalFromHandController
 {
     private readonly View _view;
@@ -24,7 +24,6 @@ public class ReversalFromHandController
         _selectedPlay = selectedPlay;
     }
     
-    // Abstraction 1
     public bool CheckPreconditions()
     {
         var reversalPreconditionBuilder = new ReversalPreconditionBuilder(_selectedPlay, _opponentData);
@@ -44,7 +43,6 @@ public class ReversalFromHandController
             ExecuteSelectedReversalEffect(reversalPlaysInfo, numReversalToPlay);
     }
     
-    // Abstraction 2
     private BoundaryList<IViewableCardInfo> SearchForCorrectReversals()
     {
         var reversalCards = _opponentData.DecksController.SearchForReversalInHand();
@@ -69,7 +67,6 @@ public class ReversalFromHandController
         ProcessSelectedReversal(selectedReversalPlay);
     }
     
-    // Abstraction 3
     private BoundaryList<IViewableCardInfo> SearchForManeuverReversals(BoundaryList<IViewableCardInfo> reversalCards)
     {
         var generalReversalCards = FindGeneralReversals(reversalCards);
@@ -106,36 +103,38 @@ public class ReversalFromHandController
         selectedReversalPlay = HandleSpecialReversalDamage(selectedReversalPlay);
         
         BuildCardController(selectedReversalPlay);
-        ResetChangesByJockeyingForPosition();
+        ResetBonuses();
         if (_cardController.CheckConditions())
             ApplyReversalEffect(selectedReversalPlay, formattedReversal);
     }
     
-    // Abstraction 4
     private BoundaryList<IViewableCardInfo> CheckIfReversalsAreUsable(BoundaryList<IViewableCardInfo> generalReversals)
     {
         var correctFortitudeReversalCards = 
-            CheckIfFortitudeIsHighEnough(generalReversals.ToBoundaryList());
+            CheckCardsFortitude(generalReversals.ToBoundaryList());
         
         var correctReversalCards = 
             FilterLessThanEightDamageEffectCards(correctFortitudeReversalCards);
 
-        return FilterJockeyingForPosition(correctReversalCards);
+        return FilterReversalCards(correctReversalCards);
     }
 
     private IViewablePlayInfo HandleSpecialReversalDamage(IViewablePlayInfo selectedReversalPlay)
     {
-        // TODO: Encapsulate this into a method
         if (selectedReversalPlay.CardInfo.Damage == "#")
-        {
-            int damageToAdd = HandleDamageAddedByCards();
-            int damageValue = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd;
-            damageValue -= _playerData.BonusSet.MankindBonusDamageChange.MankindOpponentDamageChange;
-            selectedReversalPlay.CardInfo.Damage = "#" + damageValue;
-        }
+            selectedReversalPlay = SetTotalDamage(selectedReversalPlay);
 
         return selectedReversalPlay;
     }
+    
+    private IViewablePlayInfo SetTotalDamage(IViewablePlayInfo selectedReversalPlay)
+    {
+        int damageToAdd = HandleDamageAddedByEffects();
+        int damageValue = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd;
+        damageValue -= _playerData.BonusSet.MankindBonusDamageChange.MankindOpponentDamageChange;
+        selectedReversalPlay.CardInfo.Damage = "#" + damageValue;
+        return selectedReversalPlay;
+    } 
     
     private void BuildCardController(IViewablePlayInfo reversalPlay)
     {
@@ -149,7 +148,7 @@ public class ReversalFromHandController
         _cardController = new CardController(effects, conditions);
     }
     
-    private void ResetChangesByJockeyingForPosition()
+    private void ResetBonuses()
     {
         _opponentData.BonusSet.ChangesByJockeyingForPosition.Reset();
         _playerData.BonusSet.ChangesByJockeyingForPosition.Reset();
@@ -166,46 +165,51 @@ public class ReversalFromHandController
         _cardController.PlayCard();
     }
     
-    // Abstraction 5
-    private BoundaryList<IViewableCardInfo> CheckIfFortitudeIsHighEnough(BoundaryList<IViewableCardInfo> filteredCards)
+    private BoundaryList<IViewableCardInfo> CheckCardsFortitude(BoundaryList<IViewableCardInfo> filteredCards)
     {
         var cardsWithCorrectFortitude = new BoundaryList<IViewableCardInfo>();
         foreach (IViewableCardInfo filteredCard in filteredCards)
         {
-            int fortitudeToAdd = HandleFortitudeAddedByJockeyingForPosition();
-            var cardFortitude = Convert.ToInt32(filteredCard.Fortitude);
-            if (cardFortitude + fortitudeToAdd <= _opponentData.SuperstarData.Fortitude) 
-                cardsWithCorrectFortitude.Add(filteredCard);
+            cardsWithCorrectFortitude = FilterCardWithCorrectFortitude(filteredCard, cardsWithCorrectFortitude);
         }
         
         return cardsWithCorrectFortitude;
     }
-    
-    private int HandleFortitudeAddedByJockeyingForPosition()
+
+    private BoundaryList<IViewableCardInfo> FilterCardWithCorrectFortitude(IViewableCardInfo filteredCard, 
+        BoundaryList<IViewableCardInfo> cardsWithCorrectFortitude)
+    {
+        int fortitudeToAdd = HandleFortitudeAddedByEffects();
+        var cardFortitude = Convert.ToInt32(filteredCard.Fortitude);
+        if (cardFortitude + fortitudeToAdd <= _opponentData.SuperstarData.Fortitude) 
+            cardsWithCorrectFortitude.Add(filteredCard);
+        
+        return cardsWithCorrectFortitude;
+    }
+
+    private int HandleFortitudeAddedByEffects()
     {
         int fortitudeAdded = 0;
         if (CheckIfSelectedCardIsGrapple())
-        {
             fortitudeAdded = _opponentData.BonusSet.ChangesByJockeyingForPosition.FortitudeNeeded;
-        }
+        
         return fortitudeAdded;
     }
     
     private BoundaryList<IViewableCardInfo> FilterLessThanEightDamageEffectCards(
         BoundaryList<IViewableCardInfo> filteredCards)
     {
-        int damageToAdd = HandleDamageAddedByCards();
+        int damageToAdd = HandleDamageAddedByEffects();
         int damageReduction = _playerData.BonusSet.MankindBonusDamageChange.MankindOpponentDamageChange;
         var cardDamage = Convert.ToInt32(_selectedPlay.CardInfo.Damage) + damageToAdd - damageReduction;
         
         if (cardDamage > 7)
-        {
             filteredCards.RemoveAll(card => card.CardEffect.Contains("that does 7D or less."));
-        }
+        
         return filteredCards;
     }
     
-    private int HandleDamageAddedByCards()
+    private int HandleDamageAddedByEffects()
     {
         int damageAdded = 0;
         if (CheckIfSelectedCardIsGrapple())
@@ -217,34 +221,40 @@ public class ReversalFromHandController
         return damageAdded;
     }
     
-    private BoundaryList<IViewableCardInfo> FilterJockeyingForPosition(BoundaryList<IViewableCardInfo> filteredCards)
+    private BoundaryList<IViewableCardInfo> FilterReversalCards(BoundaryList<IViewableCardInfo> filteredCards)
     {
         var cardName = _selectedPlay.CardInfo.Title;
-        if (cardName == "Jockeying for Position")
+        return cardName switch
         {
-            filteredCards.RemoveAll(card => card.Title != "Jockeying for Position" && 
-                                            card.Title != "Clean Break" && card.Title != "No Chance in Hell"); // TODO: Encapsulate
-        }
-        else if (cardName == "Irish Whip")
-        {
-            filteredCards.RemoveAll(card => card.Title != "Irish Whip" && card.Title != "No Chance in Hell"); // TODO: Encapsulate
-        }
-        else
-        {
-            filteredCards.RemoveAll(card => card.Title == "Jockeying for Position" || 
-                                            card.Title == "Clean Break" || card.Title == "Irish Whip"); // TODO: Encapsulate
-        }
-
-        return filteredCards;
+            "Jockeying for Position" => FilterForJockeyingForPosition(filteredCards),
+            "Irish Whip" => FilterForIrishWhip(filteredCards),
+            _ => DefaultFilter(filteredCards)
+        };
     }
 
-    private bool CheckIfSelectedCardIsGrapple()
+    private BoundaryList<IViewableCardInfo> FilterForJockeyingForPosition(BoundaryList<IViewableCardInfo> cards)
     {
-        return _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
+        cards.RemoveAll(card => card.Title != "Jockeying for Position" && 
+                                card.Title != "Clean Break" && card.Title != "No Chance in Hell");
+        return cards;
+    }
+
+    private BoundaryList<IViewableCardInfo> FilterForIrishWhip(BoundaryList<IViewableCardInfo> cards)
+    {
+        cards.RemoveAll(card => card.Title != "Irish Whip" && card.Title != "No Chance in Hell");
+        return cards;
+    }
+
+    private BoundaryList<IViewableCardInfo> DefaultFilter(BoundaryList<IViewableCardInfo> cards)
+    {
+        cards.RemoveAll(card => card.Title == "Jockeying for Position" || 
+                                card.Title == "Clean Break" || card.Title == "Irish Whip");
+        return cards;
     }
     
+    private bool CheckIfSelectedCardIsGrapple()
+        => _selectedPlay.CardInfo.Subtypes.Contains("Grapple");
+    
     private bool CheckIfSelectedCardIsStrike()
-    {
-        return _selectedPlay.CardInfo.Subtypes.Contains("Strike");
-    }
+        => _selectedPlay.CardInfo.Subtypes.Contains("Strike");
 }
