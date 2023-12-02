@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using RawDeal.Exceptions;
 
 namespace RawDeal.Boundaries;
 
@@ -20,7 +21,7 @@ public class BoundaryDict<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>
     }
 
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-        => throw new NotImplementedException();
+        => throw new DictionaryException();
 
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();

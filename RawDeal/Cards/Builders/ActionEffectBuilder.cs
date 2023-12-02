@@ -26,7 +26,6 @@ public class ActionEffectBuilder : IEffectBuilder
     
     public BoundaryList<Effect> BuildEffects()
     {
-        // TODO: CHANGE DIRECT NUMBERS TO VARIABLES
         int numCardsToDiscard;
         int numCardsToDraw;
         int numCardsToRecover;
